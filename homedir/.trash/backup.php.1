@@ -1,0 +1,88 @@
+<?php
+
+// Veritabanı bağlantı bilgileri (değişkenler)
+$host     = 'localhost';
+$username = 'com_ozmen';
+$dbname   = 'com_panelhankasys';
+$password = '=eTJHP2T.Z%i';
+
+try {
+    // PDO ile veritabanına bağlan
+    $conn = new PDO(
+        "mysql:host=$host;port=3306;dbname=$dbname;charset=utf8mb4",
+        $username,
+        $password,
+        [
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ]
+    );
+} catch (PDOException $e) {
+    die("Veritabanı bağlantı hatası: " . $e->getMessage() . "\n");
+}
+
+// Yedekleme dosyasının adı ve yolu
+$backup_dir = __DIR__ . '/yedekler/';
+$backup_file = $backup_dir . 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+
+// Yedekleme dizinini oluştur (eğer yoksa)
+if (!is_dir($backup_dir)) {
+    mkdir($backup_dir, 0755, true);
+}
+
+// SQL başlığı
+$backup_sql = "-- Veritabanı Yedeği: $dbname\n";
+$backup_sql .= "-- Tarih: " . date("Y-m-d H:i:s") . "\n";
+
+
+// Tüm tabloları çek
+$tables = $conn->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+
+foreach ($tables as $table) {
+    // Tablonun CREATE TABLE komutunu al
+    $create_table = $conn->query("SHOW CREATE TABLE `$table`")->fetch(PDO::FETCH_ASSOC);
+    $backup_sql .= "\n\n" . $create_table['Create Table'] . ";\n\n";
+
+    // Tablo verilerini al
+    $rows = $conn->query("SELECT * FROM `$table`")->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (empty($rows)) {
+        $backup_sql .= "-- `$table` tablosunda veri yok.\n";
+        continue;
+    }
+
+    foreach ($rows as $row) {
+        $values = array_map(function ($value) use ($conn) {
+            return is_null($value) ? "NULL" : "'" . $conn->quote($value) . "'";
+        }, array_values($row));
+
+        $backup_sql .= "INSERT INTO `$table` VALUES (" . implode(", ", $values) . ");\n";
+    }
+}
+
+// Yedeği dosyaya yaz
+try {
+    file_put_contents($backup_file, $backup_sql);
+    echo "Yedek başarıyla oluşturuldu: $backup_file\n";
+} catch (Exception $e) {
+    die("Yedek dosyası yazma hatası: " . $e->getMessage() . "\n");
+}
+
+// 7 günden eski yedek dosyalarını sil
+$seven_days_ago = time() - (7 * 24 * 60 * 60); // 7 gün前のUNIXタイムスタンプ
+$files = glob($backup_dir . '*.sql'); // Tüm .sql dosyalarını al
+
+foreach ($files as $file) {
+    if (is_file($file) && filemtime($file) < $seven_days_ago && $file !== $backup_file) {
+        try {
+            unlink($file);
+            echo "Eski yedek silindi: $file\n";
+        } catch (Exception $e) {
+            echo "Eski yedek silme hatası ($file): " . $e->getMessage() . "\n";
+        }
+    }
+}
+
+// Bağlantıyı kapat
+$conn = null;
+?>

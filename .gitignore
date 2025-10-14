@@ -1,0 +1,48 @@
+# Database credentials
+homedir/public_html/include/db.php
+
+# Uploaded files
+homedir/public_html/dosyalar/
+homedir/public_html/yedekler/
+
+# Temporary files
+*.log
+*.tmp
+/tmp/
+*.bak
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# PHPMyAdmin temp files
+homedir/tmp/
+
+# SSH keys and configs
+homedir/.ssh/
+
+# Node modules (if any)
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# Backup files
+migration_delete_gulermat_data.sql
+test_db.php
+homedir/backup-*.tar.gz
+homedir/*.sql
+homedir/.trash/backup*.sql
+homedir/.trash/*.sh
+homedir/public_html.zip
+homedir/php.zip
+*.tar.gz
+*.sql.gz

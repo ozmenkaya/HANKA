@@ -1,0 +1,26 @@
+--- 
+customlog: 
+  - 
+    format: combined
+    target: /etc/apache2/logs/domlogs/4866.com.tr
+  - 
+    format: "\"%{%s}t %I .\\n%{%s}t %O .\""
+    target: /etc/apache2/logs/domlogs/4866.com.tr-bytes_log
+documentroot: /home/com/public_html
+group: com
+hascgi: 1
+homedir: /home/com
+ip: 195.201.104.228
+owner: root
+phpopenbasedirprotect: 1
+phpversion: ea-php82
+port: 80
+scriptalias: 
+  - 
+    path: /home/com/public_html/cgi-bin
+    url: /cgi-bin/
+serveradmin: webmaster@4866.com.tr
+serveralias: mail.4866.com.tr www.4866.com.tr
+servername: 4866.com.tr
+usecanonicalname: 'Off'
+user: com

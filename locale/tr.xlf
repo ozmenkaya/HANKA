@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:cp="tag:cpanel.net,2012-01:translate">
+  <file datatype="plaintext" original="cPanel Locale Export" source-language="en" target-language="tr">
+    <body>
+      <trans-unit datatype="plaintext" id="tu-708932341">
+        <source> … and <ph id="bn-3" ctype="x-bn-meth" assoc="both">[numf,_1]</ph> more</source>
+        <target cp:meta-note="cPanel Locale Export"> … ve <ph id="bn-3" ctype="x-bn-meth" assoc="both">[numf,_1]</ph> tane daha</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3505427723">
+        <source> … done.</source>
+        <target cp:meta-note="cPanel Locale Export"> … tamamlandı.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-507859118">
+        <source> … “<ph id="bn-9" ctype="x-bn-var" assoc="both">[_1]</ph>” complete (but with errors).</source>
+        <target cp:meta-note="cPanel Locale Export"> … “<ph id="bn-9" ctype="x-bn-var" assoc="both">[_1]</ph>” tamamlandı (ancak hatalarla).</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-863784683">
+        <source> … “<ph id="bn-13" ctype="x-bn-var" assoc="both">[_1]</ph>” complete.</source>
+        <target cp:meta-note="cPanel Locale Export"> … “<ph id="bn-13" ctype="x-bn-var" assoc="both">[_1]</ph>” tamamlandı.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3419864621">
+        <source>!! Do not respond to this message. Your reply will go nowhere. !!</source>
+        <target cp:meta-note="cPanel Locale Export">!! Do not respond to this message. Yanıtınız hiçbir yere gitmeyecek. !!</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3690024949">
+        <source># of Messages</source>
+        <target cp:meta-note="cPanel Locale Export"># of Messages</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4111880763">
+        <source>$<ph id="bn-21" ctype="x-bn-var" assoc="both">[_1]</ph> USD is too high. This product’s price may not exceed $<ph id="bn-23" ctype="x-bn-var" assoc="both">[_2]</ph> USD per domain.</source>
+        <target cp:meta-note="cPanel Locale Export"><ph id="bn-20" ctype="x-bn-var" assoc="both">[_1]</ph> Amerikan Doları çok yüksek. Bu ürünün etki alanı başına ücreti <ph id="bn-22" ctype="x-bn-var" assoc="both">[_2]</ph> Amerikan Dolarını aşamaz.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-662374058">
+        <source>$<ph id="bn-26" ctype="x-bn-var" assoc="both">[_1]</ph> is too low of a price. The minimum price per domain for this product is $<ph id="bn-28" ctype="x-bn-var" assoc="both">[_2]</ph>.</source>
+        <target cp:meta-note="cPanel Locale Export"><ph id="bn-25" ctype="x-bn-var" assoc="both">[_1]</ph> Amerikan Doları çok düşük bir ücret. Bu ürün için etki alanı başına minimum ücret <ph id="bn-27" ctype="x-bn-var" assoc="both">[_2]</ph> Amerikan Dolarıdır.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2906616187">
+        <source>(Algorithm <ph id="bn-31" ctype="x-bn-var" assoc="both">[_1]</ph>)</source>
+        <target cp:meta-note="cPanel Locale Export">(Algorithm <ph id="bn-31" ctype="x-bn-var" assoc="both">[_1]</ph>)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1407776529">
+        <source>(At half past the hour.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Buçukta.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2561024224">
+        <source>(At one quarter past the hour.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Çeyrek geçe.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-557691928">
+        <source>(At one quarter until the hour.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Çeyrek kala.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3295317843">
+        <source>(At the beginning of the hour.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Saat başı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4168142816">
+        <source>(Authorization required)</source>
+        <target cp:meta-note="cPanel Locale Export">(Yetkilendirme gerekli)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3901624379">
+        <source>(Bad gateway)</source>
+        <target cp:meta-note="cPanel Locale Export">(Kötü ağ geçidi)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2280506510">
+        <source>(Bad request)</source>
+        <target cp:meta-note="cPanel Locale Export">(Kötü istek)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1625697793">
+        <source>(Cannot use due to limits)</source>
+        <target cp:meta-note="cPanel Locale Export">(Limitler nedeniyle kullanılamıyor)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2622735796">
+        <source>(Conflict)</source>
+        <target cp:meta-note="cPanel Locale Export">(Çatışma)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3910810379">
+        <source>(Default)</source>
+        <target cp:meta-note="cPanel Locale Export">(Default)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1988529047">
+        <source>(Expectation failed)</source>
+        <target cp:meta-note="cPanel Locale Export">(Beklenti karşılanamadı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1430331630">
+        <source>(Failed dependency)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bağımlılık başarısız oldu)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1023107023">
+        <source>(Forbidden)</source>
+        <target cp:meta-note="cPanel Locale Export">(Yasaklandı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3561220971">
+        <source>(Gateway timeout)</source>
+        <target cp:meta-note="cPanel Locale Export">(Ağ geçidi zaman aşımı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2487293095">
+        <source>(Gone)</source>
+        <target cp:meta-note="cPanel Locale Export">(Gönderildi)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3682805639">
+        <source>(HTTP version not supported)</source>
+        <target cp:meta-note="cPanel Locale Export">(HTTP sürümü desteklenmiyor)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3634541762">
+        <source>(In order to view the current sessions, you may need to reload your page.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Mecvut oturumlarınızı görmek için sayfanızı yeniden yüklemeniz gerekebilir.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-845415116">
+        <source>(Insufficient storage)</source>
+        <target cp:meta-note="cPanel Locale Export">(Yetersiz depolama alanı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-80308666">
+        <source>(Internal server error)</source>
+        <target cp:meta-note="cPanel Locale Export">(Dahili sunucu hatası)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2932958651">
+        <source>(Length required)</source>
+        <target cp:meta-note="cPanel Locale Export">(Gerekli uzunluk)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3667086648">
+        <source>(Locked)</source>
+        <target cp:meta-note="cPanel Locale Export">(Kilitlendi)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1328570782">
+        <source>(Method not allowed)</source>
+        <target cp:meta-note="cPanel Locale Export">(Yönteme izin verilmiyor)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1758553540">
+        <source>(Minimum <ph id="bn-79" ctype="x-bn-var" assoc="both">[_1]</ph> characters)</source>
+        <target cp:meta-note="cPanel Locale Export">(Minimum <ph id="bn-79" ctype="x-bn-var" assoc="both">[_1]</ph> characters)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4008283918">
+        <source>(NOT Recommended)</source>
+        <target cp:meta-note="cPanel Locale Export">(ÖNERİLMEZ)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1223907264">
+        <source>(None)</source>
+        <target cp:meta-note="cPanel Locale Export">(Yok)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-791070355">
+        <source>(Not Implemented)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uygulanmadı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3331783379">
+        <source>(Not acceptable)</source>
+        <target cp:meta-note="cPanel Locale Export">(Kabul edilemez)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1186196048">
+        <source>(Not extended)</source>
+        <target cp:meta-note="cPanel Locale Export">(Genişletilmedi)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1073549487">
+        <source>(Not found)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bulunamadı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1100209845">
+        <source>(Note: “<ph id="bn-95" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>” is the default setting. The higher the number, the more conservative the setting.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Not: “<ph id="bn-95" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>” varsayılan ayardır. Sayı arttıkça değer daha koruyucu olur.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3427050631">
+        <source>(Payment required)</source>
+        <target cp:meta-note="cPanel Locale Export">(Ödeme gerekli)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3604475257">
+        <source>(Precondition failed)</source>
+        <target cp:meta-note="cPanel Locale Export">(Ön koşul karşılanamadı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-57529758">
+        <source>(Provide more information if needed)</source>
+        <target cp:meta-note="cPanel Locale Export">(Provide more information if needed)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-995582251">
+        <source>(Proxy authentication required)</source>
+        <target cp:meta-note="cPanel Locale Export">(Vekil sunucu yetkilendirmesi gerekiyor)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2673492481">
+        <source>(Recommended)</source>
+        <target cp:meta-note="cPanel Locale Export">(Önerilir)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-478000434">
+        <source>(Remote FTP Backup Only)</source>
+        <target cp:meta-note="cPanel Locale Export">(Yalnızca Uzak FTP Yedeklemesi)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4163958622">
+        <source>(Request URI too large)</source>
+        <target cp:meta-note="cPanel Locale Export">(URI isteği çok büyük)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-562110665">
+        <source>(Request entity too large)</source>
+        <target cp:meta-note="cPanel Locale Export">(İstek öğesi çok büyük)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-907192268">
+        <source>(Request range not satisfiable)</source>
+        <target cp:meta-note="cPanel Locale Export">(İstek aralığı karşılanamıyor)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1892521958">
+        <source>(Request timeout)</source>
+        <target cp:meta-note="cPanel Locale Export">(İstek zaman aşımı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3227414043">
+        <source>(Service unavailable)</source>
+        <target cp:meta-note="cPanel Locale Export">(Hizmet kullanılamıyor)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1015195178">
+        <source>(This is <ph id="bn-121" ctype="x-bn-basic" assoc="both">[output,strong,<sub>NOT</sub>]</ph> recommended.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu <ph id="bn-121" ctype="x-bn-basic" assoc="both">[output,strong,<sub>ÖNERİLMEZ</sub>]</ph>.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2843607536">
+        <source>(This setting is not needed for account restoration.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu ayar hesap onarımı için gerekmez.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1245662139">
+        <source>(This setting is recommended if you set Remount/Mount.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu ayar, Yeniden Bağla/Bağla seçtiyseniz önerilir.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-674351281">
+        <source>(This setting is required if you are behind a firewall or if FTP backups fail.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu ayar, bir güvenlik duvarının arkasındaysanız veya FTP yedeklemeleri başarısız olursa gerekir.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1070915288">
+        <source>(This setting requires a separate drive or other mount point.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu ayar ayrı bir sürücü veya başka bağlantı noktası gerektirir.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-637145067">
+        <source>(This setting requires a separate drive, <ph id="bn-133" ctype="x-bn-meth" assoc="both">[asis,Coda]</ph>, or <ph id="bn-135" ctype="x-bn-basic" assoc="both">[output,acronym,<sub>NFS</sub>,<sub>Network File System</sub>]</ph> mount.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu ayar ayrı bir sürücü, <ph id="bn-133" ctype="x-bn-meth" assoc="both">[asis,Coda]</ph> ya da <ph id="bn-135" ctype="x-bn-basic" assoc="both">[output,acronym,<sub>NFS</sub>,<sub>Ağ Dosyası Sisteminin</sub>]</ph> bağlanmasını gerektirir.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2986080399">
+        <source>(This setting will only back up items that have changed.) (**No Compression**, not compatible with FTP backups.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu ayar yalnızca değiştirilmiş olan öğeleri yedekleyecek.) (**Sıkıştırma Yok**, FTP yedeklemeleriyle uyumlu değil.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-623240635">
+        <source>(This should be a directory, <ph id="bn-141" ctype="x-bn-basic" assoc="both">[output,acronym,<sub>NFS</sub>,<sub>Network File System</sub>]</ph> or <ph id="bn-143" ctype="x-bn-meth" assoc="both">[asis,Coda]</ph> mount with at least twice the space of all your <ph id="bn-145" ctype="x-bn-meth" assoc="both">[asis,/home*]</ph> partitions. Setting this to <ph id="bn-147" ctype="x-bn-meth" assoc="both">[asis,/home]</ph> is <ph id="bn-149" ctype="x-bn-basic" assoc="both">[output,strong,<sub>strongly discouraged</sub>]</ph>.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu, tüm <ph id="bn-141" ctype="x-bn-meth" assoc="both">[asis,/home*]</ph> bölümlerinizin en az iki katı yere sahip bir dizin, <ph id="bn-143" ctype="x-bn-basic" assoc="both">[output,acronym,<sub>NFS</sub>,<sub>Ağ Dosyası Sistemi</sub>]</ph> ya da <ph id="bn-145" ctype="x-bn-meth" assoc="both">[asis,Coda]</ph> bağlanması olmalıdır. Bunu <ph id="bn-147" ctype="x-bn-meth" assoc="both">[asis,/home]</ph> olarak ayarlamak <ph id="bn-149" ctype="x-bn-basic" assoc="both">[output,strong,<sub>kesinlikle önerilmez</sub>]</ph>.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-447018666">
+        <source>(This should be a directory, drive, or mount point with at least twice the space of all your <ph id="bn-153" ctype="x-bn-meth" assoc="both">[asis,/home*]</ph> partitions. Setting this to <ph id="bn-155" ctype="x-bn-meth" assoc="both">[asis,/home]</ph> is <ph id="bn-157" ctype="x-bn-basic" assoc="both">[output,strong,<sub>strongly discouraged</sub>]</ph>.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Bu, tüm <ph id="bn-153" ctype="x-bn-meth" assoc="both">[asis,/home*]</ph> bölümlerinizin en az iki katı yere sahip bir dizin, sürücü ya da bağlantı noktası olmalıdır. Bunu <ph id="bn-155" ctype="x-bn-meth" assoc="both">[asis,/home]</ph> olarak ayarlamak <ph id="bn-157" ctype="x-bn-basic" assoc="both">[output,strong,<sub>kesinlikle önerilmez</sub>]</ph>.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-558405363">
+        <source>(Unprocessable entity)</source>
+        <target cp:meta-note="cPanel Locale Export">(İşlenemeyen öğe)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2724063509">
+        <source>(Unsupported media type)</source>
+        <target cp:meta-note="cPanel Locale Export">(Desteklenmeyen ortam tipi)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-176512859">
+        <source>(Variant also negotiates)</source>
+        <target cp:meta-note="cPanel Locale Export">(Değişken de anlaşma sağlar)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1147478502">
+        <source>(Warning: “<ph id="bn-167" ctype="x-bn-var" assoc="both">[_1]</ph>” does not refer to a valid email account or alias. This forwarder will point to the default address.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uyarı: “<ph id="bn-167" ctype="x-bn-var" assoc="both">[_1]</ph>” geçerli bir e-posta hesabına ya da takma adına karşılık gelmiyor. Bu iletici varsayılan adrese işaret edecek.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3653198952">
+        <source>(Warning: “<ph id="bn-171" ctype="x-bn-var" assoc="both">[_1]</ph>” does not refer to a valid email account.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uyarı: “<ph id="bn-171" ctype="x-bn-var" assoc="both">[_1]</ph>” geçerli bir e-posta hesabına karşılık gelmiyor.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3129604">
+        <source>(Warning: “<ph id="bn-175" ctype="x-bn-var" assoc="both">[_1]</ph>” does not refer to a valid local email account or alias. The system will not create a forwarder, because it already sends that email to the default address.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uyarı: “<ph id="bn-175" ctype="x-bn-var" assoc="both">[_1]</ph>” geçerli bir yerel e-posta hesabına ya da takma adına karşılık gelmiyor. Sistem, ilgili e-postayı zaten varsayılan adrese gönderdiğinden bir iletici oluşturmayacaktır.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3780582795">
+        <source>(Warning: “<ph id="bn-179" ctype="x-bn-var" assoc="both">[_1]</ph>” does not refer to a valid local email account.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uyarı: “<ph id="bn-179" ctype="x-bn-var" assoc="both">[_1]</ph>” geçerli yerel bir e-posta hesabına karşılık gelmiyor.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-200746374">
+        <source>(Warning: “<ph id="bn-183" ctype="x-bn-var" assoc="both">[_1]</ph>” does not refer to a valid system user. This forwarder will point to the default address.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uyarı: “<ph id="bn-183" ctype="x-bn-var" assoc="both">[_1]</ph>”, geçerli bir sistem kullanıcısına karşılık gelmiyor. Bu iletici varsayılan adrese işaret edecek.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-315918372">
+        <source>(Warning: “<ph id="bn-187" ctype="x-bn-var" assoc="both">[_1]</ph>” refers to a forwarder or alias. The address has been set to “<ph id="bn-189" ctype="x-bn-var" assoc="both">[_2]</ph>” to prevent any mail loops.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Uyarı: “<ph id="bn-187" ctype="x-bn-var" assoc="both">[_1]</ph>” bir ileticiye ya da rumuza başvuruyor. Herhangi bir posta döngüsünü önlemek için adres “<ph id="bn-189" ctype="x-bn-var" assoc="both">[_2]</ph>” olarak ayarlanmış.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2331226377">
+        <source>(You must choose the <ph id="bn-193" ctype="x-bn-basic" assoc="both">[output,em,<sub>Per Account</sub>]</ph> option to use the restore feature.)</source>
+        <target cp:meta-note="cPanel Locale Export">(Geri yükleme özelliğini kullanmak için <ph id="bn-193" ctype="x-bn-basic" assoc="both">[output,em,<sub>Hesap Başına</sub>]</ph> seçeneğini belirlemelisiniz.)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1945168816">
+        <source>(<ph id="bn-197" ctype="x-bn-var" assoc="both">[_1]</ph> - <ph id="bn-199" ctype="x-bn-var" assoc="both">[_2]</ph> characters)</source>
+        <target cp:meta-note="cPanel Locale Export">(<ph id="bn-197" ctype="x-bn-var" assoc="both">[_1]</ph> - <ph id="bn-199" ctype="x-bn-var" assoc="both">[_2]</ph> characters)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-661941526">
+        <source>(<ph id="bn-203" ctype="x-bn-var" assoc="both">[_1]</ph>’s Shared IP)</source>
+        <target cp:meta-note="cPanel Locale Export">(<ph id="bn-203" ctype="x-bn-var" assoc="both">[_1]</ph> Öğesinin Paylaşılan IP’si)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-791954550">
+        <source>(<ph id="bn-207" ctype="x-bn-var" assoc="both">[_1]</ph>’s shared IP)</source>
+        <target cp:meta-note="cPanel Locale Export">(<ph id="bn-207" ctype="x-bn-var" assoc="both">[_1]</ph> öğesinin paylaşılan IP’si)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2964444448">
+        <source>(<ph id="bn-211" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Note</sub>]</ph>: By selecting the <ph id="bn-213" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Daily</sub>]</ph> backup option, you will receive <ph id="bn-215" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Monthly</sub>]</ph> and <ph id="bn-217" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Weekly</sub>]</ph> as well, unless you choose not to retain them below. By selecting the <ph id="bn-219" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Weekly</sub>]</ph> backup option, you will receive <ph id="bn-221" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Monthly</sub>]</ph> as well, unless you choose not to retain them below.)</source>
+        <target cp:meta-note="cPanel Locale Export">(<ph id="bn-211" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Not</sub>]</ph>: <ph id="bn-213" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Günlük</sub>]</ph> yedekleme seçeneğini seçerek, aşağıda tutmamayı seçmediğiniz sürece <ph id="bn-215" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Aylık</sub>]</ph> ve <ph id="bn-217" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Haftalık</sub>]</ph> olarak da alacaksınız. <ph id="bn-219" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Haftalık</sub>]</ph> yedekleme seçeneğini seçerek, aşağıda tutmamayı seçmediğiniz sürece <ph id="bn-221" ctype="x-bn-basic" assoc="both">[output,strong,<sub>Aylık</sub>]</ph> olarak da alacaksınız.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2705111006">
+        <source>(<ph id="bn-225" ctype="x-bn-basic" assoc="both">[output,url,_1,<sub>Change</sub>]</ph>)</source>
+        <target cp:meta-note="cPanel Locale Export">(<ph id="bn-225" ctype="x-bn-basic" assoc="both">[output,url,_1,<sub>Değiştir</sub>]</ph>)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1013602143">
+        <source>(auto-detect)</source>
+        <target cp:meta-note="cPanel Locale Export">(auto-detect)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-396013912">
+        <source>(group name)</source>
+        <target cp:meta-note="cPanel Locale Export">(grup adı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3744484510">
+        <source>(maximum: <ph id="bn-233" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>)</source>
+        <target cp:meta-note="cPanel Locale Export">(maksimum: <ph id="bn-233" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4264551460">
+        <source>(minimum: <ph id="bn-237" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>)</source>
+        <target cp:meta-note="cPanel Locale Export">(minimum: <ph id="bn-237" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-980455756">
+        <source>(minimum: <ph id="bn-241" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>; maximum: <ph id="bn-243" ctype="x-bn-meth" assoc="both">[numf,_2]</ph>)</source>
+        <target cp:meta-note="cPanel Locale Export">(minimum: <ph id="bn-241" ctype="x-bn-meth" assoc="both">[numf,_1]</ph>; maksimum: <ph id="bn-243" ctype="x-bn-meth" assoc="both">[numf,_2]</ph>)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1291705036">
+        <source>(not in a subdirectory)</source>
+        <target cp:meta-note="cPanel Locale Export">(bir alt dizin içerisinde değil)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-405635634">
+        <source>(optional)</source>
+        <target cp:meta-note="cPanel Locale Export">(optional)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3370810555">
+        <source>(other subdirectories)</source>
+        <target cp:meta-note="cPanel Locale Export">(diğer alt dizinler)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1647179489">
+        <source>(recommended)</source>
+        <target cp:meta-note="cPanel Locale Export">(recommended)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2620804823">
+        <source>(self-signed)</source>
+        <target cp:meta-note="cPanel Locale Export">(kendinden imzalı)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-994344078">
+        <source>(space)</source>
+        <target cp:meta-note="cPanel Locale Export">(boş alan)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-589087036">
+        <source>(transparent <ph id="bn-259" ctype="x-bn-meth" assoc="both">[asis,.gif]</ph> file)</source>
+        <target cp:meta-note="cPanel Locale Export">(şeffaf <ph id="bn-259" ctype="x-bn-meth" assoc="both">[asis,.gif]</ph> dosya)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2960928783">
+        <source>(via package “<ph id="bn-263" ctype="x-bn-var" assoc="both">[_1]</ph>”)</source>
+        <target cp:meta-note="cPanel Locale Export">(via package “<ph id="bn-263" ctype="x-bn-var" assoc="both">[_1]</ph>”)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4059838826">
+        <source>(via pkg)</source>
+        <target cp:meta-note="cPanel Locale Export">(via pkg)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4163139350">
+        <source>** All Public Domains **</source>
+        <target cp:meta-note="cPanel Locale Export">** Tüm Ortak Etki Alanları **</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3751375479">
+        <source>*15 character limit</source>
+        <target cp:meta-note="cPanel Locale Export">*15 karakter sınırlaması</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1283206932">
+        <source>- or -<ph id="bn-273" ctype="x-bn-meth" assoc="both">[comment,this is meant to be a horizontal separator of 2 things stacked vertically]</ph></source>
+        <target cp:meta-note="cPanel Locale Export">- ya da -<ph id="bn-273" ctype="x-bn-meth" assoc="both">[comment,this is meant to be a horizontal separator of 2 things stacked vertically]</ph></target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1156936760">
+        <source>-- Empty PHP version list --</source>
+        <target cp:meta-note="cPanel Locale Export">-- Boş PHP sürümü listesi --</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4214462832">
+        <source>-- Empty <ph id="bn-278" ctype="x-bn-meth" assoc="both">[asis,PHP]</ph> version list --</source>
+        <target cp:meta-note="cPanel Locale Export">-- Boş <ph id="bn-278" ctype="x-bn-meth" assoc="both">[asis,PHP]</ph> sürümü listesi --</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-948907609">
+        <source>-- Not Available --</source>
+        <target cp:meta-note="cPanel Locale Export">-- Mevcut Değil --</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1915468266">
+        <source>0 (not an excessive login failure) or 1 (an excessive login failure)</source>
+        <target cp:meta-note="cPanel Locale Export">0 (aşırı bir oturum açma hatası değil) veya 1 (aşırı bir oturum açma hatası)</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-726684159">
+        <source>1 MB = 1,024 kB = 1,048,576 bytes</source>
+        <target cp:meta-note="cPanel Locale Export">1 MB = 1.024 kB = 1.048.576 bayt</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3779094625">
+        <source>1. Register the button in <ph id="bn-288" ctype="x-bn-basic" assoc="both">[output,strong,<sub>config.btnList</sub>]</ph>.</source>
+        <target cp:meta-note="cPanel Locale Export">1. Düğmeyi <ph id="bn-288" ctype="x-bn-basic" assoc="both">[output,strong,<sub>config.btnList</sub>]</ph> içinde kaydedin.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1643106664">
+        <source>10th</source>
+        <target cp:meta-note="cPanel Locale Export">10.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3498516067">
+        <source>11th</source>
+        <target cp:meta-note="cPanel Locale Export">11.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1060238102">
+        <source>12th</source>
+        <target cp:meta-note="cPanel Locale Export">12.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2377483769">
+        <source>13th</source>
+        <target cp:meta-note="cPanel Locale Export">13.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2507784676">
+        <source>14th</source>
+        <target cp:meta-note="cPanel Locale Export">14.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2395184890">
+        <source>15-day free Trial License Activated</source>
+        <target cp:meta-note="cPanel Locale Export">15-day free Trial License Activated</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-109803487">
+        <source>15th</source>
+        <target cp:meta-note="cPanel Locale Export">15.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2500816770">
+        <source>16th</source>
+        <target cp:meta-note="cPanel Locale Export">16.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-57419093">
+        <source>17th</source>
+        <target cp:meta-note="cPanel Locale Export">17.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3680024608">
+        <source>18th</source>
+        <target cp:meta-note="cPanel Locale Export">18.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1522007894">
+        <source>192.0.2.100 or host.example.com</source>
+        <target cp:meta-note="cPanel Locale Export">192.0.2.100 or host.example.com</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1777350523">
+        <source>19th</source>
+        <target cp:meta-note="cPanel Locale Export">19.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-903456107">
+        <source>1st</source>
+        <target cp:meta-note="cPanel Locale Export">1.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4038382868">
+        <source>1st and 15th</source>
+        <target cp:meta-note="cPanel Locale Export">1 ve 5.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1941588931">
+        <source>2. Inserting it into the toolbar</source>
+        <target cp:meta-note="cPanel Locale Export">2. Araç çubuğuna ekleme</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2441469371">
+        <source>20th</source>
+        <target cp:meta-note="cPanel Locale Export">20.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-553637563">
+        <source>21st</source>
+        <target cp:meta-note="cPanel Locale Export">21.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1758571183">
+        <source>22nd</source>
+        <target cp:meta-note="cPanel Locale Export">22.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3662525196">
+        <source>23rd</source>
+        <target cp:meta-note="cPanel Locale Export">23.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3342604375">
+        <source>24th</source>
+        <target cp:meta-note="cPanel Locale Export">24.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2024078780">
+        <source>25th</source>
+        <target cp:meta-note="cPanel Locale Export">25.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3295339693">
+        <source>26th</source>
+        <target cp:meta-note="cPanel Locale Export">26.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1438650362">
+        <source>27th</source>
+        <target cp:meta-note="cPanel Locale Export">27.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4204211619">
+        <source>28th</source>
+        <target cp:meta-note="cPanel Locale Export">28.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2348802216">
+        <source>29th</source>
+        <target cp:meta-note="cPanel Locale Export">29.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1535048927">
+        <source>2nd</source>
+        <target cp:meta-note="cPanel Locale Export">2.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1580231882">
+        <source>30th</source>
+        <target cp:meta-note="cPanel Locale Export">30.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3780053774">
+        <source>31st</source>
+        <target cp:meta-note="cPanel Locale Export">31.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-212683548">
+        <source>3rd</source>
+        <target cp:meta-note="cPanel Locale Export">3.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-4187730023">
+        <source>4th</source>
+        <target cp:meta-note="cPanel Locale Export">4.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1795436812">
+        <source>5th</source>
+        <target cp:meta-note="cPanel Locale Export">5.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3108274429">
+        <source>6th</source>
+        <target cp:meta-note="cPanel Locale Export">6.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1210008394">
+        <source>7th</source>
+        <target cp:meta-note="cPanel Locale Export">7.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3975569651">
+        <source>8th</source>
+        <target cp:meta-note="cPanel Locale Export">8.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2120160248">
+        <source>9th</source>
+        <target cp:meta-note="cPanel Locale Export">9.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-2846352548">
+        <source>A 16-bit integer that represents a service type used by clients to connect to a cell’s servers. Currently accepted values are 1, for AFS Database Server or 2, for DCE Authentication Server.</source>
+        <target cp:meta-note="cPanel Locale Export">A 16-bit integer that represents a service type used by clients to connect to a cell’s servers. Currently accepted values are 1, for AFS Database Server or 2, for DCE Authentication Server.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3002150963">
+        <source>A 16-bit unsigned integer that specifies the order that the NAPTR records process. Low numbers process before high numbers.</source>
+        <target cp:meta-note="cPanel Locale Export">A 16-bit unsigned integer that specifies the order that the NAPTR records process. Low numbers process before high numbers.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-55274404">
+        <source>A 16-bit unsigned integer that specifies the order that the NAPTR records with equal “Order” values process. Low numbers process before high numbers.</source>
+        <target cp:meta-note="cPanel Locale Export">A 16-bit unsigned integer that specifies the order that the NAPTR records with equal “Order” values process. Low numbers process before high numbers.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1067337611">
+        <source>A 32 bit integer that represents an amount of time in seconds before the secondary server retries a failed zone transfer.</source>
+        <target cp:meta-note="cPanel Locale Export">A 32 bit integer that represents an amount of time in seconds before the secondary server retries a failed zone transfer.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-3741418271">
+        <source>A 32 bit integer that represents an amount of time in seconds to wait before the secondary DNS server queries the primary DNS server’s SOA records for changes.</source>
+        <target cp:meta-note="cPanel Locale Export">A 32 bit integer that represents an amount of time in seconds to wait before the secondary DNS server queries the primary DNS server’s SOA records for changes.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-916817496">
+        <source>A 32 bit integer that represents an amount of time in seconds to wait before the secondary server attempts to complete a zone transfer.</source>
+        <target cp:meta-note="cPanel Locale Export">A 32 bit integer that represents an amount of time in seconds to wait before the secondary server attempts to complete a zone transfer.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-341692293">
+        <source>A Complete Example</source>
+        <target cp:meta-note="cPanel Locale Export">Tam Bir Örnek</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1629484706">
+        <source>A DNS entry for the domain “<ph id="bn-376" ctype="x-bn-var" assoc="both">[_1]</ph>” already exists.</source>
+        <target cp:meta-note="cPanel Locale Export">“<ph id="bn-376" ctype="x-bn-var" assoc="both">[_1]</ph>” etki alanı için bir DNS girişi zaten var.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-22012188">
+        <source>A DNS entry for the domain, “<ph id="bn-380" ctype="x-bn-var" assoc="both">[_1]</ph>”, already exists.</source>
+        <target cp:meta-note="cPanel Locale Export">“<ph id="bn-380" ctype="x-bn-var" assoc="both">[_1]</ph>” etki alanı için bir DNS girişi zaten var.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1039336667">
+        <source>A DNS entry for “<ph id="bn-384" ctype="x-bn-var" assoc="both">[_1]</ph>” already exists. You must remove this DNS entry from all servers in the DNS cluster to proceed.</source>
+        <target cp:meta-note="cPanel Locale Export">“<ph id="bn-384" ctype="x-bn-var" assoc="both">[_1]</ph>” için bir DNS girişi zaten var. Devam etmek için, bu DNS girişini DNS kümesindeki tüm sunuculardan kaldırmalısınız.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-1147151879">
+        <source>A DNS entry for “<ph id="bn-388" ctype="x-bn-var" assoc="both">[_1]</ph>” already exists. You must remove this DNS entry from this server or all servers in the DNS cluster to proceed.</source>
+        <target cp:meta-note="cPanel Locale Export">A DNS entry for “<ph id="bn-388" ctype="x-bn-var" assoc="both">[_1]</ph>” already exists. You must remove this DNS entry from this server or all servers in the DNS cluster to proceed.</target>
+      </trans-unit>
+      <trans-unit datatype="plaintext" id="tu-995983667">
+        <source>A MySQL database name cannot exceed <ph id="bn-393" ctype="x-bn-complex" assoc="both" cp:replace="[quant,_1,character]" cp:ref="gp-393">[quant,_1,character]</ph>

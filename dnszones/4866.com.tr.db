@@ -1,0 +1,21 @@
+; cPanel first:110.0.53 (update_time):1757526090 Cpanel::ZoneFile::VERSION:1.3 hostname:frnk.adigehost.com latest:110.0.73
+; Zone file for 4866.com.tr
+$TTL 14400
+4866.com.tr.	86400	IN	SOA	ns1.adigehost.com.	ozmenkaya.gmail.com.	(
+						2025091001 ;Serial Number
+						3600 ;refresh
+						7200 ;retry
+						1209600 ;expire
+						86400	)
+4866.com.tr.	86400	IN	NS	ns1.adigehost.com.
+4866.com.tr.	86400	IN	NS	ns2.adigehost.com.
+4866.com.tr.	14400	IN	A	195.201.104.228
+4866.com.tr.	14400	IN	MX	0	4866.com.tr.
+mail	14400	IN	CNAME	4866.com.tr.
+www	14400	IN	CNAME	4866.com.tr.
+ftp	14400	IN	A	195.201.104.228
+webmail	14400	IN	CNAME	4866.com.tr.
+4866.com.tr.	14400	IN	TXT	"v=spf1 +a +mx +ip4:195.201.104.228 ~all"
+default._domainkey	14400	IN	TXT	"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzf3Kl5A7qFwTZb4M7kIf5HoJdCU/+4bUgeTS1PMi7z94kIp9FDW4MZlBZ7OMUStoPTLpcpLMf4yFasCv9mYTGQ7muCM+dpWY5XY51fDdZfPp0x0n78oLTrdw07asIM6tSJQtUX/CEisXjz8TLBWLb3Y8mj9hynBf5tPZuglKt4JLq5kH08sm0sBLjWh/T7SLn" 2+qH10PNMLObRPuWynrKl5FAPxrd+SBao21KZETLT4z9Fhc51Xk28tVdO2KUz9UrAuZVDQQHX/UPqgMXqpir41/PRdcW5GSEuJTaRsihb4PyU/YtDMhjEWSqd1f/ECC4RIpTJ6WV9eiUWZoaTTQ9QIDAQAB\;
+_cpanel-dcv-test-record	14400	IN	TXT	_cpanel-dcv-test-record=fVtXflSqNcZ8rrVz7CkN8sGkv950jZjM3wzQkRQaiUEbppc26vHC5Y7SGDhA2r8k
+_acme-challenge	14400	IN	TXT	D00tvx6zKaEiiksGN3xiWn955zA62Dc19I_bZz78lgI

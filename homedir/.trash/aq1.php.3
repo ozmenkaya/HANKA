@@ -1,0 +1,92 @@
+<?php
+// PHP zaman sınırını artır
+set_time_limit(300);
+
+// Database configuration
+$host = 'localhost';
+$dbname = 'com_panelhankasys';
+$username = 'com_ozmen';
+$password = '=eTJHP2T.Z%i';
+
+// Backup file settings
+$backupDir = __DIR__ . '/yedekler/';
+$backupFile = $backupDir . 'backup_' . $dbname . '_' . date('Y-m-d_H-i-s') . '.sql';
+
+try {
+    // exec() fonksiyonunun kullanılabilirliğini kontrol et
+    if (in_array('exec', array_map('trim', explode(',', ini_get('disable_functions'))))) {
+        throw new Exception("exec() fonksiyonu devre dışı. Barındırma sağlayıcınızla iletişime geçin.");
+    }
+
+    // Create backups directory if it doesn't exist
+    if (!is_dir($backupDir)) {
+        if (!mkdir($backupDir, 0755, true)) {
+            throw new Exception("Yedek dizini oluşturulamadı: $backupDir");
+        }
+    }
+
+    // mysqldump yolunu kontrol et
+    $mysqldumpPath = exec('which mysqldump');
+    if (empty($mysqldumpPath)) {
+        throw new Exception("mysqldump komutu bulunamadı. Lütfen mysqldump'ı yükleyin.");
+    }
+
+    // mysqldump komutunu oluştur (parolayı güvenli şekilde kaçır)
+    $passwordEscaped = escapeshellarg($password);
+    $command = "$mysqldumpPath --host=$host --user='$username' --password=$passwordEscaped $dbname > $backupFile";
+
+    // Komutu ekrana yaz (hata ayıklama için)
+    echo "Komut: $command\n";
+
+    // Backup işlemini başlat
+    exec($command . ' 2>&1', $output, $returnVar);
+
+    // Çıktıyı ve dönüş kodunu ekrana yaz
+    echo "Dönüş Kodu: $returnVar\n";
+    echo "Çıktı: " . implode("\n", $output) . "\n";
+
+    // Yedek dosyasının oluşturulduğunu kontrol et
+    if ($returnVar !== 0 || !file_exists($backupFile)) {
+        throw new Exception("Yedekleme başarısız: " . implode("\n", $output));
+    }
+
+    // Yedek dosyasını sıkıştır
+    $zipFile = $backupFile . '.gz';
+    $gz = @gzopen($zipFile, 'w9');
+    if ($gz === false) {
+        throw new Exception("Sıkıştırılmış dosya oluşturulamadı: $zipFile");
+    }
+    if (!gzwrite($gz, file_get_contents($backupFile))) {
+        gzclose($gz);
+        throw new Exception("Sıkıştırılmış dosyaya yazılamadı: $zipFile");
+    }
+    gzclose($gz);
+
+    // Sıkıştırılmamış dosyayı sil
+    if (!unlink($backupFile)) {
+        throw new Exception("Sıkıştırılmamış yedek dosyası silinemedi: $backupFile");
+    }
+
+    echo "Yedek başarıyla oluşturuldu: $zipFile\n";
+
+} catch (Exception $e) {
+    echo "Hata: " . $e->getMessage() . "\n";
+    // Hataları bir dosyaya kaydet (opsiyonel)
+    error_log($e->getMessage(), 3, __DIR__ . '/backup_errors.log');
+}
+
+// Eski yedekleri temizle
+try {
+    $daysToKeep = 7;
+    $files = glob($backupDir . '*.sql.gz');
+    foreach ($files as $file) {
+        if (filemtime($file) < time() - ($daysToKeep * 24 * 60 * 60)) {
+            if (!unlink($file)) {
+                throw new Exception("Eski yedek silinemedi: $file");
+            }
+        }
+    }
+} catch (Exception $e) {
+    echo "Uyarı: Eski yedekler temizlenemedi: " . $e->getMessage() . "\n";
+}
+?>

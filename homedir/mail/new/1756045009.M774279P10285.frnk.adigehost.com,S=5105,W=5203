@@ -1,0 +1,98 @@
+Return-Path: <upport@nspire.ph>
+Delivered-To: com@frnk.adigehost.com
+Received: from frnk.adigehost.com
+	by frnk.adigehost.com with LMTP
+	id 7MfULdEeq2gtKAAAmGlu5g
+	(envelope-from <upport@nspire.ph>)
+	for <com@frnk.adigehost.com>; Sun, 24 Aug 2025 17:16:49 +0300
+Return-path: <upport@nspire.ph>
+Envelope-to: info@4866.com.tr
+Delivery-date: Sun, 24 Aug 2025 17:16:49 +0300
+Received: from mail.nspire.ph ([162.215.217.94]:54898 helo=nspire.ph)
+	by frnk.adigehost.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.1)
+	(envelope-from <upport@nspire.ph>)
+	id 1uqBWZ-000000002eA-0hff
+	for info@4866.com.tr;
+	Sun, 24 Aug 2025 17:16:49 +0300
+DKIM-Signature: v=1; c=relaxed/relaxed; h=reply-to:from:to:subject:date:message-id:mime-version:content-type:content-transfer-encoding;
+ d=nspire.ph; s=default; a=rsa-sha256;
+ bh=gPZeBrA0owGpwpUrKERNmIYWwYZEmnPJ3UbxGYSSmok=;
+ b=JOlwN8ytzpdsi3NPWdM2fGv2P0KO9hX8/InaKC5+Rd8ByYLSA1JMaubi4TWLKaiHI
+ SjLYzwmZK4Ern/vrLP7NVzjXQ010XYPp4tfrPZW+SA7pU+oUBT+7APogxHc/EnO/NpU
+ ShzFSSLhBzuUF848nB+TGK4DyvVTRfqFZBWFRAd+YEG60CofKMNCb8aTK6N2od/0BfO
+ IUkfr3ie0zuIpntI3DAuBnqAOAcuxERavYehIldAI6aBqdR/QhcJviSEor4ozRRIymm
+ Q49n3bUDkTWkTtshC5AVBot7wAf5RsOi/L0Yms4ABJM4HS28TLwa4OuRhA7to5k47AJ
+ 1Wglm3lhA==;
+Received: from ([127.0.0.1]) with MailEnable ESMTPSA; Sun, 24 Aug 2025 17:36:52 +0800
+Reply-To: andyfalz57@gmail.com
+From: Andy <andyfalz57@qmail.com>
+To: info@4866.com.tr
+Subject: Funding info@4866.com.tr
+Date: 24 Aug 2025 02:36:50 -0700
+Message-ID: <20250824023650.FC0659976DAAD93F@qmail.com>
+MIME-Version: 1.0
+Content-Type: text/html
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=2.9
+X-Spam-Score: 29
+X-Spam-Bar: ++
+X-Ham-Report: Spam detection software, running on the system "frnk.adigehost.com",
+ has NOT identified this incoming email as spam.  The original
+ message has been attached to this so you can view it or label
+ similar future email.  If you have any questions, see
+ root\@localhost for details.
+ Content preview:  Attention: We are providers of term loans. We are expanding
+    our investment presence by granting retail loans to fund projects outside
+    Uk and to all viable and lucrative sectors at +2% to +5% interest per annum
+    w [...] 
+ Content analysis details:   (2.9 points, 5.0 required)
+  pts rule name              description
+ ---- ---------------------- --------------------------------------------------
+  0.0 URIBL_BLOCKED          ADMINISTRATOR NOTICE: The query to URIBL was
+                             blocked.  See
+                             http://wiki.apache.org/spamassassin/DnsBlocklists#dnsbl-block
+                              for more information.
+                             [URIs: nspire.ph]
+  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+                             digit
+                             [andyfalz57[at]gmail.com]
+ -0.0 SPF_PASS               SPF: sender matches SPF record
+  0.0 HEADER_FROM_DIFFERENT_DOMAINS From and EnvelopeFrom 2nd level
+                             mail domains are different
+  0.0 RCVD_IN_VALIDITY_SAFE_BLOCKED RBL: ADMINISTRATOR NOTICE: The
+                             query to Validity was blocked.  See
+                             https://knowledge.validity.com/hc/en-us/articles/20961730681243
+                              for more information.
+                         [162.215.217.94 listed in sa-trusted.bondedsender.org]
+  0.0 RCVD_IN_VALIDITY_RPBL_BLOCKED RBL: ADMINISTRATOR NOTICE: The
+                             query to Validity was blocked.  See
+                             https://knowledge.validity.com/hc/en-us/articles/20961730681243
+                              for more information.
+                            [162.215.217.94 listed in bl.score.senderscore.com]
+ -0.0 SPF_HELO_PASS          SPF: HELO matches SPF record
+  0.0 HTML_MESSAGE           BODY: HTML included in message
+  0.1 MIME_HTML_ONLY         BODY: Message only has text/html MIME parts
+ -0.1 DKIM_VALID             Message has at least one valid DKIM or DK signature
+  0.1 DKIM_SIGNED            Message has a DKIM or DK signature, not necessarily
+                             valid
+ -0.1 DKIM_VALID_EF          Message has a valid DKIM or DK signature from
+                             envelope-from domain
+  2.5 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+  0.1 TO_IN_SUBJ             To address is in Subject
+X-Spam-Flag: NO
+
+<!DOCTYPE HTML>
+
+<html><head>
+<meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3Dedge">
+</head>
+<body><p>Attention:</p><p>We are providers of term loans. We are expanding =
+our investment presence by granting retail loans to fund projects outside U=
+k and to all viable and lucrative sectors at +2% to +5% interest per annum =
+with up to 20 years repayment plan and a 2 year grace period.</p><p>Kindly =
+send your proposal details or executive summary if interested.</p><p>Andy F=
+alz<br><a href=3D"mailto:andyfalz57@gmail.com">andyfalz57@gmail.com</a></p>=
+<p>
+Head of strategic marketing and business developer.</p><p>Quality E-Busines=
+s QEB Solutions Limited</p></body></html>

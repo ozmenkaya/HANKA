@@ -1,0 +1,18 @@
+--- 
+documentroot: /home/com/public_html
+group: com
+hascgi: 1
+homedir: /home/com
+ip: 195.201.104.228
+ipv6: ~
+owner: root
+phpopenbasedirprotect: 1
+port: 443
+secruleengineoff: ~
+serveradmin: webmaster@4866.com.tr
+serveralias: mail.4866.com.tr www.4866.com.tr
+servername: 4866.com.tr
+ssl: 1
+usecanonicalname: 'Off'
+user: com
+userdirprotect: ''

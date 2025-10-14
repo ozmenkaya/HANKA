@@ -1,0 +1,6 @@
+170.106.35.137 - - [12/Oct/2025:15:49:57 +0300] "GET / HTTP/1.1" 301 228 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+123.187.240.242 - - [12/Oct/2025:19:08:03 +0300] "GET / HTTP/1.1" 301 232 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+45.149.173.203 - - [12/Oct/2025:19:20:07 +0300] "GET / HTTP/1.1" 301 228 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+170.106.148.137 - - [12/Oct/2025:20:47:32 +0300] "GET / HTTP/1.1" 301 228 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+199.45.155.104 - - [12/Oct/2025:22:51:45 +0300] "GET / HTTP/1.1" 301 233 "-" "Mozilla/5.0 (compatible; CensysInspect/1.1; +https://about.censys.io/)"
+48.210.11.197 - - [13/Oct/2025:00:28:33 +0300] "GET /wp-content/plugins/hellopress/wp_filemanager.php HTTP/1.1" 301 280 "-" "-"

@@ -1,0 +1,76 @@
+<?php
+// Database configuration
+$host = 'localhost';
+$dbname = 'com_panelhankasys';
+$username = 'com_ozmen';
+$password = '=eTJHP2T.Z%i';
+
+// Backup file settings
+$backupDir = __DIR__ . '/yedekler/';
+$backupFile = $backupDir . 'backup_' . $dbname . '_' . date('Y-m-d_H-i-s') . '.sql';
+
+try {
+    // Create backups directory if it doesn't exist
+    if (!is_dir($backupDir)) {
+        if (!mkdir($backupDir, 0755, true)) {
+            throw new Exception("Failed to create backup directory: $backupDir");
+        }
+    }
+
+    // mysqldump command
+    $command = "mysqldump --host=$host --user='$username' --password='$password' $dbname > $backupFile";
+
+    $output = shell_exec($command);
+
+    echo $output;
+
+    // Execute backup
+    exec($command . ' 2>&1', $output, $returnVar);
+
+    echo 'aaa';
+
+    // Check if backup was successful
+    if ($returnVar !== 0 || !file_exists($backupFile)) {
+        throw new Exception("Backup failed: " . implode("\n", $output));
+    }
+
+    // Compress the backup file
+    $zipFile = $backupFile . '.gz';
+    $gz = @gzopen($zipFile, 'w9');
+    if ($gz === false) {
+        throw new Exception("Failed to create compressed file: $zipFile");
+    }
+    if (!gzwrite($gz, file_get_contents($backupFile))) {
+        gzclose($gz);
+        throw new Exception("Failed to write to compressed file: $zipFile");
+    }
+    gzclose($gz);
+
+    // Remove uncompressed file
+    if (!unlink($backupFile)) {
+        throw new Exception("Failed to delete uncompressed backup file: $backupFile");
+    }
+
+    echo "Backup successfully created: $zipFile\n";
+
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+    // Optional: Log error to file or send notification
+    // error_log($e->getMessage(), 3, 'backup_errors.log');
+}
+
+// Clean up old backups
+try {
+    $daysToKeep = 7;
+    $files = glob($backupDir . '*.sql.gz');
+    foreach ($files as $file) {
+        if (filemtime($file) < time() - ($daysToKeep * 24 * 60 * 60)) {
+            if (!unlink($file)) {
+                throw new Exception("Failed to delete old backup: $file");
+            }
+        }
+    }
+} catch (Exception $e) {
+    echo "Warning: Failed to clean up old backups: " . $e->getMessage() . "\n";
+}
+?>
