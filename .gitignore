@@ -78,3 +78,7 @@ num_rows
 [
 0.2,
 800
+
+# Backups
+backup_*/
+backup_*.tar.gz
