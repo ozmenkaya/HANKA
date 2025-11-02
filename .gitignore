@@ -1,48 +1,80 @@
-# Database credentials
-homedir/public_html/include/db.php
-
-# Uploaded files
-homedir/public_html/dosyalar/
-homedir/public_html/yedekler/
-
-# Temporary files
-*.log
-*.tmp
-/tmp/
-*.bak
-*.swp
-*~
-
-# OS files
+# System Files
 .DS_Store
+._.DS_Store
+**/.DS_Store
 Thumbs.db
 
-# IDE files
+# Logs
+*.log
+homedir/logs/
+homedir/.cpanel/logs/
+
+# Backups
+*.sql
+*.tar.gz
+*.zip
+*.bak
+*.backup
+db_backup_*.sql
+homedir/backup-*.tar.gz
+homedir/*_db*.sql
+
+# Temporary Files
+*.tmp
+*.temp
+homedir/tmp/
+homedir/repositories/
+
+# Mail
+homedir/mail/
+
+# SSH
+homedir/.ssh/
+.ssh/
+
+# Test Files
+test_*.php
+test_*.py
+*_test.php
+
+# IDE
 .vscode/
 .idea/
-*.sublime-*
 
-# PHPMyAdmin temp files
-homedir/tmp/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
 
-# SSH keys and configs
-homedir/.ssh/
-
-# Node modules (if any)
+# Node
 node_modules/
+package-lock.json
 
-# Environment files
-.env
+# Environment
 .env.local
+.env.production
 
-# Backup files
-migration_delete_gulermat_data.sql
-test_db.php
-homedir/backup-*.tar.gz
-homedir/*.sql
-homedir/.trash/backup*.sql
-homedir/.trash/*.sh
-homedir/public_html.zip
-homedir/php.zip
-*.tar.gz
-*.sql.gz
+# Reports (already documented)
+*_REPORT.md
+AGENT_GUIDE.md
+CACHE_TEST_REPORT.md
+FINETUNING_DEPLOYMENT.md
+JSON_FIX_REPORT.md
+SQL_VALIDATOR_REPORT.md
+VECTOR_KB_REPORT.md
+
+# Scripts (keep in repo but ignore outputs)
+improvements/
+monitor_finetune.py
+analyze_training_data.py
+clean_training_data.py
+
+# Misc
+error
+getMessage
+num_rows
+[
+0.2,
+800
