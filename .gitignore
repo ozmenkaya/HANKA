@@ -82,3 +82,7 @@ num_rows
 # Backups
 backup_*/
 backup_*.tar.gz
+
+# Local Config & Data
+.hanka_aliases.sh
+chroma_db/
