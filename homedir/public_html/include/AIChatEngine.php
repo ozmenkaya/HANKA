@@ -54,8 +54,6 @@ class AIChatEngine {
         
         try {
             // 🚀 CACHE KONTROLÜ - Önce cache'den bak
-            // DEBUG: Cache geçici olarak devre dışı bırakıldı (Yeni mantığı test etmek için)
-            /*
             $cached = $this->cache->get($user_question, $this->firma_id);
             
             if ($cached) {
@@ -63,8 +61,8 @@ class AIChatEngine {
                 $cached['response_time'] = round(microtime(true) - $start_time, 3);
                 return $cached;
             }
-            */
-            error_log("⚠️ CACHE DISABLED FOR DEBUGGING");
+            
+            error_log("❌ Cache miss - OpenAI'ye gidiyoruz: " . substr($user_question, 0, 50) . "...");
             
             // 1. Firma context'ini hazırla
             $context = $this->buildFirmaContext();
