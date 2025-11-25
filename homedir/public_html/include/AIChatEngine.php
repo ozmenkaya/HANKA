@@ -169,7 +169,16 @@ class AIChatEngine {
             } while ($step < $max_steps);
             
             // 6. Sonuçları analiz et ve yanıt oluştur
-            $answer = $this->generateAnswer($user_question, $data, $sql_result["explanation"]);
+            $generated = $this->generateAnswer($user_question, $data, $sql_result["explanation"]);
+            
+            // Geriye uyumluluk: Eğer string dönerse (eski versiyon), array'e çevir
+            if (is_string($generated)) {
+                $answer = $generated;
+                $chart = null;
+            } else {
+                $answer = $generated['answer'];
+                $chart = $generated['chart'] ?? null;
+            }
             
             // 6b. HTML tablo oluştur (linklerle)
             $html_table = $this->generateHTMLTable($data, $sql_result["sql"]);
@@ -190,6 +199,7 @@ class AIChatEngine {
                 $response_data = [
                     "success" => true,
                     "answer" => $answer,
+                    "chart" => $chart,
                     "data" => $data,
                     "html_table" => $html_table,
                     "sql" => $final_sql,
@@ -230,6 +240,7 @@ class AIChatEngine {
                 return [
                     "success" => true,
                     "answer" => $answer,
+                    "chart" => $chart,
                     "data" => $data,
                     "html_table" => $html_table,
                     "sql" => $final_sql,
@@ -511,6 +522,7 @@ FİRMA BİLGİLERİ:
         $system_prompt .= "\n25. SİPARİŞ DETAYLARI (JSON): Siparişin ürün özellikleri (renk, ebat, malzeme) 'siparisler.veriler' JSON kolonundadır. ÖRNEK: JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.urun_adi')) veya JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.renk')). Eğer kullanıcı 'kırmızı renkli işler' derse: WHERE JSON_SEARCH(s.veriler, 'one', '%kırmızı%') IS NOT NULL kullan.";
         $system_prompt .= "\n26. ARIZA VE DURUŞ ANALİZİ: 'En çok arıza yapan makina' sorulursa: SELECT m.makina_adi, COUNT(*) as ariza_sayisi, SUM(ual.sure) as toplam_sure FROM uretim_ariza_log ual JOIN makinalar m ON ual.makina_id=m.id WHERE m.firma_id={$this->firma_id} GROUP BY m.id ORDER BY ariza_sayisi DESC.";
         $system_prompt .= "\n27. BİRİMLERİ GÖSTER (ZORUNLU): Miktar, stok veya ölçü içeren sorgularda MUTLAKA birim bilgisini de çek. Stok sorgularında 'stok_alt_depolar' tablosunda 'birim_id' varsa 'birimler' tablosuyla JOIN yap (LEFT JOIN birimler b ON sad.birim_id=b.id) ve SELECT listesine 'b.ad as birim' ekle. Böylece AI yanıtı oluştururken '100' yerine '100 KG' veya '100 Adet' diyebilir.";
+        $system_prompt .= "\n28. GRAFİK VE RAPORLAMA (OPSİYONEL): Eğer kullanıcı 'grafik', 'tablo', 'pasta', 'trend' veya 'karşılaştırma' isterse, veriyi buna uygun hazırla. Grafik için GROUP BY ve ORDER BY kullanmak önemlidir. ÖRNEK: 'Aylık satış grafiği' -> SELECT DATE_FORMAT(tarih, '%Y-%m') as ay, SUM(fiyat) as toplam FROM siparisler ... GROUP BY ay ORDER BY ay.";
 
         $system_prompt .= "\n\nMEVCUT ARAÇLAR (FONKSİYONLAR):
 Eğer kullanıcı aşağıdaki hesaplamaları isterse, SQL yerine JSON formatında araç çağrısı yap:
@@ -592,30 +604,63 @@ NOT: Eğer makina ID'sini bilmiyorsan, önce SQL ile makina adından ID'yi bulac
     }
     
     /**
-     * Sonuçlardan Türkçe yanıt oluştur
+     * Sonuçlardan Türkçe yanıt oluştur (ve Grafik Config)
      */
     private function generateAnswer($question, $data, $sql_explanation) {
-        $system_prompt = "Sen bir iş analitiği asistanısın. Verileri analiz edip Türkçe, anlaşılır yanıtlar veriyorsun.";
+        $system_prompt = "Sen bir iş analitiği asistanısın. Verileri analiz edip Türkçe, anlaşılır yanıtlar veriyorsun.
+        
+        ÖNEMLİ: Yanıtını JSON formatında ver. İki alan olsun:
+        1. 'answer': Kullanıcıya verilecek metin yanıtı (Markdown formatında).
+        2. 'chart': (Opsiyonel) Eğer veriler grafiğe dökülmeye uygunsa (zaman serisi, kategori dağılımı vb.) veya kullanıcı grafik istediyse burayı doldur. Değilse null yap.
+        
+        Chart Objesi Formatı:
+        {
+            'type': 'bar' | 'line' | 'pie' | 'doughnut',
+            'title': 'Grafik Başlığı',
+            'labels': ['Etiket1', 'Etiket2', ...],
+            'datasets': [
+                {
+                    'label': 'Veri Seti Adı',
+                    'data': [10, 20, ...]
+                }
+            ]
+        }
+        
+        Eğer grafik uygun değilse 'chart': null yap.";
         
         $record_count = count($data);
-        $sample_data = array_slice($data, 0, 5); // İlk 5 kayıt
+        $sample_data = array_slice($data, 0, 10); // İlk 10 kayıt (Grafik için biraz daha fazla veri görelim)
         
         $user_prompt = "Soru: $question\n\n";
         $user_prompt .= "SQL Açıklaması: $sql_explanation\n\n";
         $user_prompt .= "TOPLAM KAYIT: $record_count\n\n";
-        $user_prompt .= "İLK 5 KAYIT: " . json_encode($sample_data, JSON_UNESCAPED_UNICODE) . "\n\n";
-        $user_prompt .= "Bu verilere dayanarak soruyu yanıtla. Eğer TOPLAM KAYIT 0 ise, muhtemelen isim yanlış yazılmış - benzer isimleri öner. Kısa, net cevap ver.";
+        $user_prompt .= "ÖRNEK VERİLER: " . json_encode($sample_data, JSON_UNESCAPED_UNICODE) . "\n\n";
+        $user_prompt .= "Bu verilere dayanarak soruyu yanıtla ve gerekirse grafik konfigürasyonu oluştur.";
         
         try {
-            return $this->ai->chat([
+            $response = $this->ai->chat([
                 ["role" => "system", "content" => $system_prompt],
                 ["role" => "user", "content" => $user_prompt]
-            ], 0.2, 800);
+            ], 0.2, 1500); // Token artırıldı
+            
+            // Clean JSON
+            $response = str_replace([chr(96).chr(96).chr(96)."json", chr(96).chr(96).chr(96)], "", $response);
+            $json_response = json_decode(trim($response), true);
+            
+            if (json_last_error() === JSON_ERROR_NONE && isset($json_response['answer'])) {
+                return $json_response;
+            }
+            
+            // Fallback if not JSON
+            return ["answer" => $response, "chart" => null];
+            
         } catch (Exception $e) {
-            error_log("=== generateSQL ERROR: " . $e->getMessage());
-            // AI yanıt üretemezse basit özet döndür
+            error_log("=== generateAnswer ERROR: " . $e->getMessage());
             $count = count($data);
-            return "Sorgunuz çalıştırıldı ve $count sonuç bulundu. Detaylar için aşağıdaki tabloya bakabilirsiniz.";
+            return [
+                "answer" => "Sorgunuz çalıştırıldı ve $count sonuç bulundu. Detaylar için aşağıdaki tabloya bakabilirsiniz.",
+                "chart" => null
+            ];
         }
     }
     
