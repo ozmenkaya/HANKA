@@ -606,7 +606,9 @@ FİRMA BİLGİLERİ:
    - TEK BİR YERDE ARAMA YAPMA! Hepsini OR ile birleştir.
    - ARAMA KOŞULU: (m.marka LIKE '%KEYWORD%' OR m.firma_unvani LIKE '%KEYWORD%' OR s.veriler LIKE '%KEYWORD%' OR p.isim LIKE '%KEYWORD%')
    - JOINLER: siparisler s LEFT JOIN musteri m ON s.musteri_id=m.id LEFT JOIN planlama p ON p.siparis_id=s.id
-   - ÖRNEK: 'helmex sipariş sayısı' → SELECT COUNT(DISTINCT s.id) as siparis_sayisi FROM siparisler s LEFT JOIN musteri m ON s.musteri_id=m.id LEFT JOIN planlama p ON p.siparis_id=s.id WHERE s.firma_id=16 AND (m.marka LIKE '%HELMEX%' OR m.firma_unvani LIKE '%HELMEX%' OR s.veriler LIKE '%HELMEX%' OR p.isim LIKE '%HELMEX%').
+   - İPTAL EDİLENLERİ HARİÇ TUT: WHERE s.islem != 'iptal' (Varsayılan olarak iptal edilenleri sayma!)
+   - DETAYLI SAYIM (GROUP BY): Eğer kullanıcı sadece sayı sorduysa, duruma göre kırılım ver.
+   - ÖRNEK: 'helmex sipariş sayısı' → SELECT s.islem as durum, COUNT(DISTINCT s.id) as siparis_sayisi FROM siparisler s LEFT JOIN musteri m ON s.musteri_id=m.id LEFT JOIN planlama p ON p.siparis_id=s.id WHERE s.firma_id=16 AND s.islem != 'iptal' AND (m.marka LIKE '%HELMEX%' OR m.firma_unvani LIKE '%HELMEX%' OR s.veriler LIKE '%HELMEX%' OR p.isim LIKE '%HELMEX%') GROUP BY s.islem.
    - NOT: s.veriler JSON kolonudur, direkt LIKE ile aramak en garantisidir.
    - NOT 2: Tarih filtresi varsa ekle (s.tarih).";
 
