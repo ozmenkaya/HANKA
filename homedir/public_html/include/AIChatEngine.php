@@ -631,6 +631,7 @@ FİRMA BİLGİLERİ:
         $system_prompt .= "\n26. ARIZA VE DURUŞ ANALİZİ: 'En çok arıza yapan makina' sorulursa: SELECT m.makina_adi, COUNT(*) as ariza_sayisi, SUM(ual.sure) as toplam_sure FROM uretim_ariza_log ual JOIN makinalar m ON ual.makina_id=m.id WHERE m.firma_id={$this->firma_id} GROUP BY m.id ORDER BY ariza_sayisi DESC.";
         $system_prompt .= "\n27. BİRİMLERİ GÖSTER (ZORUNLU): Miktar, stok veya ölçü içeren sorgularda MUTLAKA birim bilgisini de çek. Stok sorgularında 'stok_alt_depolar' tablosunda 'birim_id' varsa 'birimler' tablosuyla JOIN yap (LEFT JOIN birimler b ON sad.birim_id=b.id) ve SELECT listesine 'b.ad as birim' ekle. Böylece AI yanıtı oluştururken '100' yerine '100 KG' veya '100 Adet' diyebilir.";
         $system_prompt .= "\n28. GRAFİK VE RAPORLAMA (OPSİYONEL): Eğer kullanıcı 'grafik', 'tablo', 'pasta', 'trend' veya 'karşılaştırma' isterse, veriyi buna uygun hazırla. Grafik için GROUP BY ve ORDER BY kullanmak önemlidir. ÖRNEK: 'Aylık satış grafiği' -> SELECT DATE_FORMAT(tarih, '%Y-%m') as ay, SUM(fiyat) as toplam FROM siparisler ... GROUP BY ay ORDER BY ay.";
+        $system_prompt .= "\n29. LİSTELEME SORGULARI (DETAYLI): Kullanıcı 'siparişleri neler', 'hangi işler var', 'listele' dediğinde SADECE isim seçme! Detaylı bilgi ver: siparis_no, isin_adi, adet, fiyat, tarih, islem (durum). ÖRNEK: SELECT s.siparis_no, s.isin_adi, s.adet, s.fiyat, s.tarih, s.islem FROM siparisler s ... ORDER BY s.tarih DESC LIMIT 20.";
 
         $system_prompt .= "\n\nMEVCUT ARAÇLAR (FONKSİYONLAR):
 Eğer kullanıcı aşağıdaki hesaplamaları veya işlemleri isterse, SQL yerine JSON formatında araç çağrısı yap:
@@ -720,11 +721,19 @@ NOT: Eğer ID'yi bilmiyorsan, önce SQL ile ID'yi bulacak bir sorgu yaz. Tool ç
      * Sonuçlardan Türkçe yanıt oluştur (ve Grafik Config)
      */
     private function generateAnswer($question, $data, $sql_explanation) {
-        $system_prompt = "Sen bir iş analitiği asistanısın. Verileri analiz edip Türkçe, anlaşılır yanıtlar veriyorsun.
+        $system_prompt = "Sen bir iş analitiği asistanısın. Verileri analiz edip Türkçe, anlaşılır ve YÖNETİCİ ÖZETİ formatında yanıtlar veriyorsun.
         
-        ÖNEMLİ: Yanıtını JSON formatında ver. İki alan olsun:
-        1. 'answer': Kullanıcıya verilecek metin yanıtı (Markdown formatında).
-        2. 'chart': (Opsiyonel) Eğer veriler grafiğe dökülmeye uygunsa (zaman serisi, kategori dağılımı vb.) veya kullanıcı grafik istediyse burayı doldur. Değilse null yap.
+        ÖNEMLİ KURALLAR:
+        1. Sadece tabloyu tekrar etme! Kullanıcı zaten detaylı tabloyu görüyor.
+        2. VERİLERİ YORUMLA: Toplam kaç kayıt var? Toplam tutar/adet nedir? En son işlem ne zaman? Durum dağılımı nasıl?
+        3. ÖRNEK YANIT: 'Toplam 5 adet sipariş bulundu. Bunların 3 tanesi tamamlanmış, 2 tanesi beklemededir. En son sipariş 2025-10-14 tarihinde alınmıştır. Toplam sipariş tutarı 150.000 TL'dir.'
+        4. Markdown tablosu oluşturma (zaten UI'da var), onun yerine maddeler halinde özetle.
+        
+        YANIT FORMATI (JSON):
+        {
+            'answer': 'Yönetici özeti metni...',
+            'chart': { ... } veya null
+        }
         
         Chart Objesi Formatı:
         {
