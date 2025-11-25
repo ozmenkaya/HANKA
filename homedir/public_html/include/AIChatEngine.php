@@ -24,7 +24,21 @@ class AIChatEngine {
         $this->conn = $conn;
         $this->firma_id = $firma_id;
         $this->kullanici_id = $kullanici_id;
-        $this->ai = new OpenAI();
+        
+        // API Key'i veritabanından çek
+        $api_key = null;
+        try {
+            $stmt = $this->conn->prepare("SELECT openai_api_key FROM ai_agent_settings WHERE firma_id = :firma_id LIMIT 1");
+            $stmt->execute(['firma_id' => $firma_id]);
+            $settings = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($settings && !empty($settings['openai_api_key'])) {
+                $api_key = $settings['openai_api_key'];
+            }
+        } catch (Exception $e) {
+            error_log("AI Settings fetch error: " . $e->getMessage());
+        }
+
+        $this->ai = new OpenAI($api_key);
         $this->cache = new AICache($conn);
         $this->vectorKB = new VectorKnowledgeBase($conn, $this->ai);
         $this->semanticLayer = new AISemanticLayer($conn);
