@@ -468,7 +468,21 @@ FİRMA BİLGİLERİ:
 5. Personel isimleri için CONCAT(ad, ' ', soyad) kullan
 6. Türkçe karakter problemleri için COLLATE utf8mb4_unicode_ci kullan
 7. FUZZY MATCHING (ÖNEMLİ): Firma/tedarikçi/ürün isimlerinde SADECE ilk anlamlı kelimeyi kullan (min 5 harf). Atla: ambalaj, matbaa, kağıt, san, tic, ltd, şti, a.ş. ÜRÜN sorguları için ÇOK KELİME varsa OR ile birleştir. Örnek: 'keçeli ambalaj' → '%KEÇELİ%'. Örnek: 'hotmelt sıcak tutkal' → '%HOTMELT%' OR '%TUTKAL%' (tek kelime yazım hatası olabilir)
-8. FASON iş sorguları: SELECT id,isim FROM planlama WHERE fason_tedarikciler LIKE CONCAT('%',(SELECT id FROM tedarikciler WHERE tedarikci_unvani LIKE '%KEYWORD%' LIMIT 1),'%')
+8. FASON İŞ SORGULARI (KRİTİK - ÇİFT YÖNLÜ KONTROL): Kullanıcı 'X fason işleri' veya 'X deki fason işler' dediğinde X hem MÜŞTERİ hem TEDARİKÇİ olabilir!
+   - SENARYO A (X = TEDARİKÇİ): X firmasına yaptırılan işler.
+     Sorgu: SELECT p.id, p.isim, t.tedarikci_unvani FROM planlama p JOIN tedarikciler t ON p.fason_tedarikciler LIKE CONCAT('%',t.id,'%') WHERE t.tedarikci_unvani LIKE '%KEYWORD%'
+   - SENARYO B (X = MÜŞTERİ): X müşterisinin fasona gönderilen işleri.
+     Sorgu: SELECT p.id, p.isim, m.firma_unvani FROM planlama p JOIN siparisler s ON p.siparis_id=s.id JOIN musteri m ON s.musteri_id=m.id WHERE m.firma_unvani LIKE '%KEYWORD%' AND p.fason_tedarikciler IS NOT NULL AND p.fason_tedarikciler != '' AND p.fason_tedarikciler != '[]'
+   - EN GÜVENLİ YOL (HER İKİSİNİ BİRLEŞTİR):
+     SELECT p.id, p.isim, m.firma_unvani as musteri, t.tedarikci_unvani as fasoncu 
+     FROM planlama p 
+     LEFT JOIN siparisler s ON p.siparis_id=s.id 
+     LEFT JOIN musteri m ON s.musteri_id=m.id 
+     LEFT JOIN tedarikciler t ON p.fason_tedarikciler LIKE CONCAT('%',t.id,'%')
+     WHERE (t.tedarikci_unvani LIKE '%KEYWORD%' OR m.firma_unvani LIKE '%KEYWORD%' OR m.marka LIKE '%KEYWORD%') 
+     AND p.firma_id={$this->firma_id} 
+     AND (p.fason_tedarikciler IS NOT NULL AND p.fason_tedarikciler != '' AND p.fason_tedarikciler != '[]')
+     GROUP BY p.id
 9. KOLON ADI DÜZELTMELERİ: stok_alt_depolar.ekleme_tarihi (DEĞİL .tarih), makinalar.makina_adi (DEĞİL .makine_adi), musteri.firma_unvani (DEĞİL .firma_adi), tedarikciler.tedarikci_unvani (DEĞİL .tedarikci_adi)
 10. TEDARİKÇİ SORGULARI (ÖNEMLİ): Tedarikçi adı sorulduğunda stok_kalem'de ARAMA YAPMA! MUTLAKA tedarikciler tablosu JOIN yap ve tedarikci_unvani kullan. ÖRNEK: 'egemet tedarikçisinden kağıt' → SELECT SUM(sad.adet) FROM stok_alt_depolar sad JOIN tedarikciler t ON sad.tedarikci_id=t.id LEFT JOIN birimler b ON sad.birim_id=b.id WHERE t.tedarikci_unvani LIKE '%EGE%' AND b.ad='KG' AND sad.firma_id=16";
         $system_prompt .= "\n11. STOK/ÜRÜN/MAKİNA/MÜŞTERİ İŞ SORULARI (KRİTİK): Kullanıcı 'X işleri', 'X deki işler', 'X te hangi işler var' dediğinde X hem ÜRÜN hem MÜŞTERİ olabilir!
@@ -479,7 +493,7 @@ FİRMA BİLGİLERİ:
    - ÖRNEK: 'keçeli ambalaj işleri' -> Hem planlama.isim'de 'keçeli' ara, HEM musteri.marka'da 'keçeli' ara!
    - VERİTABANINDA YAZIM HATALARI OLUR: 'hotmelt' → 'HOLTMELT', 'laminasyon' → 'LAMİNASYON' vs. MUTLAKA esnek ara - her harfi tek tek kontrol etme! ÖRNEK: 'hotmelt makinası' → (p.isim LIKE '%HOT%MELT%' OR p.isim LIKE '%HOLT%MELT%' OR p.isim LIKE '%HOTMELT%' OR p.isim LIKE '%HOLTMELT%'). Türkçe klavye hataları: O/Ö, U/Ü, I/İ, S/Ş, C/Ç değişebilir! TAM ÖRNEK SQL: SELECT p.id, p.isim, p.siparis_no FROM planlama p LEFT JOIN siparisler s ON p.siparis_id=s.id LEFT JOIN musteri m ON s.musteri_id=m.id WHERE (p.isim LIKE '%HOT%MELT%' OR m.marka LIKE '%HOT%MELT%' OR m.firma_unvani LIKE '%HOT%MELT%') AND p.firma_id=16 ORDER BY p.id DESC LIMIT 20. STOK miktarı sorulursa o zaman stok_alt_depolar → stok_alt_kalemler → stok_kalemleri JOIN yap.";
         $system_prompt .= "\n12. SİPARİŞ SORGULARI (ÖNEMLİ): siparisler tablosu JOIN: s.musteri_id = m.id (DEĞİL m.vergi_numarasi!). Tarih kolonu: s.tarih (DEĞİL s.siparis_tarihi). Durum filtresi ZORUNLU DEĞİL (çoğu sipariş durum=NULL). ÖRNEK: 'en çok sipariş veren müşteri son 6 ay' → SELECT m.firma_unvani, COUNT(*) as siparis_sayisi FROM siparisler s JOIN musteri m ON s.musteri_id=m.id WHERE s.firma_id=16 AND s.tarih>=DATE_SUB(NOW(),INTERVAL 6 MONTH) GROUP BY s.musteri_id, m.firma_unvani ORDER BY siparis_sayisi DESC LIMIT 1
-13. MÜŞTERİ İŞLERİNİN FASONCUSU (ÖNEMLİ): planlama tablosunda musteri_id YOK! 3 tablo JOIN: planlama → siparisler → musteri. JOIN doğru: p.siparis_id = s.id (DEĞİL s.siparis_no), s.musteri_id = m.id (DEĞİL m.musteri_id). ÖRNEK tam SQL: SELECT p.id, p.isim, GROUP_CONCAT(DISTINCT t.tedarikci_unvani) as fasoncu FROM planlama p JOIN siparisler s ON p.siparis_id=s.id JOIN musteri m ON s.musteri_id=m.id CROSS JOIN tedarikciler t WHERE m.firma_unvani LIKE '%SOLO%' AND p.fason_tedarikciler LIKE CONCAT('%',t.id,'%') AND p.firma_id=16 AND t.firma_id=16 GROUP BY p.id, p.isim";
+13. MÜŞTERİ İŞLERİNİN FASONCUSU (ÖNEMLİ): planlama tablosunda musteri_id YOK! 3 tablo JOIN: planlama → siparisler → musteri. JOIN doğru: p.siparis_id = s.id (DEĞİL s.siparis_no), s.musteri_id = m.id (DEĞİL m.musteri_id). ÖRNEK tam SQL: SELECT p.id, p.isim, GROUP_CONCAT(DISTINCT t.tedarikci_unvani) as fasoncu FROM planlama p JOIN siparisler s ON p.siparis_id=s.id JOIN musteri m ON s.musteri_id=m.id CROSS JOIN tedarikciler t WHERE m.firma_unvani LIKE '%SOLO%' AND p.fason_tedarikciler LIKE CONCAT('%',t.id,'%') AND p.firma_id=16 AND t.firma_id=16 GROUP BY p.id, p.isim. NOT: Eğer kullanıcı 'X fason işleri' derse Rule 8'deki GENEL ARAMA mantığını kullan.";
 
         $system_prompt .= "\n14. MÜŞTERİ TEMSİLCİSİ/PERSONEL SORULARI: siparisler tablosunda musteri_temsilcisi_id kullan (DEĞİL personel_id). JOIN: s.musteri_temsilcisi_id = pe.id. ÖRNEK: SELECT pe.ad, pe.soyad, COUNT(*) as siparis_sayisi FROM siparisler s JOIN personeller pe ON s.musteri_temsilcisi_id = pe.id WHERE s.firma_id = {$this->firma_id} GROUP BY pe.id ORDER BY siparis_sayisi DESC";
 
