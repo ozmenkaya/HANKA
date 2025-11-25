@@ -353,11 +353,15 @@ class AIChatEngine {
             "stok_alt_depolar" => "Stok deposu (182 kayıt) - Kolonlar: id, stok_alt_kalem_id, adet, ekleme_tarihi, tedarikci_id | JOIN: stok_alt_kalem_id→stok_alt_kalemler, tedarikci_id→tedarikciler",
             "stok_alt_kalemler" => "Stok kalemleri | JOIN: stok_id→stok_kalemleri",
             "stok_kalemleri" => "Stok ürün tanımları - Kolonlar: id, stok_kalem",
-            "makinalar" => "Makina bilgileri (15 kayıt) - Kolonlar: id, makina_adi",
+            "makinalar" => "Makina bilgileri (15 kayıt) - Kolonlar: id, makina_adi, durumu (aktif, pasif, bakımda)",
             "departmanlar" => "Departman bilgileri (20 kayıt) - Kolonlar: id, firma_id, departman. Kolon adı 'departman' (departman_adi DEĞİL!)",
             "turler" => "İş türleri",
             "birimler" => "Birim bilgileri (5 kayıt)",
-            "uretilen_adetler" => "Üretilen adet bilgileri - Kolonlar: id, siparis_id, uretilen_adet, tarih. DİKKAT: Tablo adı 'uretilen_adetler' ('uretim_adetler' DEĞİL!)"
+            "uretilen_adetler" => "Üretilen adet bilgileri - Kolonlar: id, siparis_id, uretilen_adet, tarih. DİKKAT: Tablo adı 'uretilen_adetler' ('uretim_adetler' DEĞİL!)",
+            "siparis_log" => "Sipariş durum geçmişi - Kolonlar: siparis_id, eski_durum, yeni_durum, tarih. Bir siparişin ne zaman hangi aşamadan geçtiğini gösterir.",
+            "uretim_ariza_log" => "Makina arıza kayıtları - Kolonlar: makina_id, ariza_tipi, sure, aciklama, tarih. Makina neden durdu, ne kadar durdu?",
+            "teslim_edilenler" => "Teslimat kayıtları - Kolonlar: siparis_id, teslim_tarih, teslim_alan, irsaliye_no. Teslim edilen işler.",
+            "agent_alerts" => "Sistem uyarıları ve bildirimler - Kolonlar: alert_type, alert_level (CRITICAL, WARNING), message, created_at. Acil durumlar."
         ];
 
         // 🛠️ SCHEMA FIX: JSON dosyasından gelen hatalı şemayı düzelt
@@ -476,6 +480,8 @@ FİRMA BİLGİLERİ:
         
         $system_prompt .= "\n23. TABLO İSMİ DÜZELTMESİ: 'uretim_adetler' diye bir tablo YOK! Doğrusu 'uretilen_adetler'. Sakın uretim_adetler kullanma!";
         $system_prompt .= "\n24. MAKİNA BAZINDA ÜRETİM (KRİTİK): 'uretilen_adetler' tablosunda 'makina_id' VARDIR! Makina bazında üretim sorulursa: SELECT m.makina_adi, SUM(ua.uretilen_adet) as toplam FROM uretilen_adetler ua JOIN makinalar m ON ua.makina_id=m.id WHERE m.firma_id={$this->firma_id} GROUP BY m.id ORDER BY toplam DESC.";
+        $system_prompt .= "\n25. SİPARİŞ DETAYLARI (JSON): Siparişin ürün özellikleri (renk, ebat, malzeme) 'siparisler.veriler' JSON kolonundadır. ÖRNEK: JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.urun_adi')) veya JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.renk')). Eğer kullanıcı 'kırmızı renkli işler' derse: WHERE JSON_SEARCH(s.veriler, 'one', '%kırmızı%') IS NOT NULL kullan.";
+        $system_prompt .= "\n26. ARIZA VE DURUŞ ANALİZİ: 'En çok arıza yapan makina' sorulursa: SELECT m.makina_adi, COUNT(*) as ariza_sayisi, SUM(ual.sure) as toplam_sure FROM uretim_ariza_log ual JOIN makinalar m ON ual.makina_id=m.id WHERE m.firma_id={$this->firma_id} GROUP BY m.id ORDER BY ariza_sayisi DESC.";
 
         $system_prompt .= "\n\nMEVCUT ARAÇLAR (FONKSİYONLAR):
 Eğer kullanıcı aşağıdaki hesaplamaları isterse, SQL yerine JSON formatında araç çağrısı yap:
