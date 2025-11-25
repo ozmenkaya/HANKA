@@ -357,16 +357,113 @@ class AIChatEngine {
     private function getDatabaseSchema() {
         // Dinamik schema - JSON dosyasından yükle
         $schema_file = "/var/www/html/logs/ai_compact_schema.json";
+        $cache_time = 3600; // 1 saat
         
-        if (file_exists($schema_file)) {
+        // Cache geçerli mi?
+        if (file_exists($schema_file) && (time() - filemtime($schema_file) < $cache_time)) {
             $smart_schema = json_decode(file_get_contents($schema_file), true);
             if ($smart_schema && count($smart_schema) > 0) {
                 return $smart_schema;
             }
         }
         
-        // Fallback: En önemli tablolar
-        $schema = [
+        // Cache yok veya eski, yeniden tara
+        try {
+            return $this->scanDatabaseSchema();
+        } catch (Exception $e) {
+            error_log("Schema scan error: " . $e->getMessage());
+            // Hata durumunda expert bilgisini dön
+            return $this->getExpertSchemaKnowledge();
+        }
+    }
+
+    /**
+     * Veritabanı şemasını dinamik olarak tara ve cachele
+     */
+    private function scanDatabaseSchema() {
+        $schema = [];
+        
+        try {
+            $db_name = $this->conn->query("SELECT DATABASE()")->fetchColumn();
+            
+            // 1. Tabloları çek
+            $tables_sql = "SELECT TABLE_NAME, TABLE_COMMENT 
+                           FROM information_schema.TABLES 
+                           WHERE TABLE_SCHEMA = :db_name";
+            $stmt = $this->conn->prepare($tables_sql);
+            $stmt->execute(['db_name' => $db_name]);
+            $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            foreach ($tables as $table) {
+                $table_name = $table['TABLE_NAME'];
+                $table_comment = $table['TABLE_COMMENT'];
+                
+                // 2. Kolonları çek
+                $cols_sql = "SELECT COLUMN_NAME, COLUMN_COMMENT, DATA_TYPE, COLUMN_KEY 
+                             FROM information_schema.COLUMNS 
+                             WHERE TABLE_SCHEMA = :db_name AND TABLE_NAME = :table_name";
+                $stmt_col = $this->conn->prepare($cols_sql);
+                $stmt_col->execute(['db_name' => $db_name, 'table_name' => $table_name]);
+                $columns = $stmt_col->fetchAll(PDO::FETCH_ASSOC);
+                
+                $col_list = [];
+                $joins = [];
+                
+                foreach ($columns as $col) {
+                    $c_name = $col['COLUMN_NAME'];
+                    $c_type = $col['DATA_TYPE'];
+                    $c_comment = $col['COLUMN_COMMENT'];
+                    
+                    // Kolon açıklaması
+                    $c_desc = $c_name;
+                    if (!empty($c_comment)) $c_desc .= " ($c_comment)";
+                    $col_list[] = $c_desc;
+                    
+                    // Join tahmini (basit)
+                    if (substr($c_name, -3) === '_id') {
+                        $target = substr($c_name, 0, -3);
+                        $joins[] = "$c_name→$target"; 
+                    }
+                }
+                
+                // Açıklama oluştur
+                $desc = "Tablo: $table_name";
+                if (!empty($table_comment)) $desc .= " ($table_comment)";
+                $desc .= " | Kolonlar: " . implode(", ", $col_list);
+                if (!empty($joins)) $desc .= " | Olası Joinler: " . implode(", ", $joins);
+                
+                $schema[$table_name] = $desc;
+            }
+            
+            // 3. Manuel "Expert" açıklamaları ile zenginleştir (Merge)
+            $expert_knowledge = $this->getExpertSchemaKnowledge();
+            foreach ($expert_knowledge as $table => $expert_desc) {
+                if (isset($schema[$table])) {
+                    // Otomatik taranan verinin önüne expert bilgisini ekle
+                    $schema[$table] = $expert_desc . " | OTOMATİK TARAMA: " . $schema[$table];
+                } else {
+                    $schema[$table] = $expert_desc;
+                }
+            }
+            
+            // 4. Cache dosyasına yaz
+            $schema_file = "/var/www/html/logs/ai_compact_schema.json";
+            if (!is_dir(dirname($schema_file))) mkdir(dirname($schema_file), 0777, true);
+            file_put_contents($schema_file, json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            
+            return $schema;
+            
+        } catch (Exception $e) {
+            error_log("Schema scan error: " . $e->getMessage());
+            return $this->getExpertSchemaKnowledge(); // Hata olursa sadece expert bilgisini dön
+        }
+    }
+
+    /**
+     * Manuel olarak tanımlanmış kritik tablo bilgileri
+     */
+    private function getExpertSchemaKnowledge() {
+        return [
             "siparisler" => "Sipariş bilgileri (1361 kayıt) - veriler JSON kolonu: [{miktar,birim_fiyat,isim}] 5 eleman. TUTAR HESABI: JSON_EXTRACT(veriler,'$[0].miktar')*JSON_EXTRACT(veriler,'$[0].birim_fiyat')+JSON_EXTRACT(veriler,'$[1].miktar')*JSON_EXTRACT(veriler,'$[1].birim_fiyat')+JSON_EXTRACT(veriler,'$[2].miktar')*JSON_EXTRACT(veriler,'$[2].birim_fiyat')+JSON_EXTRACT(veriler,'$[3].miktar')*JSON_EXTRACT(veriler,'$[3].birim_fiyat')+JSON_EXTRACT(veriler,'$[4].miktar')*JSON_EXTRACT(veriler,'$[4].birim_fiyat'). Ana tablodaki adet×fiyat YANLIŞ! | JOIN: musteri_id→musteri",
             "musteri" => "Müşteri bilgileri (152 kayıt) - Kolonlar: id, marka (KOMAGENE, MIGROS), firma_unvani (YÖRPAŞ YÖRESEL LEZZETLER). KULLANICI MARKA İLE SORAR! MUTLAKA OR ile ara: (marka LIKE '%KOMAGENE%' OR firma_unvani LIKE '%KOMAGENE%'). SELECT'te HER İKİSİNİ GÖSTER! | JOIN: sehir_id→sehirler, ilce_id→ilceler",
             "planlama" => "Planlama kayıtları (1458 kayıt) - Kolonlar: id, siparis_id, isim, fason_tedarikciler | JOIN: siparis_id→siparisler.id",
@@ -388,17 +485,6 @@ class AIChatEngine {
             "teslim_edilenler" => "Teslimat kayıtları - Kolonlar: siparis_id, teslim_tarih, teslim_alan, irsaliye_no. Teslim edilen işler.",
             "agent_alerts" => "Sistem uyarıları ve bildirimler - Kolonlar: alert_type, alert_level (CRITICAL, WARNING), message, created_at. Acil durumlar."
         ];
-
-        // 🛠️ SCHEMA FIX: JSON dosyasından gelen hatalı şemayı düzelt
-        if (isset($smart_schema)) {
-            $schema = array_merge($schema, $smart_schema);
-        }
-        
-        // Kritik düzeltmeler (JSON'dan yanlış gelse bile ez)
-        $schema['uretilen_adetler'] = "Üretilen adet bilgileri (912 kayıt) - Kolonlar: id, firma_id, planlama_id, makina_id, personel_id, uretilen_adet, tarih. | JOIN: makina_id→makinalar, planlama_id→planlama";
-        $schema['uretim_islem_tarihler'] = "Üretim işlem kayıtları - Kolonlar: id, planlama_id, makina_id, personel_id, baslatma_tarih, bitirme_tarihi. | JOIN: makina_id→makinalar, planlama_id→planlama";
-
-        return $schema;
     }
     
     /**
