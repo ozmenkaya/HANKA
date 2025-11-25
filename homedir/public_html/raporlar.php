@@ -1,0 +1,473 @@
+<?php
+require_once "include/oturum_kontrol.php";
+
+// Kayıtlı raporları çek
+$sql = "SELECT * FROM rapor_sablonlari WHERE firma_id = :firma_id ORDER BY olusturma_tarihi DESC";
+$sth = $conn->prepare($sql);
+$sth->bindParam('firma_id', $_SESSION['firma_id']);
+$sth->execute();
+$raporlar = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+// Aktif rapor tablolarını çek
+$ayarlar_sql = "SELECT * FROM rapor_ayarlari WHERE firma_id = :firma_id AND aktif = 1 ORDER BY sira, id";
+$ayarlar_sth = $conn->prepare($ayarlar_sql);
+$ayarlar_sth->bindParam('firma_id', $_SESSION['firma_id']);
+$ayarlar_sth->execute();
+$aktif_tablolar = $ayarlar_sth->fetchAll(PDO::FETCH_ASSOC);
+?>
+<div class="container-fluid">
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fa-solid fa-file-excel"></i> Excel Raporları
+                    </h5>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#yeniRaporModal">
+                        <i class="fa-solid fa-plus"></i> Yeni Rapor Şablonu
+                    </button>
+                </div>
+                <div class="card-body">
+                    <?php if(empty($raporlar)): ?>
+                        <div class="alert alert-info">
+                            <i class="fa-solid fa-info-circle"></i>
+                            Henüz kayıtlı rapor şablonunuz yok. "Yeni Rapor Şablonu" butonuna tıklayarak başlayabilirsiniz.
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Rapor Adı</th>
+                                        <th>Veri Kaynağı</th>
+                                        <th>Oluşturma Tarihi</th>
+                                        <th width="150">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($raporlar as $rapor): ?>
+                                        <tr>
+                                            <td><strong><?= htmlspecialchars($rapor['rapor_adi']) ?></strong></td>
+                                            <td>
+                                                <?php
+                                                $kaynaklar = [
+                                                    'uretim' => 'Üretim Verileri',
+                                                    'siparisler' => 'Siparişler',
+                                                    'planlama' => 'Planlama',
+                                                    'makinalar' => 'Makinalar',
+                                                    'personel' => 'Personel Performansı',
+                                                    'stok' => 'Stok Hareketleri'
+                                                ];
+                                                echo $kaynaklar[$rapor['veri_kaynagi']] ?? $rapor['veri_kaynagi'];
+                                                ?>
+                                            </td>
+                                            <td><?= date('d.m.Y H:i', strtotime($rapor['olusturma_tarihi'])) ?></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary rapor-indir" data-rapor-id="<?= $rapor['id'] ?>">
+                                                    <i class="fa-solid fa-eye"></i> Görüntüle
+                                                </button>
+                                                <button class="btn btn-sm btn-danger rapor-sil" data-rapor-id="<?= $rapor['id'] ?>">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Yeni Rapor Modal -->
+<div class="modal fade" id="yeniRaporModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-file-excel"></i> Yeni Rapor Şablonu Oluştur
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="raporForm">
+                    <div class="mb-3">
+                        <label class="form-label">Rapor Adı</label>
+                        <input type="text" class="form-control" name="rapor_adi" required 
+                            placeholder="Örn: Aylık Üretim Raporu">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Veri Kaynağı</label>
+                        <select class="form-select" name="veri_kaynagi" id="veriKaynagi" required>
+                            <option value="">Seçiniz...</option>
+                            <?php foreach($aktif_tablolar as $tablo): ?>
+                                <option value="<?= htmlspecialchars($tablo['tablo_adi']) ?>">
+                                    <?= htmlspecialchars($tablo['tablo_label']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Excel'de Görünecek Sütunlar</label>
+                        <div id="sutunlarContainer" class="border rounded p-3">
+                            <p class="text-muted">Önce veri kaynağı seçiniz...</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-primary" id="raporKaydet">
+                    <i class="fa-solid fa-save"></i> Kaydet
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rapor İndirme Modal -->
+<div class="modal fade" id="raporIndirModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-calendar"></i> Tarih Aralığı Seç
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="indirForm">
+                    <input type="hidden" name="rapor_id" id="indirRaporId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Başlangıç Tarihi</label>
+                        <input type="date" class="form-control" name="baslangic_tarihi" 
+                            value="<?= date('Y-m-01') ?>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Bitiş Tarihi</label>
+                        <input type="date" class="form-control" name="bitis_tarihi" 
+                            value="<?= date('Y-m-d') ?>" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                <button type="button" class="btn btn-success" id="raporGoruntule">
+                    <i class="fa-solid fa-file-excel"></i> Rapor Görüntüle
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sütun tanımları
+const sutunTanimlari = {
+    uretim: [
+        {key: 'tarih', label: 'Tarih'},
+        {key: 'siparis_no', label: 'Sipariş No'},
+        {key: 'urun_adi', label: 'Ürün Adı'},
+        {key: 'makina_adi', label: 'Makina'},
+        {key: 'personel', label: 'Personel'},
+        {key: 'uretilen_adet', label: 'Üretilen Adet'},
+        {key: 'fire_adet', label: 'Fire Adet'},
+        {key: 'baslatma_tarih', label: 'Başlatma Tarihi'},
+        {key: 'bitis_tarih', label: 'Bitiş Tarihi'},
+        {key: 'firma', label: 'Firma'},
+        {key: 'departman', label: 'Departman'},
+        {key: 'durum_text', label: 'Durum'}
+    ],
+siparisler: [
+        {key: 'siparis_no', label: 'Sipariş No'},
+        {key: 'musteri_adi', label: 'Müşteri Adı'},
+        {key: 'siparis_tipi', label: 'Sipariş Tipi'},
+        {key: 'tur', label: 'Tür'},
+        {key: 'birim', label: 'Birim'},
+        {key: 'isin_adi', label: 'İşin Adı'},
+        {key: 'adet', label: 'Adet'},
+        {key: 'urun_ismi', label: 'Ürün İsmi'},
+        {key: 'json_miktar', label: 'Miktar'},
+        {key: 'kdv_orani', label: 'KDV'},
+        {key: 'birim_fiyat_json', label: 'Birim Fiyat'},
+        {key: 'json_aciklama', label: 'Açıklama'},
+        {key: 'ebat', label: 'Ebat'},
+        {key: 'baski', label: 'Baskı'},
+        {key: 'gramaj', label: 'Gramaj'},
+        {key: 'karton', label: 'Karton'},
+        {key: 'kagit', label: 'Kağıt'},
+        {key: 'laminasyon', label: 'Laminasyon'},
+        {key: 'uv_lak', label: 'UV Lak'},
+        {key: 'varak', label: 'Varak'},
+        {key: 'kirim', label: 'Kırım'},
+        {key: 'paketleme', label: 'Paketleme'},
+        {key: 'yapistirma', label: 'Yapıştırma'},
+        {key: 'cilt', label: 'Cilt'},
+        {key: 'ulke', label: 'Ülke'},
+        {key: 'sehir', label: 'Şehir'},
+        {key: 'ilce', label: 'İlçe'},
+        {key: 'onaylayan', label: 'Onaylayan'},
+        {key: 'odeme_sekli', label: 'Ödeme Şekli'},
+        {key: 'musteri_temsilcisi', label: 'Müşteri Temsilcisi'},
+        {key: 'termin', label: 'Termin Tarihi'},
+        {key: 'durum', label: 'Durum'},
+        {key: 'olusturma_tarihi', label: 'Oluşturma Tarihi'}
+    ],
+    siparislerv2: [
+        {key: 'siparis_id', label: 'Sipariş ID'},
+        {key: 'siparis_no', label: 'Sipariş No'},
+        {key: 'musteri_adi', label: 'Müşteri Adı'},
+        {key: 'musteri_vergi_no', label: 'Müşteri Vergi No'},
+        {key: 'musteri_vergi_dairesi', label: 'Vergi Dairesi'},
+        {key: 'musteri_email', label: 'Müşteri Email'},
+        {key: 'musteri_telefon', label: 'Müşteri Telefon'},
+        {key: 'siparis_tipi', label: 'Sipariş Tipi'},
+        {key: 'tur', label: 'Tür'},
+        {key: 'birim', label: 'Birim'},
+        {key: 'isin_adi', label: 'İşin Adı'},
+        {key: 'adet', label: 'Adet'},
+        {key: 'fiyat', label: 'Fiyat'},
+        {key: 'para_cinsi', label: 'Para Birimi'},
+        {key: 'urun_ismi', label: 'Ürün İsmi'},
+        {key: 'json_miktar', label: 'Miktar'},
+        {key: 'kdv_orani', label: 'KDV Oranı'},
+        {key: 'birim_fiyat_json', label: 'Birim Fiyat'},
+        {key: 'json_aciklama', label: 'Açıklama'},
+        {key: 'numune', label: 'Numune'},
+        {key: 'ebat', label: 'Ebat'},
+        {key: 'baski', label: 'Baskı'},
+        {key: 'gramaj', label: 'Gramaj'},
+        {key: 'karton', label: 'Karton'},
+        {key: 'kagit', label: 'Kağıt'},
+        {key: 'laminasyon', label: 'Laminasyon'},
+        {key: 'uv_lak', label: 'UV Lak'},
+        {key: 'varak', label: 'Varak'},
+        {key: 'kirim', label: 'Kırım'},
+        {key: 'paketleme_json', label: 'Paketleme'},
+        {key: 'yapistirma', label: 'Yapıştırma'},
+        {key: 'cilt', label: 'Cilt'},
+        {key: 'gofraj', label: 'Gofraj'},
+        {key: 'tekli_ebadi', label: 'Tekli Ebadı'},
+        {key: 'montaj_sayisi', label: 'Montaj Sayısı'},
+        {key: 'bicak_numarasi', label: 'Bıçak Numarası'},
+        {key: 'tasarim_numarasi', label: 'Tasarım Numarası'},
+        {key: 'koli_numarasi', label: 'Koli Numarası'},
+        {key: 'koli_ici_adet', label: 'Koli İçi Adet'},
+        {key: 'palet_olcusu', label: 'Palet Ölçüsü'},
+        {key: 'palet_ici_koli_adeti', label: 'Palet İçi Koli Adeti'},
+        {key: 'ulke', label: 'Ülke'},
+        {key: 'sehir', label: 'Şehir'},
+        {key: 'ilce', label: 'İlçe'},
+        {key: 'onaylayan', label: 'Onaylayan'},
+        {key: 'olusturan', label: 'Oluşturan'},
+        {key: 'odeme_sekli', label: 'Ödeme Şekli'},
+        {key: 'musteri_temsilcisi', label: 'Müşteri Temsilcisi'},
+        {key: 'temsilci_telefon', label: 'Temsilci Telefon'},
+        {key: 'temsilci_email', label: 'Temsilci Email'},
+        {key: 'termin', label: 'Termin Tarihi'},
+        {key: 'siparis_tarihi', label: 'Sipariş Tarihi'},
+        {key: 'durum', label: 'Durum'},
+        {key: 'islem_durumu', label: 'İşlem Durumu'},
+        {key: 'firma', label: 'Firma'}
+    ],
+    planlama: [
+        {key: 'siparis_no', label: 'Sipariş No'},
+        {key: 'musteri', label: 'Müşteri'},
+        {key: 'urun', label: 'Ürün'},
+        {key: 'adet', label: 'Adet'},
+        {key: 'asama', label: 'Aşama (Mevcut/Toplam)'},
+        {key: 'durum', label: 'Durum'},
+        {key: 'termin', label: 'Termin'},
+        {key: 'firma', label: 'Firma'},
+        {key: 'mevcut_departman', label: 'Mevcut Departman'},
+        {key: 'planlama_tarihi', label: 'Planlama Tarihi'}
+    ],
+    makinalar: [
+        {key: 'makina_adi', label: 'Makina Adı'},
+        {key: 'makina_modeli', label: 'Model'},
+        {key: 'durum', label: 'Durum'},
+        {key: 'departman', label: 'Departman'},
+        {key: 'firma', label: 'Firma'},
+        {key: 'toplam_is', label: 'Toplam İş'},
+        {key: 'tamamlanan_is', label: 'Tamamlanan İş'},
+        {key: 'toplam_uretilen', label: 'Toplam Üretim'},
+        {key: 'verimlilik', label: 'Verimlilik %'}
+    ],
+    personel: [
+        {key: 'personel', label: 'Personel'},
+        {key: 'email', label: 'Email'},
+        {key: 'yetki', label: 'Yetki'},
+        {key: 'departman', label: 'Departman'},
+        {key: 'firma', label: 'Firma'},
+        {key: 'makinalar', label: 'Çalıştığı Makinalar'},
+        {key: 'toplam_is', label: 'Toplam İş'},
+        {key: 'tamamlanan_is', label: 'Tamamlanan'},
+        {key: 'uretilen_adet', label: 'Üretilen Adet'},
+        {key: 'fire_adet', label: 'Fire Adet'},
+        {key: 'verimlilik', label: 'Verimlilik %'}
+    ],
+    stok: [
+        {key: 'stok_adi', label: 'Stok Adı'},
+        {key: 'stok_kodu', label: 'Stok Kodu'},
+        {key: 'kategori', label: 'Kategori'},
+        {key: 'hareket_tipi', label: 'Hareket Tipi'},
+        {key: 'miktar', label: 'Miktar'},
+        {key: 'birim', label: 'Birim'},
+        {key: 'tarih', label: 'Tarih'},
+        {key: 'aciklama', label: 'Açıklama'},
+        {key: 'islem_yapan', label: 'İşlem Yapan'},
+        {key: 'firma', label: 'Firma'},
+        {key: 'siparis_no', label: 'Sipariş No'},
+        {key: 'makina_adi', label: 'Makina'}
+    ]
+};
+
+// Veri kaynağı değiştiğinde sütunları göster
+
+// jQuery ready - DOM yüklendikten sonra çalıştır
+$(document).ready(function(){
+
+$('#veriKaynagi').change(function(){
+    const kaynak = $(this).val();
+    if(!kaynak) {
+        $('#sutunlarContainer').html('<p class="text-muted">Önce veri kaynağı seçiniz...</p>');
+        return;
+    }
+    
+    const sutunlar = sutunTanimlari[kaynak];
+    
+    // Eğer bu tablo için sütun tanımı yoksa
+    if(!sutunlar || !Array.isArray(sutunlar)) {
+        $('#sutunlarContainer').html(`
+            <div class="alert alert-warning">
+                <i class="mdi mdi-alert"></i>
+                <strong>Uyarı:</strong> Bu tablo için henüz sütun tanımları eklenmemiş. 
+                Lütfen <a href="/index.php?url=rapor_ayarlari">Rapor Ayarları</a> sayfasından 
+                standart tablolardan birini seçin veya sistem yöneticisine bildirim yapın.
+            </div>
+        `);
+        return;
+    }
+    
+    let html = '<p class="mb-2"><strong>Seçmek istediğiniz sütunları işaretleyin:</strong></p>';
+    html += '<p class="text-muted small"><i class="fa-solid fa-arrows-up-down"></i> Sütunları sürükleyerek sırasını değiştirebilirsiniz</p>';
+    html += '<ul id="sutunListesi" class="list-group" style="cursor: move;">';
+    
+    sutunlar.forEach(sutun => {
+        html += `
+            <li class="list-group-item d-flex align-items-center" data-key="${sutun.key}">
+                <i class="fa-solid fa-grip-vertical me-2 text-muted"></i>
+                <input class="form-check-input me-2" type="checkbox" 
+                    id="sutun_${sutun.key}" checked>
+                <label class="form-check-label flex-grow-1" for="sutun_${sutun.key}">
+                    ${sutun.label}
+                </label>
+            </li>
+        `;
+    });
+    
+    html += '</ul>';
+    
+    $('#sutunlarContainer').html(html);
+    
+    // Sortable yap
+    $('#sutunListesi').sortable({
+        axis: 'y',
+        cursor: 'move',
+        placeholder: 'list-group-item bg-light',
+        opacity: 0.8
+    });
+});
+
+// Rapor kaydet
+$('#raporKaydet').click(function(){
+    const raporAdi = $('input[name="rapor_adi"]').val();
+    const veriKaynagi = $('#veriKaynagi').val();
+    
+    if(!raporAdi || !veriKaynagi) {
+        alert('Lütfen tüm alanları doldurun!');
+        return;
+    }
+    
+    // Seçili sütunları SIRALI olarak topla
+    const seciliSutunlar = [];
+    $('#sutunListesi li').each(function(){
+        const checkbox = $(this).find('input[type="checkbox"]');
+        if(checkbox.is(':checked')) {
+            const key = $(this).data('key');
+            const sutun = sutunTanimlari[veriKaynagi].find(s => s.key === key);
+            if(sutun) {
+                seciliSutunlar.push(sutun);
+            }
+        }
+    });
+    
+    if(seciliSutunlar.length === 0) {
+        alert('En az bir sütun seçmelisiniz!');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('rapor_adi', raporAdi);
+    formData.append('veri_kaynagi', veriKaynagi);
+    formData.append('sutunlar', JSON.stringify(seciliSutunlar));
+    formData.append('islem', 'rapor-kaydet');
+    
+    $.ajax({
+        url: '/index.php?url=raporlar_db_islem',
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        success: function(response){
+            if(response.success) {
+                alert('Rapor şablonu kaydedildi!');
+                location.reload();
+            } else {
+                alert('Hata: ' + response.message);
+            }
+        },
+        error: function(){
+            alert('Bir hata oluştu!');
+        }
+    });
+});
+
+// Rapor görüntüle
+$(document).on("click", ".rapor-indir", function(){
+    const raporId = $(this).data("rapor-id");
+    $("#indirRaporId").val(raporId);
+    $("#raporIndirModal").modal("show");
+});
+
+$("#raporGoruntule").click(function(){
+    const formData = $("#indirForm").serialize();
+    window.location.href = "/index.php?url=rapor_tablo&" + formData;
+});
+// Rapor sil
+$(document).on('click', '.rapor-sil', function(){
+    if(!confirm('Bu rapor şablonunu silmek istediğinize emin misiniz?')) return;
+    
+    const raporId = $(this).data('rapor-id');
+    $.post('/index.php?url=raporlar_db_islem', {
+        islem: 'rapor-sil',
+        rapor_id: raporId
+    }, function(response){
+        if(response.success) {
+            alert('Rapor silindi');
+            location.reload();
+        } else {
+            alert('Hata: ' + (response.message || 'Bilinmeyen hata'));
+        }
+    }, 'json');
+});
+
+}); // $(document).ready kapanış
+</script>

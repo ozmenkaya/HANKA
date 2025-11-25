@@ -1,0 +1,347 @@
+<?php
+session_name("PNL");
+session_start();
+
+// Giriş kontrolü
+if (!isset($_SESSION['giris_kontrol']) || $_SESSION['giris_kontrol'] != "ok") {
+    header("Location: giris.php");
+    exit();
+}
+
+require_once 'include/db.php';
+
+$firma_id = $_SESSION['firma_id'];
+$page_title = "AI Öğrenme Sistemi - Dashboard";
+
+// İstatistikleri al
+$stats_sql = "SELECT 
+    (SELECT COUNT(DISTINCT table_name) FROM ai_database_schema) as total_tables,
+    (SELECT COUNT(*) FROM ai_database_schema) as total_columns,
+    (SELECT COUNT(*) FROM ai_database_schema WHERE is_foreign_key = 1) as foreign_keys,
+    (SELECT COUNT(*) FROM ai_table_relationships) as relationships,
+    (SELECT COUNT(*) FROM ai_column_semantics) as semantics,
+    (SELECT COUNT(*) FROM ai_query_patterns WHERE firma_id = :firma_id) as query_patterns,
+    (SELECT COUNT(*) FROM ai_chat_history WHERE firma_id = :firma_id) as total_queries,
+    (SELECT COUNT(*) FROM ai_knowledge_base WHERE firma_id = :firma_id) as knowledge_items,
+    (SELECT MAX(last_learned) FROM ai_database_schema) as last_refresh";
+
+$stats_sth = $conn->prepare($stats_sql);
+$stats_sth->execute(['firma_id' => $firma_id]);
+$stats = $stats_sth->fetch(PDO::FETCH_ASSOC);
+
+// En çok kullanılan tablolar
+$top_tables_sql = "SELECT 
+    table_name, 
+    COUNT(*) as usage_count
+FROM ai_query_patterns 
+WHERE firma_id = :firma_id 
+AND JSON_CONTAINS(tables_involved, JSON_QUOTE(table_name))
+GROUP BY table_name 
+ORDER BY usage_count DESC 
+LIMIT 10";
+
+// En başarılı ilişkiler
+$top_relationships_sql = "SELECT 
+    from_table, from_column, to_table, to_column,
+    confidence_score, usage_count, success_count,
+    ROUND((success_count / NULLIF(usage_count, 0)) * 100, 1) as success_rate
+FROM ai_table_relationships
+WHERE usage_count > 0
+ORDER BY confidence_score DESC, usage_count DESC
+LIMIT 15";
+
+$top_rel_sth = $conn->query($top_relationships_sql);
+$relationships = $top_rel_sth->fetchAll(PDO::FETCH_ASSOC);
+
+// Son öğrenilen query pattern'ler
+$recent_patterns_sql = "SELECT 
+    pattern_name, 
+    usage_count, 
+    success_rate,
+    avg_execution_time,
+    created_at
+FROM ai_query_patterns
+WHERE firma_id = :firma_id
+ORDER BY created_at DESC
+LIMIT 10";
+
+$patterns_sth = $conn->prepare($recent_patterns_sql);
+$patterns_sth->execute(['firma_id' => $firma_id]);
+$patterns = $patterns_sth->fetchAll(PDO::FETCH_ASSOC);
+
+// Semantic tipler dağılımı
+$semantic_dist_sql = "SELECT 
+    semantic_type, 
+    COUNT(*) as count
+FROM ai_column_semantics
+GROUP BY semantic_type
+ORDER BY count DESC";
+
+$sem_sth = $conn->query($semantic_dist_sql);
+$semantic_distribution = $sem_sth->fetchAll(PDO::FETCH_ASSOC);
+?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $page_title; ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .stat-card {
+            border-left: 4px solid #007bff;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.7;
+        }
+        .confidence-bar {
+            height: 8px;
+            border-radius: 4px;
+        }
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <?php include 'header.php'; ?>
+    
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-brain"></i> AI Öğrenme Sistemi Dashboard</h2>
+                <p class="text-muted">Veritabanı şeması otomatik öğrenme ve ilişki keşfi sistemi</p>
+            </div>
+        </div>
+
+        <!-- İstatistik Kartları -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Toplam Tablo</h6>
+                                <h2><?php echo number_format($stats['total_tables']); ?></h2>
+                            </div>
+                            <i class="fas fa-table stat-icon text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card mb-3" style="border-left-color: #28a745;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Toplam Sütun</h6>
+                                <h2><?php echo number_format($stats['total_columns']); ?></h2>
+                            </div>
+                            <i class="fas fa-columns stat-icon text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card mb-3" style="border-left-color: #ffc107;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">İlişki Keşfedildi</h6>
+                                <h2><?php echo number_format($stats['relationships']); ?></h2>
+                            </div>
+                            <i class="fas fa-project-diagram stat-icon text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card mb-3" style="border-left-color: #17a2b8;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="text-muted">Sorgu Pattern</h6>
+                                <h2><?php echo number_format($stats['query_patterns']); ?></h2>
+                            </div>
+                            <i class="fas fa-code stat-icon text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son Güncelleme -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-clock"></i> 
+                    <strong>Son Şema Güncellemesi:</strong> 
+                    <?php echo $stats['last_refresh'] ? date('d.m.Y H:i:s', strtotime($stats['last_refresh'])) : 'Henüz güncellenmedi'; ?>
+                    
+                    <a href="?action=refresh" class="btn btn-sm btn-primary float-end">
+                        <i class="fas fa-sync-alt"></i> Şimdi Güncelle
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- İlişkiler Tablosu -->
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-link"></i> Keşfedilen Tablo İlişkileri</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Kaynak</th>
+                                        <th>→</th>
+                                        <th>Hedef</th>
+                                        <th>Güven</th>
+                                        <th>Kullanım</th>
+                                        <th>Başarı</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($relationships as $rel): ?>
+                                    <tr>
+                                        <td>
+                                            <code><?php echo $rel['from_table']; ?>.<?php echo $rel['from_column']; ?></code>
+                                        </td>
+                                        <td><i class="fas fa-arrow-right text-muted"></i></td>
+                                        <td>
+                                            <code><?php echo $rel['to_table']; ?>.<?php echo $rel['to_column']; ?></code>
+                                        </td>
+                                        <td>
+                                            <div class="confidence-bar bg-success" 
+                                                 style="width: <?php echo ($rel['confidence_score'] * 100); ?>%;"
+                                                 title="<?php echo round($rel['confidence_score'] * 100); ?>%">
+                                            </div>
+                                            <small><?php echo round($rel['confidence_score'] * 100); ?>%</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary"><?php echo $rel['usage_count']; ?>x</span>
+                                        </td>
+                                        <td>
+                                            <?php if ($rel['success_rate']): ?>
+                                            <span class="badge bg-success"><?php echo $rel['success_rate']; ?>%</span>
+                                            <?php else: ?>
+                                            <span class="badge bg-light text-dark">-</span>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Semantic Dağılımı -->
+            <div class="col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5><i class="fas fa-chart-pie"></i> Sütun Tipleri</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <?php foreach ($semantic_distribution as $sem): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <?php 
+                                $icons = [
+                                    'id' => 'fa-hashtag',
+                                    'foreign_key' => 'fa-key',
+                                    'name' => 'fa-user',
+                                    'date' => 'fa-calendar',
+                                    'datetime' => 'fa-clock',
+                                    'quantity' => 'fa-sort-numeric-up',
+                                    'amount' => 'fa-dollar-sign',
+                                    'status' => 'fa-info-circle',
+                                    'description' => 'fa-align-left',
+                                    'other' => 'fa-question'
+                                ];
+                                $icon = $icons[$sem['semantic_type']] ?? 'fa-question';
+                                ?>
+                                <span>
+                                    <i class="fas <?php echo $icon; ?>"></i>
+                                    <?php echo ucfirst($sem['semantic_type']); ?>
+                                </span>
+                                <span class="badge bg-primary rounded-pill"><?php echo $sem['count']; ?></span>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Son Öğrenilen Pattern'ler -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-history"></i> Son Öğrenilen Sorgu Kalıpları</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Sorgu</th>
+                                        <th>Kullanım</th>
+                                        <th>Başarı Oranı</th>
+                                        <th>Ort. Süre</th>
+                                        <th>Öğrenme Tarihi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($patterns as $pattern): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars(substr($pattern['pattern_name'], 0, 60)); ?>...</td>
+                                        <td><span class="badge bg-secondary"><?php echo $pattern['usage_count']; ?>x</span></td>
+                                        <td>
+                                            <span class="badge bg-<?php echo $pattern['success_rate'] >= 80 ? 'success' : ($pattern['success_rate'] >= 50 ? 'warning' : 'danger'); ?>">
+                                                <?php echo round($pattern['success_rate'], 1); ?>%
+                                            </span>
+                                        </td>
+                                        <td><?php echo number_format($pattern['avg_execution_time'], 2); ?>s</td>
+                                        <td><?php echo date('d.m.Y H:i', strtotime($pattern['created_at'])); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+<?php
+// Manuel refresh tetiklenirse
+if (isset($_GET['action']) && $_GET['action'] == 'refresh') {
+    require_once 'include/DatabaseLearner.php';
+    $learner = new DatabaseLearner($conn, $firma_id);
+    $learner->learnDatabaseSchema(true);
+    header("Location: ai_learning_dashboard.php?refreshed=1");
+    exit();
+}
+?>

@@ -1,0 +1,134 @@
+/* Bildirim Dropdown Stilleri */
+.dropdown-item.notify-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.dropdown-item.notify-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item.notify-item.unread {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+}
+
+.notify-icon {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    border-radius: 50%;
+    text-align: center;
+    float: left;
+    margin-right: 12px;
+}
+
+.notify-icon i {
+    color: white;
+    font-size: 20px;
+}
+
+.notify-details {
+    margin: 0;
+    padding-left: 52px;
+}
+
+.notify-details strong {
+    display: block;
+    font-size: 14px;
+    color: #313a46;
+    margin-bottom: 3px;
+}
+
+.notify-details small {
+    display: block;
+    font-size: 12px;
+    color: #98a6ad;
+    line-height: 1.4;
+}
+
+/* Badge */
+.noti-icon-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 18px;
+    height: 18px;
+    line-height: 18px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Bildirim Dropdown Menüsü */
+#bildirim-dropdown {
+    min-width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Bildirim Sayfası */
+.bildirim-card {
+    margin-bottom: 15px;
+    border-left: 3px solid #e0e0e0;
+    transition: all 0.3s;
+}
+
+.bildirim-card.unread {
+    border-left-color: #2196f3;
+    background-color: #f5f9ff;
+}
+
+.bildirim-card.basari {
+    border-left-color: #28a745;
+}
+
+.bildirim-card.uyari {
+    border-left-color: #ffc107;
+}
+
+.bildirim-card.hata {
+    border-left-color: #dc3545;
+}
+
+.bildirim-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.bildirim-baslik {
+    font-weight: 600;
+    font-size: 15px;
+    margin: 0;
+}
+
+.bildirim-tarih {
+    font-size: 12px;
+    color: #98a6ad;
+}
+
+.bildirim-mesaj {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #bildirim-dropdown {
+        min-width: 300px;
+        max-width: calc(100vw - 40px);
+    }
+    
+    .notify-details strong {
+        font-size: 13px;
+    }
+    
+    .notify-details small {
+        font-size: 11px;
+    }
+}

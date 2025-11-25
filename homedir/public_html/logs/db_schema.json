@@ -1,0 +1,1975 @@
+{
+    "generated_at": "2025-10-26 20:59:00",
+    "table_count": 83,
+    "tables": {
+        "ai_analiz_log": {
+            "columns": [
+                "id",
+                "firma_id",
+                "kullanici_id",
+                "rapor_id",
+                "kayit_sayisi",
+                "analiz",
+                "tarih"
+            ],
+            "column_count": 7,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 0,
+            "has_firma_id": true
+        },
+        "ai_chat_history": {
+            "columns": [
+                "id",
+                "firma_id",
+                "kullanici_id",
+                "soru",
+                "cevap",
+                "sql_query",
+                "sonuc_sayisi",
+                "cevap_suresi",
+                "tarih"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 240,
+            "has_firma_id": true
+        },
+        "ai_column_semantics": {
+            "columns": [
+                "id",
+                "table_name",
+                "column_name",
+                "semantic_type",
+                "display_name",
+                "description",
+                "format_pattern",
+                "is_sensitive",
+                "related_columns",
+                "confidence_score",
+                "learned_from",
+                "created_at",
+                "updated_at"
+            ],
+            "column_count": 13,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 685,
+            "has_firma_id": false
+        },
+        "ai_database_schema": {
+            "columns": [
+                "id",
+                "table_name",
+                "column_name",
+                "data_type",
+                "column_type",
+                "is_nullable",
+                "column_key",
+                "column_default",
+                "extra",
+                "column_comment",
+                "inferred_meaning",
+                "is_foreign_key",
+                "references_table",
+                "references_column",
+                "sample_values",
+                "distinct_count",
+                "null_count",
+                "last_learned"
+            ],
+            "column_count": 18,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 685,
+            "has_firma_id": false
+        },
+        "ai_feedback": {
+            "columns": [
+                "id",
+                "chat_id",
+                "firma_id",
+                "kullanici_id",
+                "rating",
+                "dogru_mu",
+                "duzeltme",
+                "tarih"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 30,
+            "has_firma_id": true
+        },
+        "ai_knowledge_base": {
+            "columns": [
+                "id",
+                "firma_id",
+                "kategori",
+                "anahtar_kelime",
+                "icerik",
+                "embedding",
+                "kullanim_sayisi",
+                "basari_orani",
+                "son_kullanim",
+                "olusturma_tarihi"
+            ],
+            "column_count": 10,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 245,
+            "has_firma_id": true
+        },
+        "ai_prompts": {
+            "columns": [
+                "id",
+                "firma_id",
+                "prompt_tipi",
+                "soru_ornegi",
+                "sistem_promptu",
+                "ornek_sql",
+                "aktif",
+                "olusturma_tarihi"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 6,
+            "has_firma_id": true
+        },
+        "ai_query_patterns": {
+            "columns": [
+                "id",
+                "firma_id",
+                "pattern_name",
+                "question_keywords",
+                "tables_involved",
+                "joins_used",
+                "where_patterns",
+                "select_columns",
+                "sql_template",
+                "explanation",
+                "usage_count",
+                "success_rate",
+                "avg_execution_time",
+                "last_used",
+                "created_at",
+                "updated_at"
+            ],
+            "column_count": 16,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 3,
+            "has_firma_id": true
+        },
+        "ai_table_relationships": {
+            "columns": [
+                "id",
+                "from_table",
+                "from_column",
+                "to_table",
+                "to_column",
+                "relationship_type",
+                "join_pattern",
+                "join_type",
+                "usage_count",
+                "success_count",
+                "last_used",
+                "confidence_score",
+                "discovered_by",
+                "created_at",
+                "updated_at"
+            ],
+            "column_count": 15,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 31,
+            "has_firma_id": false
+        },
+        "arsiv_alt_dosyalar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "arsiv_alt_id",
+                "ad"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 214,
+            "has_firma_id": true
+        },
+        "arsiv_altlar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "arsiv_id",
+                "arsiv_kod",
+                "tedarikci_id",
+                "kod",
+                "musteri_id",
+                "siparis_id",
+                "ebat",
+                "adet",
+                "maliyet",
+                "fatura_no",
+                "detay",
+                "aciklama",
+                "durum",
+                "qr_kod"
+            ],
+            "column_count": 16,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "tedarikci_id",
+                    "references_table": "tedarikciler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "musteri_id",
+                    "references_table": "musteri",
+                    "references_column": "id"
+                },
+                {
+                    "column": "siparis_id",
+                    "references_table": "siparisler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 195,
+            "has_firma_id": true
+        },
+        "arsiv_kalemler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "departman_id",
+                "arsiv",
+                "arsiv_tur_id"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 3,
+            "has_firma_id": true
+        },
+        "bildirimler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "kullanici_id",
+                "baslik",
+                "mesaj",
+                "tur",
+                "okundu",
+                "link",
+                "olusturma_tarihi",
+                "okunma_tarihi"
+            ],
+            "column_count": 10,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 3,
+            "has_firma_id": true
+        },
+        "birimler": {
+            "columns": [
+                "id",
+                "ad",
+                "firma_id"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 5,
+            "has_firma_id": true
+        },
+        "departman_form_degerler": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "firma_id",
+                "departman_form_id",
+                "deger",
+                "tekil_kod"
+            ],
+            "column_count": 6,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 618,
+            "has_firma_id": true
+        },
+        "departman_formlar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "departman_id",
+                "konu",
+                "gosterme_asamasi",
+                "zorunluluk_durumu"
+            ],
+            "column_count": 6,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 3,
+            "has_firma_id": true
+        },
+        "departman_planlama": {
+            "columns": [
+                "id",
+                "firma_id",
+                "departman_id",
+                "stok",
+                "birim_id",
+                "etiket_varmi",
+                "genislik",
+                "yukseklik",
+                "etiket_tasarim"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "birim_id",
+                    "references_table": "birimler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 15,
+            "has_firma_id": true
+        },
+        "departmanlar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "departman",
+                "sorumlu_personel_idler",
+                "kullanildi_mi"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 20,
+            "has_firma_id": true
+        },
+        "firmalar": {
+            "columns": [
+                "id",
+                "domain_adi",
+                "firma_adi",
+                "logo",
+                "etiket_logo",
+                "email",
+                "siparis_no_baslangic_kodu",
+                "eksik_uretimde_onay_isteme_durumu",
+                "static_ip_varmi",
+                "makina_ekran_ipler",
+                "arsiv_getirme",
+                "stoga_geri_gonderme_durumu",
+                "tarih",
+                "dosya_depolama_tipi",
+                "s3_endpoint",
+                "s3_region",
+                "s3_access_key",
+                "s3_secret_key",
+                "s3_bucket"
+            ],
+            "column_count": 19,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 5,
+            "has_firma_id": false
+        },
+        "ftp_ayarlar": {
+            "columns": [
+                "id",
+                "kaynak_klasor",
+                "hedef_klasor",
+                "modul",
+                "bucket"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 5,
+            "has_firma_id": false
+        },
+        "geri_bildirim": {
+            "columns": [
+                "id",
+                "ust_id",
+                "kimden",
+                "kime",
+                "baslik",
+                "icerik",
+                "onem_sirasi",
+                "tarih"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 17,
+            "has_firma_id": false
+        },
+        "geri_bildirim_dosyalar": {
+            "columns": [
+                "id",
+                "geri_donusum_id",
+                "ad"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 4,
+            "has_firma_id": false
+        },
+        "geri_bildirim_gorunum_durumu": {
+            "columns": [
+                "geri_bildirim_id",
+                "geri_bildirim_ust_id",
+                "personel_id"
+            ],
+            "column_count": 3,
+            "primary_key": null,
+            "foreign_keys": [
+                {
+                    "column": "geri_bildirim_id",
+                    "references_table": "geri_bildirim",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 34,
+            "has_firma_id": false
+        },
+        "giris_log": {
+            "columns": [
+                "id",
+                "ip",
+                "email",
+                "tarih",
+                "tarayici",
+                "durum"
+            ],
+            "column_count": 6,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 2626,
+            "has_firma_id": false
+        },
+        "ilceler": {
+            "columns": [
+                "id",
+                "baslik",
+                "sehir_id"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "sehir_id",
+                    "references_table": "sehirler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 48404,
+            "has_firma_id": false
+        },
+        "kur": {
+            "columns": [
+                "id",
+                "dollar",
+                "euro",
+                "pound",
+                "tarih"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 517,
+            "has_firma_id": false
+        },
+        "makina_bakim_log": {
+            "columns": [
+                "id",
+                "makina_id",
+                "durum",
+                "konu",
+                "tarih"
+            ],
+            "column_count": 5,
+            "primary_key": null,
+            "foreign_keys": [],
+            "record_count": 0,
+            "has_firma_id": false
+        },
+        "makina_bakim_personeller": {
+            "columns": [
+                "id",
+                "firma_id",
+                "makina_id",
+                "personel_id"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 22,
+            "has_firma_id": true
+        },
+        "makina_is_buttonlar": {
+            "columns": [
+                "id",
+                "ad"
+            ],
+            "column_count": 2,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 12,
+            "has_firma_id": false
+        },
+        "makina_is_buttonlar_firma_ayarlar": {
+            "columns": [
+                "id",
+                "makina_is_button_id",
+                "firma_id",
+                "departman_id",
+                "durum"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 432,
+            "has_firma_id": true
+        },
+        "makina_personeller": {
+            "columns": [
+                "id",
+                "firma_id",
+                "makina_id",
+                "personel_id"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 26,
+            "has_firma_id": true
+        },
+        "makinalar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "makina_adi",
+                "makina_modeli",
+                "makina_seri_no",
+                "departman_id",
+                "makina_bakim_suresi",
+                "makina_son_bakim_tarih",
+                "durumu",
+                "makina_ayar_suresi_varmi",
+                "planlamada_goster",
+                "stoga_geri_gonderme_durumu",
+                "aciklama",
+                "kullanildi_mi"
+            ],
+            "column_count": 14,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 15,
+            "has_firma_id": true
+        },
+        "musteri": {
+            "columns": [
+                "id",
+                "firma_id",
+                "marka",
+                "firma_unvani",
+                "adresi",
+                "sehir_id",
+                "ilce_id",
+                "ulke_id",
+                "sektor_id",
+                "cep_tel",
+                "sabit_hat",
+                "e_mail",
+                "yetkili_adi",
+                "yetkili_cep",
+                "yetkili_mail",
+                "yetkili_gorev",
+                "aciklama",
+                "vergi_dairesi",
+                "vergi_numarasi",
+                "musteri_temsilcisi_id",
+                "vade"
+            ],
+            "column_count": 21,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "sehir_id",
+                    "references_table": "sehirler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "ilce_id",
+                    "references_table": "ilceler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "ulke_id",
+                    "references_table": "ulkeler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "sektor_id",
+                    "references_table": "sektorler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 152,
+            "has_firma_id": true
+        },
+        "musteri_adresleri": {
+            "columns": [
+                "id",
+                "musteri_id",
+                "baslik",
+                "ulke_id",
+                "sehir_id",
+                "ilce_id",
+                "adres",
+                "adres_turu",
+                "is_default"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "musteri_id",
+                    "references_table": "musteri",
+                    "references_column": "id"
+                },
+                {
+                    "column": "ulke_id",
+                    "references_table": "ulkeler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "sehir_id",
+                    "references_table": "sehirler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "ilce_id",
+                    "references_table": "ilceler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 173,
+            "has_firma_id": false
+        },
+        "musteri_yetkilileri": {
+            "columns": [
+                "id",
+                "musteri_id",
+                "yetkili_adi",
+                "yetkili_cep",
+                "yetkili_mail",
+                "yetkili_gorev",
+                "yetkili_aciklama",
+                "is_default"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "musteri_id",
+                    "references_table": "musteri",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 89,
+            "has_firma_id": false
+        },
+        "odeme_tipleri": {
+            "columns": [
+                "id",
+                "odeme_sekli"
+            ],
+            "column_count": 2,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 4,
+            "has_firma_id": false
+        },
+        "personel_departmanlar": {
+            "columns": [
+                "id",
+                "personel_id",
+                "departman_id"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 88,
+            "has_firma_id": false
+        },
+        "personel_sayfa_yetki": {
+            "columns": [
+                "id",
+                "sayfa_id",
+                "personel_id",
+                "yetki_durum"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 203,
+            "has_firma_id": false
+        },
+        "personeller": {
+            "columns": [
+                "id",
+                "firma_id",
+                "ad",
+                "soyad",
+                "dogum_tarihi",
+                "email",
+                "sifre",
+                "adres",
+                "yetki_id",
+                "cep_numarasi",
+                "sabit_hat",
+                "ise_baslama",
+                "aciklama",
+                "durum",
+                "hatali_giris_sayisi",
+                "giris_yapabilme_tarihi"
+            ],
+            "column_count": 16,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "yetki_id",
+                    "references_table": "yetkiler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 22,
+            "has_firma_id": true
+        },
+        "planlama": {
+            "columns": [
+                "id",
+                "firma_id",
+                "siparis_id",
+                "alt_urun_id",
+                "grup_kodu",
+                "sira",
+                "isim",
+                "asama_sayisi",
+                "mevcut_asama",
+                "uretilecek_adet",
+                "biten_urun_adedi",
+                "teslim_edilen_urun_adedi",
+                "departmanlar",
+                "orijinal_adetler",
+                "adetler",
+                "sureler",
+                "detaylar",
+                "makinalar",
+                "arsiv_altlar",
+                "stok_kalemler",
+                "stok_alt_kalemler",
+                "stok_alt_depo_adetler",
+                "stok_alt_depolar",
+                "fason_durumlar",
+                "fason_tedarikciler",
+                "notlar",
+                "tarih",
+                "durum",
+                "onay_durum",
+                "planlama_durum",
+                "durum_not",
+                "teslim_durumu",
+                "tekil_kod",
+                "asamada_eksik_adet_varmi",
+                "eksik_adet",
+                "aktar_durum",
+                "eksik_stok_varmi"
+            ],
+            "column_count": 37,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "siparis_id",
+                    "references_table": "siparisler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 1458,
+            "has_firma_id": true
+        },
+        "rapor_ayarlari": {
+            "columns": [
+                "id",
+                "firma_id",
+                "tablo_adi",
+                "tablo_label",
+                "aktif",
+                "sira",
+                "olusturma_tarihi",
+                "guncelleme_tarihi"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 22,
+            "has_firma_id": true
+        },
+        "rapor_sablonlari": {
+            "columns": [
+                "id",
+                "firma_id",
+                "kullanici_id",
+                "rapor_adi",
+                "veri_kaynagi",
+                "sutunlar",
+                "olusturma_tarihi"
+            ],
+            "column_count": 7,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 4,
+            "has_firma_id": true
+        },
+        "sayfalar": {
+            "columns": [
+                "id",
+                "ad"
+            ],
+            "column_count": 2,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 51,
+            "has_firma_id": false
+        },
+        "sehirler": {
+            "columns": [
+                "id",
+                "baslik",
+                "ulke_id"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "ulke_id",
+                    "references_table": "ulkeler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 4118,
+            "has_firma_id": false
+        },
+        "sektorler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "sektor_adi"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 11,
+            "has_firma_id": true
+        },
+        "siparis_dosyalar": {
+            "columns": [
+                "id",
+                "siparis_id",
+                "alt_urun_index",
+                "ad"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "siparis_id",
+                    "references_table": "siparisler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 424,
+            "has_firma_id": false
+        },
+        "siparis_form": {
+            "columns": [
+                "id",
+                "firma_id",
+                "deger",
+                "tur_idler",
+                "options"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 30,
+            "has_firma_id": true
+        },
+        "siparis_form_tip_degerler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "siparis_form_tip_id",
+                "deger"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 3,
+            "has_firma_id": true
+        },
+        "siparis_form_tipleri": {
+            "columns": [
+                "id",
+                "tip"
+            ],
+            "column_count": 2,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 3,
+            "has_firma_id": false
+        },
+        "siparis_log": {
+            "columns": [
+                "id",
+                "siparis_id",
+                "personel_id",
+                "islem",
+                "onceki_degerler",
+                "sonraki_degerler",
+                "islem_tarihi"
+            ],
+            "column_count": 7,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "siparis_id",
+                    "references_table": "siparisler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 2643,
+            "has_firma_id": false
+        },
+        "siparise_hazir_malzemeler": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "asama_id",
+                "veri",
+                "kod",
+                "tarih",
+                "durum"
+            ],
+            "column_count": 7,
+            "primary_key": null,
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 0,
+            "has_firma_id": false
+        },
+        "siparisler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "musteri_id",
+                "siparis_no",
+                "siprais_tekrar_id",
+                "veriler",
+                "tip_id",
+                "arsiv_kod",
+                "isin_adi",
+                "tur_id",
+                "adet",
+                "birim_id",
+                "teslimat_adresi",
+                "ulke_id",
+                "sehir_id",
+                "ilce_id",
+                "termin",
+                "uretim",
+                "onaylayan_personel_id",
+                "vade",
+                "fiyat",
+                "para_cinsi",
+                "odeme_sekli_id",
+                "numune",
+                "aciklama",
+                "onay_baslangic_durum",
+                "musteri_temsilcisi_id",
+                "islem",
+                "durum",
+                "paketleme",
+                "nakliye",
+                "stok_alt_depo_kod",
+                "tarih",
+                "takip_kodu"
+            ],
+            "column_count": 34,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "musteri_id",
+                    "references_table": "musteri",
+                    "references_column": "id"
+                },
+                {
+                    "column": "tur_id",
+                    "references_table": "turler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "birim_id",
+                    "references_table": "birimler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "ulke_id",
+                    "references_table": "ulkeler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "sehir_id",
+                    "references_table": "sehirler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "ilce_id",
+                    "references_table": "ilceler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 1361,
+            "has_firma_id": true
+        },
+        "stok_alt_depolar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "stok_alt_kalem_id",
+                "siparis_no",
+                "stok_alt_depo_kod",
+                "adet",
+                "kullanilan_adet",
+                "para_cinsi",
+                "birim_id",
+                "stok_kodu",
+                "maliyet",
+                "tedarikci_id",
+                "fatura_no",
+                "qr_kod",
+                "ekleme_tarihi"
+            ],
+            "column_count": 15,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "stok_alt_kalem_id",
+                    "references_table": "stok_alt_kalemler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "birim_id",
+                    "references_table": "birimler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "tedarikci_id",
+                    "references_table": "tedarikciler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 182,
+            "has_firma_id": true
+        },
+        "stok_alt_depolar_kullanilanlar": {
+            "columns": [
+                "id",
+                "stok_id",
+                "stok_alt_kalem_id",
+                "stok_alt_depo_id",
+                "planlama_id",
+                "personel_id",
+                "makina_id",
+                "mevcut_asama",
+                "fire_miktari",
+                "tuketim_miktari",
+                "fason_geri_gelenmeyen_miktar",
+                "birim_id",
+                "departman_id",
+                "aciklama",
+                "tarih"
+            ],
+            "column_count": 15,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "stok_alt_kalem_id",
+                    "references_table": "stok_alt_kalemler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                },
+                {
+                    "column": "birim_id",
+                    "references_table": "birimler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 48,
+            "has_firma_id": false
+        },
+        "stok_alt_kalem_degerler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "stok_id",
+                "ad",
+                "kolon_tipi"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 32,
+            "has_firma_id": true
+        },
+        "stok_alt_kalemler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "stok_id",
+                "veri",
+                "toplam_stok",
+                "birim_id"
+            ],
+            "column_count": 6,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "birim_id",
+                    "references_table": "birimler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 174,
+            "has_firma_id": true
+        },
+        "stok_kalemleri": {
+            "columns": [
+                "id",
+                "firma_id",
+                "stok_kalem"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 17,
+            "has_firma_id": true
+        },
+        "tedarikciler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "firma_adi",
+                "email",
+                "tedarikci_unvani",
+                "tedarikci_adresi",
+                "tedarikci_telefonu",
+                "tedarikci_vergi_no",
+                "tedarikci_vd",
+                "tedarikci_aciklama",
+                "fason",
+                "stok_kalem_idler",
+                "departman_idler"
+            ],
+            "column_count": 13,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 37,
+            "has_firma_id": true
+        },
+        "teslim_edilenler": {
+            "columns": [
+                "id",
+                "siparis_id",
+                "planlama_id",
+                "personel_id",
+                "teslim_adedi",
+                "tarih"
+            ],
+            "column_count": 6,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "siparis_id",
+                    "references_table": "siparisler",
+                    "references_column": "id"
+                },
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 15,
+            "has_firma_id": false
+        },
+        "turler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "tur"
+            ],
+            "column_count": 3,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 13,
+            "has_firma_id": true
+        },
+        "ulkeler": {
+            "columns": [
+                "id",
+                "rewrite",
+                "baslik",
+                "alankodu"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 246,
+            "has_firma_id": false
+        },
+        "uretilen_adetler": {
+            "columns": [
+                "id",
+                "firma_id",
+                "planlama_id",
+                "grup_kodu",
+                "uretilen_adet",
+                "uretirken_verilen_fire_adet",
+                "mevcut_asama",
+                "asama_sayisi",
+                "personel_id",
+                "departman_id",
+                "makina_id",
+                "aktarma_topla",
+                "baslangic_tarihi",
+                "bitis_tarihi"
+            ],
+            "column_count": 14,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 912,
+            "has_firma_id": true
+        },
+        "uretim_aktarma_loglar": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "grup_kodu",
+                "aktarilan_asama",
+                "aktarilan_adet",
+                "tarih"
+            ],
+            "column_count": 6,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 622,
+            "has_firma_id": false
+        },
+        "uretim_ariza_log": {
+            "columns": [
+                "id",
+                "firma_id",
+                "planlama_id",
+                "makina_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "mesaj",
+                "baslatma_tarihi",
+                "bitis_tarihi"
+            ],
+            "column_count": 10,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 22,
+            "has_firma_id": true
+        },
+        "uretim_bakim_log": {
+            "columns": [
+                "id",
+                "firma_id",
+                "planlama_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "gelen_personel_id",
+                "makina_id",
+                "baslatma_tarihi",
+                "personel_gelme_tarihi",
+                "bitis_tarihi",
+                "ariza_sebebi",
+                "sorun_cozuldu_mu"
+            ],
+            "column_count": 13,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 5,
+            "has_firma_id": true
+        },
+        "uretim_degistir_loglar": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "makina_id",
+                "mevcut_asama",
+                "personel_id",
+                "departman_id",
+                "degistirme_sebebi",
+                "sorun_bildirisin_mi",
+                "tarih"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 108,
+            "has_firma_id": false
+        },
+        "uretim_dosyalar": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "mevcut_asama",
+                "dosya_adi",
+                "tarih"
+            ],
+            "column_count": 5,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 67,
+            "has_firma_id": false
+        },
+        "uretim_eksik_uretilen_loglar": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "mevcut_asama",
+                "personel_id",
+                "onay_veren_personel_id",
+                "eksik_adet",
+                "tarih"
+            ],
+            "column_count": 7,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 133,
+            "has_firma_id": false
+        },
+        "uretim_fason_durum_loglar": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "durum",
+                "iptal_sebebi",
+                "gidis_tarihi",
+                "gelis_tarihi"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 55,
+            "has_firma_id": false
+        },
+        "uretim_islem_tarihler": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "departman_id",
+                "makina_id",
+                "personel_id",
+                "mevcut_asama",
+                "baslatma_tarih",
+                "bitirme_tarihi"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 1286,
+            "has_firma_id": false
+        },
+        "uretim_makina_ayar_log": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "makina_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "baslatma_tarih",
+                "bitirme_tarihi"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 1280,
+            "has_firma_id": false
+        },
+        "uretim_makina_devretme_sebebi_loglar": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "hangi_makinadan",
+                "hangi_makinaya",
+                "mevcut_asama",
+                "personel_id",
+                "departman_id",
+                "devretme_sebebi",
+                "tarih"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 36,
+            "has_firma_id": false
+        },
+        "uretim_mesaj_log": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "makina_id",
+                "personel_id",
+                "departman_id",
+                "grup_kodu",
+                "mevcut_asama",
+                "mesaj",
+                "tarih"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 51,
+            "has_firma_id": false
+        },
+        "uretim_mesaj_log_gorunum_durumu": {
+            "columns": [
+                "uretim_mesaj_log_id",
+                "grup_kodu",
+                "personel_id"
+            ],
+            "column_count": 3,
+            "primary_key": null,
+            "foreign_keys": [
+                {
+                    "column": "uretim_mesaj_log_id",
+                    "references_table": "uretim_mesaj_log",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 59,
+            "has_firma_id": false
+        },
+        "uretim_mevcut_asamada_aktarilan": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "grup_kodu",
+                "mevcut_asama",
+                "aktarilan_adet",
+                "personel_id",
+                "tarih"
+            ],
+            "column_count": 7,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 22,
+            "has_firma_id": false
+        },
+        "uretim_mola_log": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "makina_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "baslatma_tarihi",
+                "bitis_tarihi",
+                "tekil_kod"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 106,
+            "has_firma_id": false
+        },
+        "uretim_paydos_loglar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "personel_id",
+                "makina_id",
+                "planlama_id",
+                "mevcut_asama",
+                "tarih"
+            ],
+            "column_count": 7,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                },
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 34,
+            "has_firma_id": true
+        },
+        "uretim_reservasyon": {
+            "columns": [
+                "id",
+                "firma_id",
+                "grup_kodu",
+                "mevcut_asama",
+                "stok_alt_depo_id",
+                "miktar",
+                "kullanilan_miktar",
+                "tarih"
+            ],
+            "column_count": 8,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 51,
+            "has_firma_id": true
+        },
+        "uretim_toplanti_log": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "makina_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "baslatma_tarihi",
+                "bitis_tarihi",
+                "tekil_kod"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 54,
+            "has_firma_id": false
+        },
+        "uretim_yemek_mola_log": {
+            "columns": [
+                "id",
+                "planlama_id",
+                "makina_id",
+                "departman_id",
+                "personel_id",
+                "mevcut_asama",
+                "baslatma_tarihi",
+                "bitis_tarihi",
+                "tekil_kod"
+            ],
+            "column_count": 9,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 64,
+            "has_firma_id": false
+        },
+        "uretim_yetkili_log": {
+            "columns": [
+                "id",
+                "firma_id",
+                "planlama_id",
+                "departman_id",
+                "personel_id",
+                "gelen_personel_id",
+                "makina_id",
+                "tekil_kod",
+                "mevcut_asama",
+                "tarih"
+            ],
+            "column_count": 10,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "planlama_id",
+                    "references_table": "planlama",
+                    "references_column": "id"
+                },
+                {
+                    "column": "personel_id",
+                    "references_table": "personeller",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 9,
+            "has_firma_id": true
+        },
+        "yetki_sayfalar": {
+            "columns": [
+                "id",
+                "firma_id",
+                "yetki_id",
+                "sayfa_idler"
+            ],
+            "column_count": 4,
+            "primary_key": "id",
+            "foreign_keys": [
+                {
+                    "column": "yetki_id",
+                    "references_table": "yetkiler",
+                    "references_column": "id"
+                }
+            ],
+            "record_count": 5,
+            "has_firma_id": true
+        },
+        "yetkiler": {
+            "columns": [
+                "id",
+                "yetki"
+            ],
+            "column_count": 2,
+            "primary_key": "id",
+            "foreign_keys": [],
+            "record_count": 11,
+            "has_firma_id": false
+        }
+    },
+    "relationships": [
+        "arsiv_altlar.tedarikci_id → tedarikciler.id",
+        "arsiv_altlar.musteri_id → musteri.id",
+        "arsiv_altlar.siparis_id → siparisler.id",
+        "departman_form_degerler.planlama_id → planlama.id",
+        "departman_planlama.birim_id → birimler.id",
+        "geri_bildirim_gorunum_durumu.geri_bildirim_id → geri_bildirim.id",
+        "geri_bildirim_gorunum_durumu.personel_id → personeller.id",
+        "ilceler.sehir_id → sehirler.id",
+        "makina_bakim_personeller.personel_id → personeller.id",
+        "makina_personeller.personel_id → personeller.id",
+        "musteri.sehir_id → sehirler.id",
+        "musteri.ilce_id → ilceler.id",
+        "musteri.ulke_id → ulkeler.id",
+        "musteri.sektor_id → sektorler.id",
+        "musteri_adresleri.musteri_id → musteri.id",
+        "musteri_adresleri.ulke_id → ulkeler.id",
+        "musteri_adresleri.sehir_id → sehirler.id",
+        "musteri_adresleri.ilce_id → ilceler.id",
+        "musteri_yetkilileri.musteri_id → musteri.id",
+        "personel_departmanlar.personel_id → personeller.id",
+        "personel_sayfa_yetki.personel_id → personeller.id",
+        "personeller.yetki_id → yetkiler.id",
+        "planlama.siparis_id → siparisler.id",
+        "sehirler.ulke_id → ulkeler.id",
+        "siparis_dosyalar.siparis_id → siparisler.id",
+        "siparis_log.siparis_id → siparisler.id",
+        "siparis_log.personel_id → personeller.id",
+        "siparise_hazir_malzemeler.planlama_id → planlama.id",
+        "siparisler.musteri_id → musteri.id",
+        "siparisler.tur_id → turler.id",
+        "siparisler.birim_id → birimler.id",
+        "siparisler.ulke_id → ulkeler.id",
+        "siparisler.sehir_id → sehirler.id",
+        "siparisler.ilce_id → ilceler.id",
+        "stok_alt_depolar.stok_alt_kalem_id → stok_alt_kalemler.id",
+        "stok_alt_depolar.birim_id → birimler.id",
+        "stok_alt_depolar.tedarikci_id → tedarikciler.id",
+        "stok_alt_depolar_kullanilanlar.stok_alt_kalem_id → stok_alt_kalemler.id",
+        "stok_alt_depolar_kullanilanlar.planlama_id → planlama.id",
+        "stok_alt_depolar_kullanilanlar.personel_id → personeller.id",
+        "stok_alt_depolar_kullanilanlar.birim_id → birimler.id",
+        "stok_alt_kalemler.birim_id → birimler.id",
+        "teslim_edilenler.siparis_id → siparisler.id",
+        "teslim_edilenler.planlama_id → planlama.id",
+        "teslim_edilenler.personel_id → personeller.id",
+        "uretilen_adetler.planlama_id → planlama.id",
+        "uretilen_adetler.personel_id → personeller.id",
+        "uretim_aktarma_loglar.planlama_id → planlama.id",
+        "uretim_ariza_log.planlama_id → planlama.id",
+        "uretim_ariza_log.personel_id → personeller.id",
+        "uretim_bakim_log.planlama_id → planlama.id",
+        "uretim_bakim_log.personel_id → personeller.id",
+        "uretim_degistir_loglar.planlama_id → planlama.id",
+        "uretim_degistir_loglar.personel_id → personeller.id",
+        "uretim_dosyalar.planlama_id → planlama.id",
+        "uretim_eksik_uretilen_loglar.planlama_id → planlama.id",
+        "uretim_eksik_uretilen_loglar.personel_id → personeller.id",
+        "uretim_fason_durum_loglar.planlama_id → planlama.id",
+        "uretim_fason_durum_loglar.personel_id → personeller.id",
+        "uretim_islem_tarihler.planlama_id → planlama.id",
+        "uretim_islem_tarihler.personel_id → personeller.id",
+        "uretim_makina_ayar_log.planlama_id → planlama.id",
+        "uretim_makina_ayar_log.personel_id → personeller.id",
+        "uretim_makina_devretme_sebebi_loglar.planlama_id → planlama.id",
+        "uretim_makina_devretme_sebebi_loglar.personel_id → personeller.id",
+        "uretim_mesaj_log.planlama_id → planlama.id",
+        "uretim_mesaj_log.personel_id → personeller.id",
+        "uretim_mesaj_log_gorunum_durumu.uretim_mesaj_log_id → uretim_mesaj_log.id",
+        "uretim_mesaj_log_gorunum_durumu.personel_id → personeller.id",
+        "uretim_mevcut_asamada_aktarilan.planlama_id → planlama.id",
+        "uretim_mevcut_asamada_aktarilan.personel_id → personeller.id",
+        "uretim_mola_log.planlama_id → planlama.id",
+        "uretim_mola_log.personel_id → personeller.id",
+        "uretim_paydos_loglar.personel_id → personeller.id",
+        "uretim_paydos_loglar.planlama_id → planlama.id",
+        "uretim_toplanti_log.planlama_id → planlama.id",
+        "uretim_toplanti_log.personel_id → personeller.id",
+        "uretim_yemek_mola_log.planlama_id → planlama.id",
+        "uretim_yemek_mola_log.personel_id → personeller.id",
+        "uretim_yetkili_log.planlama_id → planlama.id",
+        "uretim_yetkili_log.personel_id → personeller.id",
+        "yetki_sayfalar.yetki_id → yetkiler.id"
+    ]
+}

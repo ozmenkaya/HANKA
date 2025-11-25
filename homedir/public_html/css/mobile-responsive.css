@@ -1,0 +1,278 @@
+/* ============================================
+   HANKA Mobile Responsive CSS
+   Tablet ve Mobil cihazlar için optimizasyon
+   ============================================ */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    /* Sidebar küçült */
+    .leftside-menu {
+        width: 220px !important;
+    }
+    
+    .content-page {
+        margin-left: 220px !important;
+    }
+    
+    /* Tablo font boyutu */
+    table {
+        font-size: 13px;
+    }
+    
+    /* Buton boyutları */
+    .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    /* Card başlıkları */
+    .card-header h5 {
+        font-size: 16px;
+    }
+}
+
+/* Mobil (max 768px) */
+@media (max-width: 768px) {
+    /* Sidebar gizle - hamburger menü */
+    .leftside-menu {
+        position: fixed;
+        left: -260px;
+        width: 260px !important;
+        transition: left 0.3s ease;
+        z-index: 1000;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .leftside-menu.show {
+        left: 0 !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    }
+    
+    /* Content tam genişlik */
+    .content-page {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+    
+    /* Hamburger menü butonu */
+    .mobile-menu-toggle {
+        display: block !important;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 999;
+        background: #313a46;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    /* Overlay sidebar kapatmak için */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+    
+    .sidebar-overlay.show {
+        display: block;
+    }
+    
+    /* Dashboard KPI kartları */
+    #dashboard-kpi .col-md-4,
+    #dashboard-kpi .col-md-6 {
+        width: 100% !important;
+        margin-bottom: 15px;
+    }
+    
+    /* Tablo responsive */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+        font-size: 12px;
+        min-width: 600px;
+    }
+    
+    table th,
+    table td {
+        padding: 8px 5px !important;
+        white-space: nowrap;
+    }
+    
+    /* Card header butonları */
+    .card-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    
+    .card-header > div {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .card-header .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    /* Alert mesajları */
+    .alert {
+        font-size: 13px;
+        padding: 10px;
+    }
+    
+    /* Form elemanları */
+    .form-control,
+    .form-select {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+    
+    /* Modal */
+    .modal-dialog {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    /* Badge'ler */
+    .badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+    
+    /* Pagination */
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .pagination .page-item {
+        margin: 2px;
+    }
+}
+
+/* Küçük Mobil (max 480px) */
+@media (max-width: 480px) {
+    /* Font boyutları daha küçük */
+    body {
+        font-size: 13px;
+    }
+    
+    h1 { font-size: 22px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+    h4 { font-size: 16px; }
+    h5 { font-size: 14px; }
+    h6 { font-size: 13px; }
+    
+    /* Dashboard KPI */
+    #dashboard-kpi h2 {
+        font-size: 28px;
+    }
+    
+    #dashboard-kpi h6 {
+        font-size: 12px;
+    }
+    
+    #dashboard-kpi .fs-1 {
+        font-size: 2rem !important;
+    }
+    
+    /* Tablo daha küçük */
+    table {
+        font-size: 11px;
+    }
+    
+    /* Butonlar daha küçük */
+    .btn {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .btn i {
+        font-size: 12px;
+    }
+    
+    /* Input alanları */
+    .form-control,
+    .form-select {
+        font-size: 13px;
+    }
+}
+
+/* Landscape mod (yatay telefon) */
+@media (max-width: 768px) and (orientation: landscape) {
+    .leftside-menu {
+        width: 200px !important;
+    }
+    
+    .mobile-menu-toggle {
+        top: 10px;
+        left: 10px;
+        padding: 8px 12px;
+    }
+}
+
+/* Print stilleri */
+@media print {
+    .leftside-menu,
+    .mobile-menu-toggle,
+    .sidebar-overlay,
+    .card-header .btn,
+    .no-print {
+        display: none !important;
+    }
+    
+    .content-page {
+        margin-left: 0 !important;
+    }
+    
+    .card {
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+    }
+}
+
+/* Tablet landscape (1024px - 1366px) */
+@media (min-width: 1024px) and (max-width: 1366px) {
+    .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    
+    table {
+        font-size: 13px;
+    }
+}
+
+/* Touch cihazlar için iyileştirmeler */
+@media (hover: none) and (pointer: coarse) {
+    /* Tıklanabilir alanlar büyük */
+    .btn,
+    a.menu-link,
+    .page-link {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Hover efektlerini kaldır */
+    .btn:hover,
+    .menu-link:hover {
+        transform: none !important;
+    }
+    
+    /* Active state belirgin */
+    .btn:active {
+        transform: scale(0.95);
+    }
+}

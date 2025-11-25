@@ -1,0 +1,120 @@
+<?php
+require_once "include/oturum_kontrol.php";
+
+// İşi Başlat
+if(isset($_POST['islem']) && $_POST['islem'] == 'is_baslat') {
+    $planlama_id = intval($_POST['planlama_id']);
+    $makina_id = intval($_POST['makina_id']);
+    $durum = $_POST['durum'];
+    
+    try {
+        // Planlama bilgilerini çek
+        $sql = "SELECT id, siparis_id, durum, mevcut_asama, departmanlar, tekil_kod, grup_kodu 
+                FROM planlama 
+                WHERE id = :id AND firma_id = :firma_id";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('id', $planlama_id);
+        $sth->bindParam('firma_id', $_SESSION['firma_id']);
+        $sth->execute();
+        $planlama = $sth->fetch(PDO::FETCH_ASSOC);
+        
+        if(empty($planlama)) {
+            echo json_encode(['success' => false, 'message' => 'Planlama bulunamadı!']);
+            exit;
+        }
+        
+        $departmanlar = json_decode($planlama['departmanlar'], true);
+        $departman_id = $departmanlar[$planlama['mevcut_asama']];
+        
+        // Bu makinada başka bir iş çalışıyor mu kontrol et
+        $sql = "SELECT planlama.id, planlama.makinalar, planlama.mevcut_asama 
+                FROM planlama 
+                WHERE planlama.firma_id = :firma_id AND planlama.durum = 'basladi' AND planlama.id != :id";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('firma_id', $_SESSION['firma_id']);
+        $sth->bindParam('id', $planlama_id);
+        $sth->execute();
+        $calisan_isler = $sth->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Bu makinada çalışan iş var mı kontrol et
+        foreach ($calisan_isler as $calisan_is) {
+            $calisan_makinalar = json_decode($calisan_is['makinalar'], true);
+            if(isset($calisan_makinalar[$calisan_is['mevcut_asama']]) && 
+               $calisan_makinalar[$calisan_is['mevcut_asama']] == $makina_id) {
+                echo json_encode(['success' => false, 'message' => 'Bu makinada başka bir iş çalışıyor! Önce onu durdurun.']);
+                exit;
+            }
+        }
+        
+        // İlk aşamada ise siparişi "işlemde" yap
+        if($planlama['mevcut_asama'] == 0 && $planlama['durum'] == 'baslamadi') {
+            $sql = "UPDATE siparisler SET islem = 'islemde' WHERE id = :id";
+            $sth = $conn->prepare($sql);
+            $sth->bindParam('id', $planlama['siparis_id']);
+            $sth->execute();
+        }
+        
+        // Planlamayı başlat
+        $sql = "UPDATE planlama SET durum = 'basladi' WHERE id = :id AND firma_id = :firma_id";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('id', $planlama_id);
+        $sth->bindParam('firma_id', $_SESSION['firma_id']);
+        $durum = $sth->execute();
+        
+        // Üretim log kaydı
+        $baslatma_tarih = date('Y-m-d H:i:s');
+        $sql = "INSERT INTO uretim_islem_tarihler(planlama_id, makina_id, departman_id, personel_id, mevcut_asama, tekil_kod, grup_kodu, baslatma_tarih) 
+                VALUES(:planlama_id, :makina_id, :departman_id, :personel_id, :mevcut_asama, :tekil_kod, :grup_kodu, :baslatma_tarih)";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('planlama_id', $planlama_id);
+        $sth->bindParam('makina_id', $makina_id);
+        $sth->bindParam('departman_id', $departman_id);
+        $sth->bindParam('personel_id', $_SESSION['personel_id']);
+        $sth->bindParam('mevcut_asama', $planlama['mevcut_asama']);
+        $sth->bindParam('tekil_kod', $planlama['tekil_kod']);
+        $sth->bindParam('grup_kodu', $planlama['grup_kodu']);
+        $sth->bindParam('baslatma_tarih', $baslatma_tarih);
+        $sth->execute();
+        
+        echo json_encode(['success' => true, 'message' => 'İş başlatıldı!']);
+        
+    } catch(Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// İşi Durdur
+if(isset($_POST['islem']) && $_POST['islem'] == 'is_durdur') {
+    $planlama_id = intval($_POST['planlama_id']);
+    $makina_id = intval($_POST['makina_id']);
+    
+    try {
+        // Planlamayı bekletmeye al
+        $sql = "UPDATE planlama SET durum = 'beklemede' WHERE id = :id AND firma_id = :firma_id";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('id', $planlama_id);
+        $sth->bindParam('firma_id', $_SESSION['firma_id']);
+        $durum = $sth->execute();
+        
+        // Üretim log kaydını bitir
+        $bitis_tarih = date('Y-m-d H:i:s');
+        $sql = "UPDATE uretim_islem_tarihler 
+                SET bitis_tarih = :bitis_tarih 
+                WHERE planlama_id = :planlama_id AND bitis_tarih IS NULL
+                ORDER BY id DESC LIMIT 1";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('bitis_tarih', $bitis_tarih);
+        $sth->bindParam('planlama_id', $planlama_id);
+        $sth->execute();
+        
+        echo json_encode(['success' => true, 'message' => 'İş durduruldu!']);
+        
+    } catch(Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+echo json_encode(['success' => false, 'message' => 'Geçersiz işlem!']);
+?>

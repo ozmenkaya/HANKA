@@ -1,0 +1,569 @@
+body {
+  font-size: .875rem;
+}
+
+.feather {
+  width: 16px;
+  height: 16px;
+}
+
+/*
+ * Sidebar
+ */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  /* rtl:raw:
+  right: 0;
+  */
+  bottom: 0;
+  /* rtl:remove */
+  left: 0;
+  z-index: 100; /* Behind the navbar */
+  padding: 48px 0 0; /* Height of navbar */
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    top: 5rem;
+  }
+}
+
+.sidebar-sticky {
+  height: calc(100vh - 48px);
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+}
+
+.sidebar .nav-link {
+  font-weight: 500;
+  color: #333;
+}
+
+.sidebar .nav-link .feather {
+  margin-right: 4px;
+  color: #727272;
+}
+
+.sidebar .nav-link.active {
+  color: #2470dc;
+}
+
+.sidebar .nav-link:hover .feather,
+.sidebar .nav-link.active .feather {
+  color: inherit;
+}
+
+.sidebar-heading {
+  font-size: .75rem;
+}
+
+/*
+ * Navbar
+ */
+
+.navbar-brand {
+  padding-top: .75rem;
+  padding-bottom: .75rem;
+  background-color: rgba(0, 0, 0, .25);
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+}
+
+.navbar .navbar-toggler {
+  top: .25rem;
+  right: 1rem;
+}
+
+.navbar .form-control {
+  padding: .75rem 1rem;
+}
+
+.form-control-dark {
+  color: #fff;
+  background-color: rgba(255, 255, 255, .1);
+  border-color: rgba(255, 255, 255, .1);
+}
+
+.form-control-dark:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
+}
+
+/* selimhur 310325 */
+.logo-dark {
+  display: flex!important;
+  align-items: center!important; 
+  justify-content: center!important;
+  color: black; 
+}
+
+#select2-sorumlu_personel_idler-container > li {
+  color: #727272;
+  font-size: 12px;
+}
+ 
+#select2-sorumlu_personel_idler-results li {
+  font-size: 12px;
+}
+
+.select2-container .select2-selection--multiple .select2-selection__choice {
+  background-color: #eee;
+}
+
+.label-container {
+  border: 1px solid #000;
+  padding: 10px;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+}
+.label-header {
+  font-size: 18px; /* Başlık yazı boyutunu küçülttük (24px -> 18px) */
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.label-table th, .label-table td {
+  border: 1px solid #000;
+  padding: 5px;
+  font-size: 12px; /* Tablo yazı boyutunu küçülttük (14px -> 12px) */
+}
+.label-table th {
+  font-weight: bold;
+  width: 30%;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.label-table td {
+  width: 80%;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.label-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  table-layout: fixed;
+}
+.qr-code {
+  width: 1.32cm;
+  height: 1.32cm;
+  background: #ccc;
+}
+.highlight {
+  color: red;
+  text-decoration: underline;
+}
+.modal-body {
+  overflow-x: auto;
+}
+.modal-dialog {
+  max-width: none;
+  width: 15cm;
+  min-width: 15cm;
+}
+/* Yazdırma için özel stiller */
+@media print {
+  body * {
+      visibility: hidden;
+  }
+  #label-content, #label-content * {
+      visibility: visible !important;
+  }
+  #label-content {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: var(--label-width, 11cm) !important;
+      height: var(--label-height, 8cm) !important;
+      overflow: visible !important;
+      display: block !important;
+  }
+  #label-content .label-table {
+      width: 100% !important;
+      table-layout: fixed !important;
+  }
+  #label-content .label-table th {
+      width: 30% !important;
+      white-space: normal !important;
+      overflow: hidden !important;
+  }
+  #label-content .label-table td {
+      width: 80% !important;
+      white-space: normal !important;
+      overflow: hidden !important;
+  }
+   
+  #stok-label-content, #stok-label-content * {
+      visibility: visible !important;
+  }
+  #stok-label-content {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: var(--label-width, 11cm) !important;
+      height: var(--label-height, 8cm) !important;
+      overflow: visible !important;
+      display: block !important;
+  }
+  #stok-label-content .label-table {
+      width: 100% !important;
+      table-layout: fixed !important;
+  }
+  #stok-label-content .label-table th {
+      width: 30% !important;
+      white-space: normal !important;
+      overflow: hidden !important;
+  }
+  #stok-label-content .label-table td {
+      width: 80% !important;
+      white-space: normal !important;
+      overflow: hidden !important;
+  }
+  .modal, .modal-dialog, .modal-content, .modal-body {
+      position: static !important;
+      width: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
+  }
+  @page {
+      size: auto;
+      margin: 0;
+  }
+}
+
+.label-ayarla{ 
+  height: 28px!important;
+  padding-top: 8px!important;
+  margin-left: 5px!important;
+}
+
+/*  Drop down */
+.custom-dropdown .dropdown-menu {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-size:11px;
+  max-width: 100px;
+  min-width: 100px;
+}
+
+.custom-dropdown .dropdown-item {
+  color: #333; 
+  transition: all 0.3s ease;
+  padding-left:  5px;
+  padding-right: 0px;
+}
+
+/* .custom-dropdown .dropdown-item:hover {
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+} */
+
+/* .custom-dropdown .dropdown-item:active {
+  background-color: #0056b3;
+  color: #fff;
+} */
+
+.custom-dropdown .dropdown-divider {
+  border-top: 1px solid #ced4da;
+}
+
+/* .custom-dropdown .btn-blue {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  transition: background-color 0.3s ease;
+} */
+
+/* .custom-dropdown .btn-blue:hover {
+  background-color: #0056b3;
+} */
+
+.custom-dropdown .custom-disabled-item {
+  color: #adb5bd;
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.custom-dropdown .custom-disabled-item:hover {
+  background-color: #f8f9fa;
+  color: #adb5bd;
+}
+
+div.card-header.bg-blue.py-3.text-white{
+  padding-top: 10px!important;
+  padding-bottom: 10px!important;
+}
+
+.custom-file-upload {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+.custom-file-upload:hover {
+  background-color: #e9ecef;
+}
+input[type="file"] {
+  display: none;
+}
+
+.search-container {
+  position: relative;
+}
+.search-container input {
+  padding-right: 40px;
+}
+.search-container .search-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007bff;
+}
+
+.ptop-5 {
+  padding-top: 5px!important;
+}
+
+.pbtm-5 {
+  padding-bottom: 5px!important;
+}
+
+.ptop-8 {
+  padding-top: 5px!important;
+}
+
+.pbtm-8 {
+  padding-bottom: 5px!important;
+}
+
+#tedarikciTable {
+  font-size: 13px; 
+}
+
+.table_sm_pd{
+  padding:0px 6px!important;
+  vertical-align: middle!important;
+}
+
+.mdi-dots-vertical{
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.goster{
+  display:show
+}
+
+.gosterme{
+  display:none
+}
+
+#select2-departman_idler-container{
+  margin-top:10px!important
+}
+
+#bakim-modal > div > div.modal-content {
+    width: 1200px!important;
+    height: 600px;
+}
+
+#bakim-modal .modal-body {
+    overflow-x: auto;
+}
+
+#bakimTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#tuketim-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#tuketim-modal .modal-body {
+    overflow-x: auto;
+}
+
+#tuketimTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#teslimat-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#teslimat-modal .modal-body {
+    overflow-x: auto;
+}
+
+#teslimatTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#fason-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#fason-modal .modal-body {
+    overflow-x: auto;
+}
+
+#fasonTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#ariza-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+  
+#ariza-modal .modal-body {
+    overflow-x: auto;
+}
+
+#arizaTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}   
+
+#degistirme-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#degistirme-modal .modal-body {
+    overflow-x: auto;
+}
+
+#degistirmeTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+} 
+
+#devretme-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#devretme-modal .modal-body {
+    overflow-x: auto;
+}
+
+#devretmeTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}   
+
+#mesaj-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#mesaj-modal .modal-body {
+    overflow-x: auto;
+}
+
+#mesajTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#mola-modal > div > div.modal-content {
+    width: 1000px!important;
+    height: 600px;
+}
+
+#mola-modal .modal-body {
+    overflow-x: auto;
+}
+
+#molaTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#paydos-modal > div > div.modal-content {
+    height: 600px;
+}
+
+#paydos-modal .modal-body {
+    overflow-x: auto;
+}
+
+#paydosTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#toplanti-modal > div > div.modal-content {
+    height: 600px;
+}
+
+#toplanti-modal .modal-body {
+    overflow-x: auto;
+}
+
+#toplantiTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#yemekmola-modal > div > div.modal-content {
+    height: 600px;
+}
+
+#yemekmola-modal .modal-body {
+    overflow-x: auto;
+}
+
+#yemekmolaTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+#yetkili-modal > div > div.modal-content {
+    height: 600px;
+}
+
+#yetkili-modal .modal-body {
+    overflow-x: auto;
+}
+
+#yetkiliTablosu {
+    table-layout: auto;
+    width: 100%;
+    white-space: nowrap;
+}

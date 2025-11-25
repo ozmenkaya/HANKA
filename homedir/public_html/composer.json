@@ -1,0 +1,16 @@
+{
+    "name": "selim/hankasys",
+    "autoload": {
+        "psr-4": {
+            "Selim\\Hankasys\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hankasys"
+        }
+    ],
+    "require": {
+        "mpdf/mpdf": "^8.2"
+    }
+}

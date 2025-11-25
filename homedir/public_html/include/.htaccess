@@ -1,0 +1,4 @@
+# Hassas dosyalara erişimi engelle
+<FilesMatch "(db\.php|sabitler\.php|function\.php)$">
+    Require all denied
+</FilesMatch>

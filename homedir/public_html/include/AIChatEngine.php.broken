@@ -1,0 +1,491 @@
+<?php
+/**
+ * HANKA AI Chat Engine
+ * Firma bazlı self-learning AI asistan
+ */
+
+require_once __DIR__ . "/OpenAI.php";
+require_once __DIR__ . "/DatabaseLearner.php";
+
+class AIChatEngine {
+    private $conn;
+    private $ai;
+    private $firma_id;
+    private $kullanici_id;
+    private $learner;
+    
+    public function __construct($conn, $firma_id, $kullanici_id) {
+        $this->conn = $conn;
+        $this->firma_id = $firma_id;
+        $this->kullanici_id = $kullanici_id;
+        $this->ai = new OpenAI();
+        $this->learner = new DatabaseLearner($conn, $firma_id);
+    }
+    
+    /**
+     * Ana chat fonksiyonu
+     */
+    public function chat($user_question) {
+        $start_time = microtime(true);
+        
+        try {
+            // 0. Kısmi isimleri genişlet (fuzzy matching)
+            $expanded_question = $this->expandPartialNames($user_question);
+            
+            // 1. Firma context'ini hazırla
+            $context = $this->buildFirmaContext();
+            
+            // 2. Veritabanı şemasını al
+            $schema = $this->getDatabaseSchema();
+            
+            // 3. Benzer geçmiş soruları bul
+            $similar_questions = $this->findSimilarQuestions($user_question);
+            
+            // 4. SQL sorgusu oluştur
+            $sql_result = $this->0.1
+            error_log("OpenAI response length: " . strlen($response));            error_log("OpenAI response preview: " . substr($response, 0, 300));
+            
+            
+            // Remove markdown code blocks
+            $response = preg_replace("/```json\\s*/", "", $response);
+            $response = preg_replace("/```\\s*/", "", $response);
+            $response = trim($response);
+            // JSON parse et
+            $result = json_decode($response, true);
+            
+            if (!$result || !isset($result["sql"])) {
+                throw new Exception("SQL oluşturulamadı");
+            }
+            
+            // 🔧 AUTO-FIX: Yaygın Türkçe yazım hatalarını düzelt
+            $sql = str_replace('mk.makine_adi', 'mk.makina_adi', $result['sql']);
+            $sql = str_replace('makinalar.makine_adi', 'makinalar.makina_adi', $sql);
+            $sql = str_replace(' makine_adi ', ' makina_adi ', $sql);
+            $sql = str_replace('(makine_adi', '(makina_adi', $sql);
+            $result['sql'] = $sql; // Düzeltilmiş SQL'i geri yaz
+            
+            return [
+                "success" => true,
+                "sql" => $result["sql"],
+                "explanation" => $result["explanation"] ?? ""
+            ];
+            
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            return [
+                "success" => false,
+                "error" => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * SQL sorgusunu çalıştır
+     */
+    private function executeSQL($sql) {
+        try {
+            $sth = $this->conn->prepare($sql);
+            $sth->execute();
+            return $sth->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            throw new Exception("SQL hatası: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Sonuçlardan Türkçe yanıt oluştur
+     */
+    private function generateAnswer($question, $data, $sql_explanation) {
+        // ID'leri isimlerle zenginleştir
+        $enriched_data = $this->enrichDataWithNames($data);
+        $record_count = count($enriched_data);
+        
+        $system_prompt = "Sen bir iş analitiği asistanısın. Verileri analiz edip Türkçe, anlaşılır yanıtlar veriyorsun.
+
+ÖNEMLİ KURALLAR:
+1. Verilen JSON'da *_adi veya *_isim sütunları varsa, bunları kullan
+2. ASLA \"5 numaralı müşteri\" gibi ID söyleme
+3. Eğer musteri_adi varsa, sadece müşteri adını söyle
+4. Eğer personel_adi varsa, sadece personel adını söyle
+5. Eğer makine_adi varsa, sadece makine adını söyle
+6. ID'leri tamamen görmezden gel, sadece isimleri kullan
+
+LİSTE SORULARI İÇİN:
+- Eğer \"hangi işler\", \"hangi müşteriler\", \"ne aldık\" gibi liste soruları sorulduysa
+- VE veri dizisinde kayıtlar varsa
+- MUTLAKA listeyi göster, \"bulunamadı\" deme
+- Her kaydı ayrı satırda yaz
+- Örnek: \"Toplam 5 iş bulundu: 1. İş adı, 2. İş adı...\"
+
+SAYIM SORULARI İÇİN:
+- \"Kaç tane\", \"toplam kaç\" sorularında sadece sayıyı ver
+- Örnek: \"Toplam 23 iş bulundu\"
+
+ÖZET SORULARI İÇİN:
+- \"En çok\", \"en az\", \"toplam\" gibi sorularda direkt sonucu ver
+- Gereksiz açıklama yapma";
+        
+        $user_prompt = "Soru: $question\n\n";
+        $user_prompt .= "SQL Açıklaması: $sql_explanation\n\n";
+        $user_prompt .= "Kayıt Sayısı: $record_count\n\n";
+        $user_prompt .= "Veri: " . json_encode($enriched_data, JSON_UNESCAPED_UNICODE) . "\n\n";
+        
+        if ($record_count > 0) {
+            $user_prompt .= "NOT: Veri dizisinde $record_count kayıt bulundu. Bu kayıtları kullanarak yanıt ver.";
+        } else {
+            $user_prompt .= "NOT: Veri dizisi boş, kayıt bulunamadı.";
+        }
+        
+        try {
+            // Temperature düşürüldü (0.7 → 0.2) daha tutarlı yanıtlar için
+            // Max tokens artırıldı (300 → 800) liste yanıtları için
+            return $this->ai->chat([
+                ["role" => "system", "content" => $system_prompt],
+                ["role" => "user", "content" => $user_prompt]
+            ], 0.2, 800);
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            // AI yanıt üretemezse basit özet döndür
+            $count = count($data);
+            return "Sorgunuz çalıştırıldı ve $count sonuç bulundu. Detaylar için aşağıdaki tabloya bakabilirsiniz.";
+        }
+    }
+    
+    /**
+     * Yanıt metnindeki isimlere linkler ekler
+     */
+    private function addLinksToAnswer($answer, $data) {
+        if (empty($data)) {
+            return $answer;
+        }
+        
+        foreach ($data as $row) {
+            // Müşteri adı varsa link ekle
+            if (isset($row["musteri_adi"]) && isset($row["musteri_id"])) {
+                $name = $row["musteri_adi"];
+                $id = $row["musteri_id"];
+                $link = "<a href=\"index.php?url=musteriler&id={$id}\" target=\"_blank\" class=\"text-primary fw-bold\">{$name}</a>";
+                // İsmi linkle değiştir (case-insensitive)
+                $answer = preg_replace(
+                    "/(" . preg_quote($name, "/") . ")/ui",
+                    $link,
+                    $answer,
+                    1 // Sadece ilk eşleşme
+                );
+            }
+            
+            // Firma unvanı varsa (musteri tablosundan)
+            if (isset($row["firma_unvani"]) && isset($row["id"])) {
+                $name = $row["firma_unvani"];
+                $id = $row["id"];
+                $link = "<a href=\"index.php?url=musteriler&id={$id}\" target=\"_blank\" class=\"text-primary fw-bold\">{$name}</a>";
+                $answer = preg_replace(
+                    "/(" . preg_quote($name, "/") . ")/ui",
+                    $link,
+                    $answer,
+                    1
+                );
+            }
+            
+            // Personel adı varsa link ekle
+            if (isset($row["personel_adi"]) && isset($row["personel_id"])) {
+                $name = $row["personel_adi"];
+                $id = $row["personel_id"];
+                $link = "<a href=\"index.php?url=personeller&id={$id}\" target=\"_blank\" class=\"text-success fw-bold\">{$name}</a>";
+                $answer = preg_replace(
+                    "/(" . preg_quote($name, "/") . ")/ui",
+                    $link,
+                    $answer,
+                    1
+                );
+            }
+            
+            // Ad soyad varsa (personeller tablosundan)
+            if (isset($row["ad_soyad"]) && isset($row["id"])) {
+                $name = $row["ad_soyad"];
+                $id = $row["id"];
+                $link = "<a href=\"index.php?url=personeller&id={$id}\" target=\"_blank\" class=\"text-success fw-bold\">{$name}</a>";
+                $answer = preg_replace(
+                    "/(" . preg_quote($name, "/") . ")/ui",
+                    $link,
+                    $answer,
+                    1
+                );
+            }
+            
+            // Ürün adı varsa
+            if (isset($row["urun_adi"]) && isset($row["urun_id"])) {
+                $name = $row["urun_adi"];
+                $id = $row["urun_id"];
+                $link = "<a href=\"index.php?url=urunler&id={$id}\" target=\"_blank\" class=\"text-info fw-bold\">{$name}</a>";
+                $answer = preg_replace(
+                    "/(" . preg_quote($name, "/") . ")/ui",
+                    $link,
+                    $answer,
+                    1
+                );
+            }
+        }
+        
+        return $answer;
+    }
+    
+    /**
+     * Sohbet geçmişine kaydet
+     */
+        /**
+     * Sohbet geçmişine kaydet
+     */
+
+    /**
+     * Veriyi ID'lerden isimlere dönüştür
+     */
+    private function enrichDataWithNames($data) {
+        if (empty($data)) {
+            return $data;
+        }
+        
+        $enriched = [];
+        foreach ($data as $row) {
+            $new_row = $row;
+            
+            // Müşteri ID varsa, ismini ekle
+            if (isset($row['musteri_id']) && is_numeric($row['musteri_id'])) {
+                $musteri_sql = "SELECT firma_unvani as firma_adi FROM musteri WHERE id = :id AND firma_id = :firma_id LIMIT 1";
+                try {
+                    $sth = $this->conn->prepare($musteri_sql);
+                    $sth->execute(['id' => $row['musteri_id'], 'firma_id' => $this->firma_id]);
+                    $musteri = $sth->fetch(PDO::FETCH_ASSOC);
+                    if ($musteri) {
+                        $new_row['musteri_adi'] = $musteri['firma_adi'];
+                    }
+                } catch (Exception $e) {
+                    // Sessizce devam et
+                }
+            }
+            
+            // Personel ID varsa, ismini ekle
+            if (isset($row['personel_id']) && is_numeric($row['personel_id'])) {
+                $personel_sql = "SELECT CONCAT(ad, ' ', soyad) as ad_soyad FROM personeller WHERE id = :id AND firma_id = :firma_id LIMIT 1";
+                try {
+                    $sth = $this->conn->prepare($personel_sql);
+                    $sth->execute(['id' => $row['personel_id'], 'firma_id' => $this->firma_id]);
+                    $personel = $sth->fetch(PDO::FETCH_ASSOC);
+                    if ($personel) {
+                        $new_row['personel_adi'] = $personel['ad_soyad'];
+                    }
+                } catch (Exception $e) {
+                    // Sessizce devam et
+                }
+            }
+            
+            // Makine ID varsa, ismini ekle
+            if (isset($row['makine_id']) && is_numeric($row['makine_id'])) {
+                $makine_sql = "SELECT makine_adi FROM makinalar WHERE id = :id AND firma_id = :firma_id LIMIT 1";
+                try {
+                    $sth = $this->conn->prepare($makine_sql);
+                    $sth->execute(['id' => $row['makine_id'], 'firma_id' => $this->firma_id]);
+                    $makine = $sth->fetch(PDO::FETCH_ASSOC);
+                    if ($makine) {
+                        $new_row['makine_adi'] = $makine['makine_adi'];
+                    }
+                } catch (Exception $e) {
+                    // Sessizce devam et
+                }
+            }
+            
+            $enriched[] = $new_row;
+        }
+        
+        return $enriched;
+    }
+
+    private function saveChatHistory($soru, $cevap, $sql, $sonuc_sayisi, $sure) {
+        $sql_insert = "INSERT INTO ai_chat_history 
+                      (firma_id, kullanici_id, soru, cevap, sql_query, sonuc_sayisi, cevap_suresi, tarih)
+                      VALUES (:firma_id, :kullanici_id, :soru, :cevap, :sql_query, :sonuc_sayisi, :sure, NOW())";
+        
+        $sth = $this->conn->prepare($sql_insert);
+        $sth->execute([
+            "firma_id" => $this->firma_id,
+            "kullanici_id" => $this->kullanici_id,
+            "soru" => $soru,
+            "cevap" => $cevap,
+            "sql_query" => $sql,
+            "sonuc_sayisi" => $sonuc_sayisi,
+            "sure" => $sure
+        ]);
+        
+        return $this->conn->lastInsertId();
+    }
+    
+    /**
+     * Knowledge base güncelle
+     */
+    private function updateKnowledgeBase($soru, $sql, $data) {
+        // Basit anahtar kelime çıkarımı
+        $keywords = $this->extractKeywords($soru);
+        
+        foreach ($keywords as $keyword) {
+            // Varsa güncelle, yoksa ekle
+            $check_sql = "SELECT id, kullanim_sayisi FROM ai_knowledge_base 
+                         WHERE firma_id = :firma_id AND anahtar_kelime = :keyword";
+            $sth = $this->conn->prepare($check_sql);
+            $sth->execute([
+                "firma_id" => $this->firma_id,
+                "keyword" => $keyword
+            ]);
+            $existing = $sth->fetch(PDO::FETCH_ASSOC);
+            
+            if ($existing) {
+                // Güncelle
+                $update_sql = "UPDATE ai_knowledge_base 
+                              SET kullanim_sayisi = kullanim_sayisi + 1,
+                                  son_kullanim = NOW()
+                              WHERE id = :id";
+                $sth = $this->conn->prepare($update_sql);
+                $sth->execute(["id" => $existing["id"]]);
+            } else {
+                // Yeni ekle
+                $kategori = $this->detectCategory($soru);
+                $insert_sql = "INSERT INTO ai_knowledge_base 
+                              (firma_id, kategori, anahtar_kelime, icerik, kullanim_sayisi, son_kullanim)
+                              VALUES (:firma_id, :kategori, :keyword, :icerik, 1, NOW())";
+                $sth = $this->conn->prepare($insert_sql);
+                $sth->execute([
+                    "firma_id" => $this->firma_id,
+                    "kategori" => $kategori,
+                    "keyword" => $keyword,
+                    "icerik" => json_encode(["soru" => $soru, "sql" => $sql], JSON_UNESCAPED_UNICODE)
+                ]);
+            }
+        }
+    }
+    
+    /**
+     * Anahtar kelime çıkar
+     */
+    private function extractKeywords($text) {
+        $stopwords = ["nedir", "kadar", "nekadar", "nasıl", "bir", "için", "olan", "ise", "gibi", "çok", "daha", "mi", "mı"];
+        $words = preg_split("/[\s,?.!]+/u", mb_strtolower($text, "UTF-8"));
+        $keywords = array_diff($words, $stopwords);
+        return array_filter($keywords, fn($w) => mb_strlen($w, "UTF-8") > 3);
+    }
+    
+    /**
+     * Kategori tespit et
+     */
+    private function detectCategory($question) {
+        $q = mb_strtolower($question, "UTF-8");
+        
+        if (preg_match("/(müşteri|firma|helmex)/u", $q)) return "musteri";
+        if (preg_match("/(personel|usta|çalışan|gokhan)/u", $q)) return "personel";
+        if (preg_match("/(makina|arıza|üretim)/u", $q)) return "makina";
+        if (preg_match("/(sipariş|iş|teslim)/u", $q)) return "siparis";
+        if (preg_match("/(termin|süre|zaman)/u", $q)) return "planlama";
+        
+        return "genel";
+    }
+
+    /**
+     * Tablo adına göre detay sayfası linkini döndürür
+     */
+        /**
+     * SQL sorgusundan ana tablo adını çıkarır
+     */
+    private function extractTableFromSQL($sql) {
+        // FROM tablosu bul
+        if (preg_match('/FROM\s+`?(\w+)`?/i', $sql, $matches)) {
+            return $matches[1];
+        }
+        
+        // JOIN varsa ilk tabloyu al
+        if (preg_match('/JOIN\s+`?(\w+)`?/i', $sql, $matches)) {
+            return $matches[1];
+        }
+        
+        return null;
+    }
+    
+    private function getDetailLink($table, $row) {
+        // Tablo-sayfa eşleştirmeleri (index.php?url=sayfa&id=X formatında)
+        $links = [
+            "musteri" => "index.php?url=musteriler&id=" . ($row["id"] ?? $row["musteri_id"] ?? ""),
+            "musteriler" => "index.php?url=musteriler&id=" . ($row["id"] ?? $row["musteri_id"] ?? ""),
+            "siparis" => "index.php?url=siparis&musteri_id=" . ($row["musteri_id"] ?? ""),
+            "siparisler" => "index.php?url=siparis&musteri_id=" . ($row["musteri_id"] ?? ""),
+            "teklif" => "index.php?url=teklif&id=" . ($row["id"] ?? $row["teklif_id"] ?? ""),
+            "teklifler" => "index.php?url=teklif&id=" . ($row["id"] ?? $row["teklif_id"] ?? ""),
+            "personel" => "index.php?url=personeller&id=" . ($row["id"] ?? $row["personel_id"] ?? ""),
+            "personeller" => "index.php?url=personeller&id=" . ($row["id"] ?? $row["personel_id"] ?? ""),
+            "urun" => "index.php?url=urunler&id=" . ($row["id"] ?? $row["urun_id"] ?? ""),
+            "urunler" => "index.php?url=urunler&id=" . ($row["id"] ?? $row["urun_id"] ?? ""),
+            "stok" => "index.php?url=stok&id=" . ($row["id"] ?? $row["stok_id"] ?? ""),
+            "fatura" => "index.php?url=faturalar&id=" . ($row["id"] ?? $row["fatura_id"] ?? ""),
+            "faturalar" => "index.php?url=faturalar&id=" . ($row["id"] ?? $row["fatura_id"] ?? ""),
+            "odeme" => "index.php?url=odemeler&id=" . ($row["id"] ?? $row["odeme_id"] ?? ""),
+            "odemeler" => "index.php?url=odemeler&id=" . ($row["id"] ?? $row["odeme_id"] ?? ""),
+            "proje" => "index.php?url=projeler&id=" . ($row["id"] ?? $row["proje_id"] ?? ""),
+            "projeler" => "index.php?url=projeler&id=" . ($row["id"] ?? $row["proje_id"] ?? ""),
+            "gorev" => "index.php?url=gorevler&id=" . ($row["id"] ?? $row["gorev_id"] ?? ""),
+            "gorevler" => "index.php?url=gorevler&id=" . ($row["id"] ?? $row["gorev_id"] ?? ""),
+            "randevu" => "index.php?url=randevular&id=" . ($row["id"] ?? $row["randevu_id"] ?? ""),
+            "randevular" => "index.php?url=randevular&id=" . ($row["id"] ?? $row["randevu_id"] ?? ""),
+            "harcama" => "index.php?url=harcamalar&id=" . ($row["id"] ?? $row["harcama_id"] ?? ""),
+            "harcamalar" => "index.php?url=harcamalar&id=" . ($row["id"] ?? $row["harcama_id"] ?? ""),
+        ];
+        
+        $table_lower = strtolower($table);
+        if (isset($links[$table_lower])) {
+            return $links[$table_lower];
+        }
+        
+        // Default: id varsa generic link
+        if (isset($row["id"])) {
+            return "index.php?url=" . $table_lower . "&id=" . $row["id"];
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Sonuç tablosunu HTML formatında linklerle oluşturur
+     */
+    private function formatResultsWithLinks($results, $table_name) {
+        if (empty($results)) {
+            return "<p>Sonuç bulunamadı.</p>";
+        }
+        
+        $html = "<div class=\"table-responsive\"><table class=\"table table-hover table-striped\">";
+        $html .= "<thead class=\"table-dark\"><tr>";
+        
+        // Header
+        $first_row = $results[0];
+        foreach (array_keys($first_row) as $column) {
+            $html .= "<th>" . htmlspecialchars($column) . "</th>";
+        }
+        $html .= "<th>İşlem</th></tr></thead><tbody>";
+        
+        // Rows with links
+        foreach ($results as $row) {
+            $html .= "<tr>";
+            foreach ($row as $value) {
+                $html .= "<td>" . htmlspecialchars($value ?? "-") . "</td>";
+            }
+            
+            // Link sütunu
+            $link = $this->getDetailLink($table_name, $row);
+            if ($link && $link !== "#") {
+                $html .= "<td><a href=\"" . htmlspecialchars($link) . "\" class=\"btn btn-sm btn-primary\" target=\"_blank\"><i class=\"fas fa-external-link-alt\"></i> Detay</a></td>";
+            } else {
+                $html .= "<td>-</td>";
+            }
+            $html .= "</tr>";
+        }
+        
+        $html .= "</tbody></table></div>";
+        return $html;
+    }
+
+}

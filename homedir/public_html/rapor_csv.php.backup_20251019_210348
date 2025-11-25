@@ -1,0 +1,150 @@
+<?php
+require_once "include/oturum_kontrol.php";
+
+$rapor_id = $_GET['rapor_id'] ?? 0;
+$baslangic = $_GET['baslangic_tarihi'] ?? date('Y-m-01');
+$bitis = $_GET['bitis_tarihi'] ?? date('Y-m-d');
+
+// Rapor şablonunu çek
+$sql = "SELECT * FROM rapor_sablonlari WHERE id = :id AND firma_id = :firma_id";
+$sth = $conn->prepare($sql);
+$sth->bindParam('id', $rapor_id);
+$sth->bindParam('firma_id', $_SESSION['firma_id']);
+$sth->execute();
+$rapor = $sth->fetch(PDO::FETCH_ASSOC);
+
+if(!$rapor) {
+    die('Rapor bulunamadı');
+}
+
+$sutunlar = json_decode($rapor['sutunlar'], true);
+$veri_kaynagi = $rapor['veri_kaynagi'];
+
+// Aynı SQL sorguları (rapor_tablo.php'den kopyala)
+$veriler = [];
+switch($veri_kaynagi) {
+    case 'uretim':
+        $sql = "SELECT 
+                    DATE_FORMAT(uit.tarih, '%d.%m.%Y') as tarih,
+                    s.siparis_no,
+                    pl.isim as urun_adi,
+                    m.makina_adi,
+                    CONCAT(p.ad, ' ', p.soyad) as personel,
+                    uit.uretilen_adet,
+                    uit.fire_adet,
+                    DATE_FORMAT(uit.baslatma_tarih, '%d.%m.%Y %H:%i') as baslatma_tarih,
+                    DATE_FORMAT(uit.bitis_tarih, '%d.%m.%Y %H:%i') as bitis_tarih,
+                    f.firma_adi as firma,
+                    d.departman as departman,
+                    CASE uit.durum 
+                        WHEN 'tamamlandi' THEN 'Tamamlandı'
+                        WHEN 'devam_ediyor' THEN 'Devam Ediyor'
+                        WHEN 'beklemede' THEN 'Beklemede'
+                        ELSE uit.durum 
+                    END as durum_text
+                FROM uretim_islem_tarihler uit
+                LEFT JOIN planlama pl ON pl.id = uit.planlama_id
+                LEFT JOIN siparisler s ON s.id = pl.siparis_id
+                LEFT JOIN makinalar m ON m.id = uit.makina_id
+                LEFT JOIN personeller p ON p.id = uit.personel_id
+                LEFT JOIN firmalar f ON f.id = uit.firma_id
+                LEFT JOIN departmanlar d ON d.id = pl.departman_id
+                WHERE uit.firma_id = :firma_id 
+                AND uit.tarih BETWEEN :baslangic AND :bitis
+                ORDER BY uit.tarih DESC";
+        break;
+        
+    case 'siparisler':
+        $sql = "SELECT 
+                    s.siparis_no,
+                    m.firma_unvani as musteri,
+                    s.isin_adi,
+                    s.adet,
+                    DATE_FORMAT(s.termin, '%d.%m.%Y') as termin,
+                    CASE s.durum 
+                        WHEN 0 THEN 'Onay Bekliyor'
+                        WHEN 1 THEN 'Onaylandı'
+                        WHEN 2 THEN 'Üretimde'
+                        WHEN 3 THEN 'Tamamlandı'
+                        ELSE 'Bilinmiyor'
+                    END as durum,
+                    DATE_FORMAT(s.tarih, '%d.%m.%Y') as olusturma_tarihi,
+                    f.firma_adi as firma,
+                    CONCAT(p.ad, ' ', p.soyad) as olusturan_personel,
+                    s.paketleme,
+                    s.aciklama
+                FROM siparisler s
+                LEFT JOIN musteri m ON m.id = s.musteri_id
+                LEFT JOIN firmalar f ON f.id = s.firma_id
+                LEFT JOIN personeller p ON p.id = s.onaylayan_personel_id
+                WHERE s.firma_id = :firma_id 
+                AND s.tarih BETWEEN :baslangic AND :bitis
+                ORDER BY s.tarih DESC";
+        break;
+        
+    case 'planlama':
+        $sql = "SELECT 
+                    s.siparis_no,
+                    m.firma_unvani as musteri,
+                    p.isim as urun,
+                    p.uretilecek_adet as adet,
+                    CONCAT(p.mevcut_asama, '/', p.asama) as asama,
+                    CASE p.durum 
+                        WHEN 'baslamadi' THEN 'Başlamadı'
+                        WHEN 'devam_ediyor' THEN 'Devam Ediyor'
+                        WHEN 'tamamlandi' THEN 'Tamamlandı'
+                        ELSE p.durum 
+                    END as durum,
+                    DATE_FORMAT(p.termin, '%d.%m.%Y') as termin,
+                    f.firma_adi as firma,
+                    d.departman as mevcut_departman,
+                    DATE_FORMAT(p.tarih, '%d.%m.%Y') as planlama_tarihi
+                FROM planlama p
+                LEFT JOIN siparisler s ON s.id = p.siparis_id
+                LEFT JOIN musteri m ON m.id = s.musteri_id
+                LEFT JOIN firmalar f ON f.id = p.firma_id
+                LEFT JOIN departmanlar d ON d.id = p.departman_id
+                WHERE p.firma_id = :firma_id 
+                AND p.tarih BETWEEN :baslangic AND :bitis
+                ORDER BY p.tarih DESC";
+        break;
+        
+    default:
+        die('Desteklenmeyen veri kaynağı');
+}
+
+$sth = $conn->prepare($sql);
+$sth->bindParam('firma_id', $_SESSION['firma_id']);
+$sth->bindParam('baslangic', $baslangic);
+$sth->bindParam('bitis', $bitis);
+$sth->execute();
+$veriler = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+// CSV Header
+$dosya_adi = $rapor['rapor_adi'] . '_' . date('Y-m-d_His') . '.csv';
+header('Content-Type: text/csv; charset=utf-8');
+header('Content-Disposition: attachment; filename="' . $dosya_adi . '"');
+
+$output = fopen('php://output', 'w');
+
+// UTF-8 BOM
+fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+
+// Header satırı
+$header = [];
+foreach($sutunlar as $sutun) {
+    $header[] = $sutun['label'];
+}
+fputcsv($output, $header, ';');
+
+// Veri satırları
+foreach($veriler as $satir) {
+    $row = [];
+    foreach($sutunlar as $sutun) {
+        $row[] = $satir[$sutun['key']] ?? '-';
+    }
+    fputcsv($output, $row, ';');
+}
+
+fclose($output);
+?>

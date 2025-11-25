@@ -1,0 +1,22 @@
+{
+    "siparisler": "siparisler (1361 kayıt) - Kolonlar: id, siparis_no, isin_adi, adet, fiyat, tarih | JOIN: musteri_id→musteri, tur_id→turler, birim_id→birimler, ulke_id→ulkeler, sehir_id→sehirler, ilce_id→ilceler",
+    "musteri_adresleri": "musteri_adresleri (173 kayıt) - Kolonlar: id | JOIN: musteri_id→musteri, ulke_id→ulkeler, sehir_id→sehirler, ilce_id→ilceler",
+    "musteri": "musteri (152 kayıt) - Kolonlar: id, marka, firma_unvani, yetkili_adi | JOIN: sehir_id→sehirler, ilce_id→ilceler, ulke_id→ulkeler, sektor_id→sektorler",
+    "stok_alt_depolar_kullanilanlar": "stok_alt_depolar_kullanilanlar (48 kayıt) - Kolonlar: id, tarih | JOIN: stok_alt_kalem_id→stok_alt_kalemler, planlama_id→planlama, personel_id→personeller, birim_id→birimler",
+    "arsiv_altlar": "arsiv_altlar (195 kayıt) - Kolonlar: id, adet, fatura_no | JOIN: tedarikci_id→tedarikciler, musteri_id→musteri, siparis_id→siparisler",
+    "stok_alt_depolar": "stok_alt_depolar (182 kayıt) - Kolonlar: id, siparis_no, adet, kullanilan_adet, fatura_no, ekleme_tarihi | JOIN: stok_alt_kalem_id→stok_alt_kalemler, birim_id→birimler, tedarikci_id→tedarikciler",
+    "teslim_edilenler": "teslim_edilenler (15 kayıt) - Kolonlar: id, tarih | JOIN: siparis_id→siparisler, planlama_id→planlama, personel_id→personeller",
+    "siparis_log": "siparis_log (2643 kayıt) - Kolonlar: id, islem_tarihi | JOIN: siparis_id→siparisler, personel_id→personeller",
+    "uretim_islem_tarihler": "uretim_islem_tarihler (1286 kayıt) - Kolonlar: id, baslatma_tarih, bitirme_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_makina_ayar_log": "uretim_makina_ayar_log (1280 kayıt) - Kolonlar: id, baslatma_tarih, bitirme_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretilen_adetler": "uretilen_adetler (912 kayıt) - Kolonlar: id, uretilen_adet, uretirken_verilen_fire_adet, baslangic_tarihi, bitis_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_eksik_uretilen_loglar": "uretim_eksik_uretilen_loglar (133 kayıt) - Kolonlar: id, eksik_adet, tarih | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_degistir_loglar": "uretim_degistir_loglar (108 kayıt) - Kolonlar: id, tarih | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_mola_log": "uretim_mola_log (106 kayıt) - Kolonlar: id, baslatma_tarihi, bitis_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_yemek_mola_log": "uretim_yemek_mola_log (64 kayıt) - Kolonlar: id, baslatma_tarihi, bitis_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_mesaj_log_gorunum_durumu": "uretim_mesaj_log_gorunum_durumu (59 kayıt) | JOIN: uretim_mesaj_log_id→uretim_mesaj_log, personel_id→personeller",
+    "uretim_fason_durum_loglar": "uretim_fason_durum_loglar (55 kayıt) - Kolonlar: id, gidis_tarihi, gelis_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_toplanti_log": "uretim_toplanti_log (54 kayıt) - Kolonlar: id, baslatma_tarihi, bitis_tarihi | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_mesaj_log": "uretim_mesaj_log (51 kayıt) - Kolonlar: id, tarih | JOIN: planlama_id→planlama, personel_id→personeller",
+    "uretim_makina_devretme_sebebi_loglar": "uretim_makina_devretme_sebebi_loglar (36 kayıt) - Kolonlar: id, tarih | JOIN: planlama_id→planlama, personel_id→personeller"
+}

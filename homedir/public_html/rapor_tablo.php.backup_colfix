@@ -1,0 +1,346 @@
+<?php
+require_once "include/oturum_kontrol.php";
+
+$rapor_id = $_GET['rapor_id'] ?? 0;
+$baslangic = $_GET['baslangic_tarihi'] ?? date('Y-m-01');
+$bitis = $_GET['bitis_tarihi'] ?? date('Y-m-d');
+
+// Rapor şablonunu çek
+$sql = "SELECT * FROM rapor_sablonlari WHERE id = :id AND firma_id = :firma_id";
+$sth = $conn->prepare($sql);
+$sth->bindParam('id', $rapor_id);
+$sth->bindParam('firma_id', $_SESSION['firma_id']);
+$sth->execute();
+$rapor = $sth->fetch(PDO::FETCH_ASSOC);
+
+if(!$rapor) {
+    die('Rapor bulunamadı');
+}
+
+$sutunlar = json_decode($rapor['sutunlar'], true);
+$veri_kaynagi = $rapor['veri_kaynagi'];
+
+// Verileri çek
+$veriler = [];
+switch($veri_kaynagi) {
+    case 'uretim':
+        $sql = "SELECT 
+                    DATE_FORMAT(uit.tarih, '%d.%m.%Y') as tarih,
+                    s.siparis_no,
+                    pl.isim as urun_adi,
+                    m.makina_adi,
+                    CONCAT(p.ad, ' ', p.soyad) as personel,
+                    uit.uretilen_adet,
+                    uit.fire_adet,
+                    DATE_FORMAT(uit.baslatma_tarih, '%d.%m.%Y %H:%i') as baslatma_tarih,
+                    DATE_FORMAT(uit.bitis_tarih, '%d.%m.%Y %H:%i') as bitis_tarih,
+                    f.firma_adi as firma,
+                    d.departman as departman,
+                    CASE uit.durum 
+                        WHEN 'tamamlandi' THEN 'Tamamlandı'
+                        WHEN 'devam_ediyor' THEN 'Devam Ediyor'
+                        WHEN 'beklemede' THEN 'Beklemede'
+                        ELSE uit.durum 
+                    END as durum_text
+                FROM uretim_islem_tarihler uit
+                LEFT JOIN planlama pl ON pl.id = uit.planlama_id
+                LEFT JOIN siparisler s ON s.id = pl.siparis_id
+                LEFT JOIN makinalar m ON m.id = uit.makina_id
+                LEFT JOIN personeller p ON p.id = uit.personel_id
+                LEFT JOIN firmalar f ON f.id = uit.firma_id
+                LEFT JOIN departmanlar d ON d.id = pl.departman_id
+                WHERE uit.firma_id = :firma_id 
+                AND uit.tarih BETWEEN :baslangic AND :bitis
+                ORDER BY uit.tarih DESC";
+        break;
+        
+    case 'siparisler':
+        $sql = "SELECT 
+                    s.siparis_no,
+                    m.firma_unvani as musteri_adi,
+                    sft.tip as siparis_tipi,
+                    t.tur as tur,
+                    b.ad as birim,
+                    s.isin_adi,
+                    s.adet,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.isim')) as urun_ismi,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.miktar')) as json_miktar,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.kdv')) as kdv_orani,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.birim_fiyat')) as birim_fiyat_json,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.aciklama')) as json_aciklama,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.EBAT')) as ebat,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.BASKI')) as baski,
+                    COALESCE(
+                        NULLIF(JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.GRAMAJ')), ''),
+                        NULLIF(JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"KARTON GRAMAJI\"')), '')
+                    ) as gramaj,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.KARTON')) as karton,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"KAĞIT\"')) as kagit,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.LAMINASYON')) as laminasyon,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"UV LAK\"')) as uv_lak,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.VARAK')) as varak,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.KIRIM')) as kirim,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.PAKETLEME')) as paketleme_json,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"YAPIŞTIRMA\"')) as yapistirma,
+                    JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.CILT')) as cilt,
+                    ul.baslik as ulke,
+                    sh.baslik as sehir,
+                    il.baslik as ilce,
+                    CONCAT(po.ad, ' ', po.soyad) as onaylayan,
+                    ot.odeme_sekli as odeme_sekli,
+                    my.yetkili_adi as musteri_temsilcisi,
+                    DATE_FORMAT(s.termin, '%d.%m.%Y') as termin,
+                    CASE s.durum 
+                        WHEN 0 THEN 'Onay Bekliyor'
+                        WHEN 1 THEN 'Onaylandı'
+                        WHEN 2 THEN 'Üretimde'
+                        WHEN 3 THEN 'Tamamlandı'
+                        ELSE 'Bilinmiyor'
+                    END as durum,
+                    DATE_FORMAT(s.tarih, '%d.%m.%Y %H:%i') as olusturma_tarihi
+                FROM siparisler s
+                LEFT JOIN musteri m ON m.id = s.musteri_id
+                LEFT JOIN siparis_form_tipleri sft ON sft.id = s.tip_id
+                LEFT JOIN turler t ON t.id = s.tur_id
+                LEFT JOIN birimler b ON b.id = s.birim_id
+                LEFT JOIN firmalar f ON f.id = s.firma_id
+                LEFT JOIN ulkeler ul ON ul.id = s.ulke_id
+                LEFT JOIN sehirler sh ON sh.id = s.sehir_id
+                LEFT JOIN ilceler il ON il.id = s.ilce_id
+                LEFT JOIN personeller po ON po.id = s.onaylayan_personel_id
+                LEFT JOIN odeme_tipleri ot ON ot.id = s.odeme_sekli_id
+                LEFT JOIN musteri_yetkilileri my ON my.id = s.musteri_temsilcisi_id
+                WHERE s.firma_id = :firma_id 
+                AND s.tarih BETWEEN :baslangic AND :bitis
+                ORDER BY s.tarih DESC";
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('firma_id', $_SESSION['firma_id']);
+        $sth->bindParam('baslangic', $baslangic);
+        $sth->bindParam('bitis', $bitis);
+        $sth->execute();
+        $veriler = $sth->fetchAll(PDO::FETCH_ASSOC);
+        break;
+
+    case 'siparislerv2':
+            $sql = "SELECT 
+                        s.id as siparis_id,
+                        s.siparis_no,
+                        m.firma_unvani as musteri_adi,
+                        m.vergi_no as musteri_vergi_no,
+                        m.vergi_dairesi as musteri_vergi_dairesi,
+                        m.email as musteri_email,
+                        m.telefon as musteri_telefon,
+                        sft.tip as siparis_tipi,
+                        t.tur as tur,
+                        b.ad as birim,
+                        s.isin_adi,
+                        s.adet,
+                        s.fiyat,
+                        s.para_cinsi,
+                        -- JSON alanları
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.isim')) as urun_ismi,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.miktar')) as json_miktar,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.kdv')) as kdv_orani,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.birim_fiyat')) as birim_fiyat_json,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.aciklama')) as json_aciklama,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.numune')) as numune,
+                        -- Form alanları
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.EBAT')) as ebat,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.BASKI')) as baski,
+                        COALESCE(
+                            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.GRAMAJ')), ''),
+                            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"KARTON GRAMAJI\"')), '')
+                        ) as gramaj,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.KARTON')) as karton,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"KAĞIT\"')) as kagit,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.LAMINASYON')) as laminasyon,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"UV LAK\"')) as uv_lak,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.VARAK')) as varak,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.KIRIM')) as kirim,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.PAKETLEME')) as paketleme_json,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"YAPIŞTIRMA\"')) as yapistirma,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.CILT')) as cilt,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.GOFRAJ')) as gofraj,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"TEKLİ EBADI\"')) as tekli_ebadi,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"MONTAJ SAYISI\"')) as montaj_sayisi,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"BIÇAK NUMARASI\"')) as bicak_numarasi,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"TASARIM NUMARASI\"')) as tasarim_numarasi,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"KOLİ NUMARASI\"')) as koli_numarasi,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"KOLİ İÇİ ADET\"')) as koli_ici_adet,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"PALET ÖLÇÜSÜ\"')) as palet_olcusu,
+                        JSON_UNQUOTE(JSON_EXTRACT(s.veriler, '$.form.\"PALET İÇİ KOLİ ADETİ\"')) as palet_ici_koli_adeti,
+                        -- Lokasyon bilgileri
+                        ul.baslik as ulke,
+                        sh.baslik as sehir,
+                        il.baslik as ilce,
+                        -- Personel bilgileri
+                        CONCAT(po.ad, ' ', po.soyad) as onaylayan,
+                        CONCAT(pol.ad, ' ', pol.soyad) as olusturan,
+                        -- Ödeme ve temsilci
+                        ot.odeme_sekli as odeme_sekli,
+                        my.yetkili_adi as musteri_temsilcisi,
+                        my.yetkili_cep as temsilci_telefon,
+                        my.yetkili_mail as temsilci_email,
+                        -- Tarihler
+                        DATE_FORMAT(s.termin, '%d.%m.%Y') as termin,
+                        DATE_FORMAT(s.tarih, '%d.%m.%Y %H:%i') as siparis_tarihi,
+                        -- Durum
+                        CASE s.durum 
+                            WHEN 0 THEN 'Onay Bekliyor'
+                            WHEN 1 THEN 'Onaylandı'
+                            WHEN 2 THEN 'Üretimde'
+                            WHEN 3 THEN 'Tamamlandı'
+                            ELSE 'Bilinmiyor'
+                        END as durum,
+                        CASE s.islem 
+                            WHEN 'yeni' THEN 'Yeni'
+                            WHEN 'islemde' THEN 'İşlemde'
+                            WHEN 'tamamlandi' THEN 'Tamamlandı'
+                            WHEN 'teslim_edildi' THEN 'Teslim Edildi'
+                            WHEN 'iptal' THEN 'İptal'
+                            ELSE s.islem 
+                        END as islem_durumu,
+                        -- Firma
+                        f.firma_adi as firma
+                    FROM siparisler s
+                    LEFT JOIN musteri m ON m.id = s.musteri_id
+                    LEFT JOIN siparis_form_tipleri sft ON sft.id = s.tip_id
+                    LEFT JOIN turler t ON t.id = s.tur_id
+                    LEFT JOIN birimler b ON b.id = s.birim_id
+                    LEFT JOIN firmalar f ON f.id = s.firma_id
+                    LEFT JOIN ulkeler ul ON ul.id = s.ulke_id
+                    LEFT JOIN sehirler sh ON sh.id = s.sehir_id
+                    LEFT JOIN ilceler il ON il.id = s.ilce_id
+                    LEFT JOIN personeller po ON po.id = s.onaylayan_personel_id
+                    LEFT JOIN personeller pol ON pol.id = s.olusturan_personel_id
+                    LEFT JOIN odeme_tipleri ot ON ot.id = s.odeme_sekli_id
+                    LEFT JOIN musteri_yetkilileri my ON my.id = s.musteri_temsilcisi_id
+                    WHERE s.firma_id = :firma_id 
+                    AND s.tarih BETWEEN :baslangic AND :bitis
+                    ORDER BY s.tarih DESC";
+            $sth = $conn->prepare($sql);
+            $sth->bindParam('firma_id', $_SESSION['firma_id']);
+            $sth->bindParam('baslangic', $baslangic);
+            $sth->bindParam('bitis', $bitis);
+            $sth->execute();
+            $veriler = $sth->fetchAll(PDO::FETCH_ASSOC);
+            break;
+        
+    case 'planlama':
+        $sql = "SELECT 
+                    s.siparis_no,
+                    m.firma_unvani as musteri,
+                    p.isim as urun,
+                    p.uretilecek_adet as adet,
+                    CONCAT(p.mevcut_asama, '/', p.asama) as asama,
+                    CASE p.durum 
+                        WHEN 'baslamadi' THEN 'Başlamadı'
+                        WHEN 'devam_ediyor' THEN 'Devam Ediyor'
+                        WHEN 'tamamlandi' THEN 'Tamamlandı'
+                        ELSE p.durum 
+                    END as durum,
+                    DATE_FORMAT(p.termin, '%d.%m.%Y') as termin,
+                    f.firma_adi as firma,
+                    d.departman as mevcut_departman,
+                    DATE_FORMAT(p.tarih, '%d.%m.%Y') as planlama_tarihi
+                FROM planlama p
+                LEFT JOIN siparisler s ON s.id = p.siparis_id
+                LEFT JOIN musteri m ON m.id = s.musteri_id
+                LEFT JOIN firmalar f ON f.id = p.firma_id
+                LEFT JOIN departmanlar d ON d.id = p.departman_id
+                WHERE p.firma_id = :firma_id 
+                AND p.tarih BETWEEN :baslangic AND :bitis
+                ORDER BY p.tarih DESC";
+        break;
+        
+    default:
+        die('Desteklenmeyen veri kaynağı');
+}
+
+$sth = $conn->prepare($sql);
+$sth->bindParam('firma_id', $_SESSION['firma_id']);
+$sth->bindParam('baslangic', $baslangic);
+$sth->bindParam('bitis', $bitis);
+$sth->execute();
+$veriler = $sth->fetchAll(PDO::FETCH_ASSOC);
+?>
+
+<div class="container-fluid">
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fa-solid fa-table"></i> <?= htmlspecialchars($rapor['rapor_adi']) ?>
+                    </h5>
+                    <div>
+                        <a href="/index.php?url=rapor_excel&rapor_id=<?= $rapor_id ?>&baslangic_tarihi=<?= $baslangic ?>&bitis_tarihi=<?= $bitis ?>" 
+                           class="btn btn-success">
+                            <i class="fa-solid fa-file-excel"></i> Excel İndir
+                        </a>
+                        <a href="/index.php?url=rapor_csv&rapor_id=<?= $rapor_id ?>&baslangic_tarihi=<?= $baslangic ?>&bitis_tarihi=<?= $bitis ?>" 
+                           class="btn btn-info">
+                            <i class="fa-solid fa-file-csv"></i> CSV İndir
+                        </a>
+                        <a href="/index.php?url=raporlar" class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left"></i> Geri
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Tarih Aralığı:</strong> 
+                        <?= date('d.m.Y', strtotime($baslangic)) ?> - <?= date('d.m.Y', strtotime($bitis)) ?>
+                        <span class="ms-3">
+                            <strong>Toplam Kayıt:</strong> <?= count($veriler) ?>
+                        </span>
+                    </div>
+                    
+                    <?php if(empty($veriler)): ?>
+                        <div class="alert alert-warning">
+                            <i class="fa-solid fa-exclamation-triangle"></i>
+                            Bu tarih aralığında veri bulunamadı.
+                        </div>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered table-hover" id="raporTablosu">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <?php foreach($sutunlar as $sutun): ?>
+                                            <th><?= htmlspecialchars($sutun['label']) ?></th>
+                                        <?php endforeach; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($veriler as $satir): ?>
+                                        <tr>
+                                            <?php foreach($sutunlar as $sutun): ?>
+                                                <td><?= htmlspecialchars($satir[$sutun['key']] ?? '-') ?></td>
+                                            <?php endforeach; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// DataTables eklentisi varsa kullan
+$(document).ready(function() {
+    if($.fn.DataTable) {
+        $('#raporTablosu').DataTable({
+            pageLength: 50,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/tr.json'
+            },
+            dom: 'Bfrtip',
+            buttons: ['copy', 'excel', 'pdf', 'print']
+        });
+    }
+});
+</script>

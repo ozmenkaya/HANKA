@@ -1,0 +1,576 @@
+[
+    {
+        "from_table": "arsiv_altlar",
+        "from_column": "tedarikci_id",
+        "to_table": "tedarikciler",
+        "to_column": "id",
+        "sql_join": "arsiv_altlar.tedarikci_id = tedarikciler.id"
+    },
+    {
+        "from_table": "arsiv_altlar",
+        "from_column": "musteri_id",
+        "to_table": "musteri",
+        "to_column": "id",
+        "sql_join": "arsiv_altlar.musteri_id = musteri.id"
+    },
+    {
+        "from_table": "arsiv_altlar",
+        "from_column": "siparis_id",
+        "to_table": "siparisler",
+        "to_column": "id",
+        "sql_join": "arsiv_altlar.siparis_id = siparisler.id"
+    },
+    {
+        "from_table": "departman_form_degerler",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "departman_form_degerler.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "departman_planlama",
+        "from_column": "birim_id",
+        "to_table": "birimler",
+        "to_column": "id",
+        "sql_join": "departman_planlama.birim_id = birimler.id"
+    },
+    {
+        "from_table": "geri_bildirim_gorunum_durumu",
+        "from_column": "geri_bildirim_id",
+        "to_table": "geri_bildirim",
+        "to_column": "id",
+        "sql_join": "geri_bildirim_gorunum_durumu.geri_bildirim_id = geri_bildirim.id"
+    },
+    {
+        "from_table": "geri_bildirim_gorunum_durumu",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "geri_bildirim_gorunum_durumu.personel_id = personeller.id"
+    },
+    {
+        "from_table": "ilceler",
+        "from_column": "sehir_id",
+        "to_table": "sehirler",
+        "to_column": "id",
+        "sql_join": "ilceler.sehir_id = sehirler.id"
+    },
+    {
+        "from_table": "makina_bakim_personeller",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "makina_bakim_personeller.personel_id = personeller.id"
+    },
+    {
+        "from_table": "makina_personeller",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "makina_personeller.personel_id = personeller.id"
+    },
+    {
+        "from_table": "musteri",
+        "from_column": "sehir_id",
+        "to_table": "sehirler",
+        "to_column": "id",
+        "sql_join": "musteri.sehir_id = sehirler.id"
+    },
+    {
+        "from_table": "musteri",
+        "from_column": "ilce_id",
+        "to_table": "ilceler",
+        "to_column": "id",
+        "sql_join": "musteri.ilce_id = ilceler.id"
+    },
+    {
+        "from_table": "musteri",
+        "from_column": "ulke_id",
+        "to_table": "ulkeler",
+        "to_column": "id",
+        "sql_join": "musteri.ulke_id = ulkeler.id"
+    },
+    {
+        "from_table": "musteri",
+        "from_column": "sektor_id",
+        "to_table": "sektorler",
+        "to_column": "id",
+        "sql_join": "musteri.sektor_id = sektorler.id"
+    },
+    {
+        "from_table": "musteri_adresleri",
+        "from_column": "musteri_id",
+        "to_table": "musteri",
+        "to_column": "id",
+        "sql_join": "musteri_adresleri.musteri_id = musteri.id"
+    },
+    {
+        "from_table": "musteri_adresleri",
+        "from_column": "ulke_id",
+        "to_table": "ulkeler",
+        "to_column": "id",
+        "sql_join": "musteri_adresleri.ulke_id = ulkeler.id"
+    },
+    {
+        "from_table": "musteri_adresleri",
+        "from_column": "sehir_id",
+        "to_table": "sehirler",
+        "to_column": "id",
+        "sql_join": "musteri_adresleri.sehir_id = sehirler.id"
+    },
+    {
+        "from_table": "musteri_adresleri",
+        "from_column": "ilce_id",
+        "to_table": "ilceler",
+        "to_column": "id",
+        "sql_join": "musteri_adresleri.ilce_id = ilceler.id"
+    },
+    {
+        "from_table": "musteri_yetkilileri",
+        "from_column": "musteri_id",
+        "to_table": "musteri",
+        "to_column": "id",
+        "sql_join": "musteri_yetkilileri.musteri_id = musteri.id"
+    },
+    {
+        "from_table": "personel_departmanlar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "personel_departmanlar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "personel_sayfa_yetki",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "personel_sayfa_yetki.personel_id = personeller.id"
+    },
+    {
+        "from_table": "personeller",
+        "from_column": "yetki_id",
+        "to_table": "yetkiler",
+        "to_column": "id",
+        "sql_join": "personeller.yetki_id = yetkiler.id"
+    },
+    {
+        "from_table": "planlama",
+        "from_column": "siparis_id",
+        "to_table": "siparisler",
+        "to_column": "id",
+        "sql_join": "planlama.siparis_id = siparisler.id"
+    },
+    {
+        "from_table": "sehirler",
+        "from_column": "ulke_id",
+        "to_table": "ulkeler",
+        "to_column": "id",
+        "sql_join": "sehirler.ulke_id = ulkeler.id"
+    },
+    {
+        "from_table": "siparis_dosyalar",
+        "from_column": "siparis_id",
+        "to_table": "siparisler",
+        "to_column": "id",
+        "sql_join": "siparis_dosyalar.siparis_id = siparisler.id"
+    },
+    {
+        "from_table": "siparis_log",
+        "from_column": "siparis_id",
+        "to_table": "siparisler",
+        "to_column": "id",
+        "sql_join": "siparis_log.siparis_id = siparisler.id"
+    },
+    {
+        "from_table": "siparis_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "siparis_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "siparise_hazir_malzemeler",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "siparise_hazir_malzemeler.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "siparisler",
+        "from_column": "musteri_id",
+        "to_table": "musteri",
+        "to_column": "id",
+        "sql_join": "siparisler.musteri_id = musteri.id"
+    },
+    {
+        "from_table": "siparisler",
+        "from_column": "tur_id",
+        "to_table": "turler",
+        "to_column": "id",
+        "sql_join": "siparisler.tur_id = turler.id"
+    },
+    {
+        "from_table": "siparisler",
+        "from_column": "birim_id",
+        "to_table": "birimler",
+        "to_column": "id",
+        "sql_join": "siparisler.birim_id = birimler.id"
+    },
+    {
+        "from_table": "siparisler",
+        "from_column": "ulke_id",
+        "to_table": "ulkeler",
+        "to_column": "id",
+        "sql_join": "siparisler.ulke_id = ulkeler.id"
+    },
+    {
+        "from_table": "siparisler",
+        "from_column": "sehir_id",
+        "to_table": "sehirler",
+        "to_column": "id",
+        "sql_join": "siparisler.sehir_id = sehirler.id"
+    },
+    {
+        "from_table": "siparisler",
+        "from_column": "ilce_id",
+        "to_table": "ilceler",
+        "to_column": "id",
+        "sql_join": "siparisler.ilce_id = ilceler.id"
+    },
+    {
+        "from_table": "stok_alt_depolar",
+        "from_column": "stok_alt_kalem_id",
+        "to_table": "stok_alt_kalemler",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar.stok_alt_kalem_id = stok_alt_kalemler.id"
+    },
+    {
+        "from_table": "stok_alt_depolar",
+        "from_column": "birim_id",
+        "to_table": "birimler",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar.birim_id = birimler.id"
+    },
+    {
+        "from_table": "stok_alt_depolar",
+        "from_column": "tedarikci_id",
+        "to_table": "tedarikciler",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar.tedarikci_id = tedarikciler.id"
+    },
+    {
+        "from_table": "stok_alt_depolar_kullanilanlar",
+        "from_column": "stok_alt_kalem_id",
+        "to_table": "stok_alt_kalemler",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar_kullanilanlar.stok_alt_kalem_id = stok_alt_kalemler.id"
+    },
+    {
+        "from_table": "stok_alt_depolar_kullanilanlar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar_kullanilanlar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "stok_alt_depolar_kullanilanlar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar_kullanilanlar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "stok_alt_depolar_kullanilanlar",
+        "from_column": "birim_id",
+        "to_table": "birimler",
+        "to_column": "id",
+        "sql_join": "stok_alt_depolar_kullanilanlar.birim_id = birimler.id"
+    },
+    {
+        "from_table": "stok_alt_kalemler",
+        "from_column": "birim_id",
+        "to_table": "birimler",
+        "to_column": "id",
+        "sql_join": "stok_alt_kalemler.birim_id = birimler.id"
+    },
+    {
+        "from_table": "teslim_edilenler",
+        "from_column": "siparis_id",
+        "to_table": "siparisler",
+        "to_column": "id",
+        "sql_join": "teslim_edilenler.siparis_id = siparisler.id"
+    },
+    {
+        "from_table": "teslim_edilenler",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "teslim_edilenler.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "teslim_edilenler",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "teslim_edilenler.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretilen_adetler",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretilen_adetler.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretilen_adetler",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretilen_adetler.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_aktarma_loglar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_aktarma_loglar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_ariza_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_ariza_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_ariza_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_ariza_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_bakim_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_bakim_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_bakim_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_bakim_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_degistir_loglar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_degistir_loglar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_degistir_loglar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_degistir_loglar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_dosyalar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_dosyalar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_eksik_uretilen_loglar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_eksik_uretilen_loglar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_eksik_uretilen_loglar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_eksik_uretilen_loglar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_fason_durum_loglar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_fason_durum_loglar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_fason_durum_loglar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_fason_durum_loglar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_islem_tarihler",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_islem_tarihler.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_islem_tarihler",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_islem_tarihler.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_makina_ayar_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_makina_ayar_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_makina_ayar_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_makina_ayar_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_makina_devretme_sebebi_loglar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_makina_devretme_sebebi_loglar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_makina_devretme_sebebi_loglar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_makina_devretme_sebebi_loglar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_mesaj_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_mesaj_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_mesaj_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_mesaj_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_mesaj_log_gorunum_durumu",
+        "from_column": "uretim_mesaj_log_id",
+        "to_table": "uretim_mesaj_log",
+        "to_column": "id",
+        "sql_join": "uretim_mesaj_log_gorunum_durumu.uretim_mesaj_log_id = uretim_mesaj_log.id"
+    },
+    {
+        "from_table": "uretim_mesaj_log_gorunum_durumu",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_mesaj_log_gorunum_durumu.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_mevcut_asamada_aktarilan",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_mevcut_asamada_aktarilan.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_mevcut_asamada_aktarilan",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_mevcut_asamada_aktarilan.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_mola_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_mola_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_mola_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_mola_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_paydos_loglar",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_paydos_loglar.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_paydos_loglar",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_paydos_loglar.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_toplanti_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_toplanti_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_toplanti_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_toplanti_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_yemek_mola_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_yemek_mola_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_yemek_mola_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_yemek_mola_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "uretim_yetkili_log",
+        "from_column": "planlama_id",
+        "to_table": "planlama",
+        "to_column": "id",
+        "sql_join": "uretim_yetkili_log.planlama_id = planlama.id"
+    },
+    {
+        "from_table": "uretim_yetkili_log",
+        "from_column": "personel_id",
+        "to_table": "personeller",
+        "to_column": "id",
+        "sql_join": "uretim_yetkili_log.personel_id = personeller.id"
+    },
+    {
+        "from_table": "yetki_sayfalar",
+        "from_column": "yetki_id",
+        "to_table": "yetkiler",
+        "to_column": "id",
+        "sql_join": "yetki_sayfalar.yetki_id = yetkiler.id"
+    }
+]

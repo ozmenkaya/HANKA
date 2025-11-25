@@ -1,0 +1,366 @@
+<?php
+/**
+ * HANKA AI Chat Engine
+ * Firma bazlı self-learning AI asistan
+ */
+
+require_once __DIR__ . "/OpenAI.php";
+
+class AIChatEngine {
+    private $conn;
+    private $ai;
+    private $firma_id;
+    private $kullanici_id;
+    
+    public function __construct($conn, $firma_id, $kullanici_id) {
+        $this->conn = $conn;
+        $this->firma_id = $firma_id;
+        $this->kullanici_id = $kullanici_id;
+        $this->ai = new OpenAI();
+    }
+    
+    /**
+     * Ana chat fonksiyonu
+     */
+    public function chat($user_question) {
+        $start_time = microtime(true);
+        
+        try {
+            // 1. Firma context'ini hazırla
+            $context = $this->buildFirmaContext();
+            
+            // 2. Veritabanı şemasını al
+            $schema = $this->getDatabaseSchema();
+            
+            // 3. Benzer geçmiş soruları bul
+            $similar_questions = $this->findSimilarQuestions($user_question);
+            
+            // 4. SQL sorgusu oluştur
+            $sql_result = $this->generateSQL($user_question, $schema, $context, $similar_questions);
+            
+            if (!$sql_result["success"]) {
+                throw new Exception($sql_result["error"]);
+            }
+            
+            // 5. SQL'i çalıştır
+            $data = $this->executeSQL($sql_result["sql"]);
+            
+            // 6. Sonuçları analiz et ve yanıt oluştur
+            $answer = $this->generateAnswer($user_question, $data, $sql_result["explanation"]);
+            
+            // 7. Sohbet geçmişine kaydet
+            $chat_id = $this->saveChatHistory(
+                $user_question,
+                $answer,
+                $sql_result["sql"],
+                count($data),
+                microtime(true) - $start_time
+            );
+            
+            // 8. Knowledge base'i güncelle
+            $this->updateKnowledgeBase($user_question, $sql_result["sql"], $data);
+            
+            return [
+                "success" => true,
+                "answer" => $answer,
+                "data" => $data,
+                "sql" => $sql_result["sql"],
+                "chat_id" => $chat_id,
+                "response_time" => round(microtime(true) - $start_time, 2)
+            ];
+            
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            return [
+                "success" => false,
+                "error" => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Firma context bilgilerini topla
+     */
+    private function buildFirmaContext() {
+        $context = [];
+        
+        // Firma bilgisi
+        $sql = "SELECT firma_adi FROM firmalar WHERE id = :firma_id";
+        $sth = $this->conn->prepare($sql);
+        $sth->execute(["firma_id" => $this->firma_id]);
+        $firma = $sth->fetch(PDO::FETCH_ASSOC);
+        $context["firma_adi"] = $firma["firma_adi"] ?? "Bilinmeyen";
+        
+        // Son 30 günlük özet istatistikler
+        $sql = "SELECT 
+                    COUNT(*) as toplam_siparis,
+                    SUM(adet) as toplam_adet,
+                    AVG(fiyat) as ortalama_fiyat
+                FROM siparisler 
+                WHERE firma_id = :firma_id 
+                AND tarih >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        $sth = $this->conn->prepare($sql);
+        $sth->execute(["firma_id" => $this->firma_id]);
+        $context["siparis_stats"] = $sth->fetch(PDO::FETCH_ASSOC);
+        
+        // Aktif müşteri sayısı
+        $sql = "SELECT COUNT(DISTINCT m.id) as aktif_musteri
+                FROM musteri m
+                INNER JOIN siparisler s ON s.musteri_id = m.id
+                WHERE s.firma_id = :firma_id
+                AND s.tarih >= DATE_SUB(NOW(), INTERVAL 90 DAY)";
+        $sth = $this->conn->prepare($sql);
+        $sth->execute(["firma_id" => $this->firma_id]);
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $context["aktif_musteri"] = $result["aktif_musteri"] ?? 0;
+        
+        // Personel sayısı
+        $sql = "SELECT COUNT(*) as personel_sayisi FROM personeller WHERE firma_id = :firma_id";
+        $sth = $this->conn->prepare($sql);
+        $sth->execute(["firma_id" => $this->firma_id]);
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $context["personel_sayisi"] = $result["personel_sayisi"] ?? 0;
+        
+        // Makina sayısı
+        $sql = "SELECT COUNT(*) as makina_sayisi FROM makinalar WHERE firma_id = :firma_id";
+        $sth = $this->conn->prepare($sql);
+        $sth->execute(["firma_id" => $this->firma_id]);
+        $result = $sth->fetch(PDO::FETCH_ASSOC);
+        $context["makina_sayisi"] = $result["makina_sayisi"] ?? 0;
+        
+        return $context;
+    }
+    
+    /**
+     * Veritabanı şemasını al
+     */
+    private function getDatabaseSchema() {
+        $tables = [
+            "siparisler" => "Sipariş bilgileri (siparis_no, musteri_id, isin_adi, adet, fiyat, tarih, termin, durum)",
+            "musteri" => "Müşteri bilgileri (firma_unvani, vergi_numarasi, e_mail, cep_tel)",
+            "personeller" => "Personel bilgileri (ad, soyad, email, departman_id, yetki_id)",
+            "uretim_islem_tarihler" => "Üretim kayıtları (siparis_id, personel_id, makina_id, uretilen_adet, fire_adet, tarih, durum)",
+            "makinalar" => "Makina bilgileri (makina_adi, makina_kodu, durum)",
+            "planlama" => "Planlama kayıtları (siparis_id, isim, uretilecek_adet, termin, durum, asama)",
+            "stok" => "Stok bilgileri (stok_adi, stok_kodu, miktar, birim)",
+            "departmanlar" => "Departman bilgileri (departman)",
+            "turler" => "İş türleri (tur)",
+            "birimler" => "Birim bilgileri (ad)"
+        ];
+        
+        return $tables;
+    }
+    
+    /**
+     * Benzer geçmiş soruları bul
+     */
+    private function findSimilarQuestions($question) {
+        $sql = "SELECT soru, sql_query, cevap 
+                FROM ai_chat_history 
+                WHERE firma_id = :firma_id 
+                AND MATCH(soru) AGAINST(:question IN NATURAL LANGUAGE MODE)
+                ORDER BY tarih DESC 
+                LIMIT 3";
+        
+        try {
+            $sth = $this->conn->prepare($sql);
+            $sth->execute([
+                "firma_id" => $this->firma_id,
+                "question" => $question
+            ]);
+            return $sth->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * AI ile SQL sorgusu oluştur
+     */
+    private function generateSQL($question, $schema, $context, $similar_questions) {
+        error_log("=== generateSQL START for: " . $question);
+        $system_prompt = "Sen bir SQL uzmanısın. Türkçe sorulara göre MySQL sorguları oluşturuyorsun.
+
+VERİTABANI ŞEMASI:
+" . json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "
+
+FİRMA BİLGİLERİ:
+" . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        if (!empty($similar_questions)) {
+            $system_prompt .= "\n\nBENZER GEÇMIŞ SORULAR:\n";
+            foreach ($similar_questions as $sq) {
+                $system_prompt .= "Soru: {$sq['soru']}\nSQL: {$sq['sql_query']}\n\n";
+            }
+        }
+
+        $system_prompt .= "\n\nKURALLAR:
+1. SADECE SELECT sorguları oluştur (INSERT, UPDATE, DELETE yasak)
+2. WHERE koşullarına MUTLAKA firma_id = {$this->firma_id} ekle
+3. Tarih karşılaştırmalarında MySQL fonksiyonları kullan (DATE_SUB, NOW, etc.)
+4. JSON formatında döndür: {\"sql\": \"...\", \"explanation\": \"...\"}
+5. Personel isimleri için CONCAT(ad, ' ', soyad) kullan
+6. Türkçe karakter problemleri için COLLATE utf8mb4_unicode_ci kullan";
+
+        $user_prompt = "Soru: $question\n\nBu soruya cevap verecek SQL sorgusunu oluştur.";
+        
+        try {
+            $response = $this->ai->chat([
+                ["role" => "system", "content" => $system_prompt],
+                ["role" => "user", "content" => $user_prompt]
+            ], 0.1, 1500);
+            error_log("OpenAI response length: " . strlen($response));            error_log("OpenAI response preview: " . substr($response, 0, 300));
+            
+            // JSON parse et
+            $response = str_replace([chr(96).chr(96).chr(96)."json",chr(96).chr(96).chr(96)], "", $response);
+            $response = trim($response);
+            $result = json_decode($response, true);
+            
+            if (!$result || !isset($result["sql"])) {
+                throw new Exception("SQL oluşturulamadı");
+            }
+            
+            return [
+                "success" => true,
+                "sql" => $result["sql"],
+                "explanation" => $result["explanation"] ?? ""
+            ];
+            
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            return [
+                "success" => false,
+                "error" => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * SQL sorgusunu çalıştır
+     */
+    private function executeSQL($sql) {
+        try {
+            $sth = $this->conn->prepare($sql);
+            $sth->execute();
+            return $sth->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            throw new Exception("SQL hatası: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Sonuçlardan Türkçe yanıt oluştur
+     */
+    private function generateAnswer($question, $data, $sql_explanation) {
+        $system_prompt = "Sen bir iş analitiği asistanısın. Verileri analiz edip Türkçe, anlaşılır yanıtlar veriyorsun.";
+        
+        $user_prompt = "Soru: $question\n\n";
+        $user_prompt .= "SQL Açıklaması: $sql_explanation\n\n";
+        $user_prompt .= "Veri: " . json_encode($data, JSON_UNESCAPED_UNICODE) . "\n\n";
+        $user_prompt .= "Bu verilere dayanarak soruyu yanıtla. Kısa, net ve sayısal cevap ver. Maksimum 3 cümle.";
+        
+        try {
+            return $this->ai->chat([
+                ["role" => "system", "content" => $system_prompt],
+                ["role" => "user", "content" => $user_prompt]
+            ], 0.2, 800);
+        } catch (Exception $e) {
+            error_log("=== generateSQL ERROR: " . $e->getMessage());
+            // AI yanıt üretemezse basit özet döndür
+            $count = count($data);
+            return "Sorgunuz çalıştırıldı ve $count sonuç bulundu. Detaylar için aşağıdaki tabloya bakabilirsiniz.";
+        }
+    }
+    
+    /**
+     * Sohbet geçmişine kaydet
+     */
+    private function saveChatHistory($soru, $cevap, $sql, $sonuc_sayisi, $sure) {
+        $sql_insert = "INSERT INTO ai_chat_history 
+                      (firma_id, kullanici_id, soru, cevap, sql_query, sonuc_sayisi, cevap_suresi, tarih)
+                      VALUES (:firma_id, :kullanici_id, :soru, :cevap, :sql_query, :sonuc_sayisi, :sure, NOW())";
+        
+        $sth = $this->conn->prepare($sql_insert);
+        $sth->execute([
+            "firma_id" => $this->firma_id,
+            "kullanici_id" => $this->kullanici_id,
+            "soru" => $soru,
+            "cevap" => $cevap,
+            "sql_query" => $sql,
+            "sonuc_sayisi" => $sonuc_sayisi,
+            "sure" => $sure
+        ]);
+        
+        return $this->conn->lastInsertId();
+    }
+    
+    /**
+     * Knowledge base güncelle
+     */
+    private function updateKnowledgeBase($soru, $sql, $data) {
+        // Basit anahtar kelime çıkarımı
+        $keywords = $this->extractKeywords($soru);
+        
+        foreach ($keywords as $keyword) {
+            // Varsa güncelle, yoksa ekle
+            $check_sql = "SELECT id, kullanim_sayisi FROM ai_knowledge_base 
+                         WHERE firma_id = :firma_id AND anahtar_kelime = :keyword";
+            $sth = $this->conn->prepare($check_sql);
+            $sth->execute([
+                "firma_id" => $this->firma_id,
+                "keyword" => $keyword
+            ]);
+            $existing = $sth->fetch(PDO::FETCH_ASSOC);
+            
+            if ($existing) {
+                // Güncelle
+                $update_sql = "UPDATE ai_knowledge_base 
+                              SET kullanim_sayisi = kullanim_sayisi + 1,
+                                  son_kullanim = NOW()
+                              WHERE id = :id";
+                $sth = $this->conn->prepare($update_sql);
+                $sth->execute(["id" => $existing["id"]]);
+            } else {
+                // Yeni ekle
+                $kategori = $this->detectCategory($soru);
+                $insert_sql = "INSERT INTO ai_knowledge_base 
+                              (firma_id, kategori, anahtar_kelime, icerik, kullanim_sayisi, son_kullanim)
+                              VALUES (:firma_id, :kategori, :keyword, :icerik, 1, NOW())";
+                $sth = $this->conn->prepare($insert_sql);
+                $sth->execute([
+                    "firma_id" => $this->firma_id,
+                    "kategori" => $kategori,
+                    "keyword" => $keyword,
+                    "icerik" => json_encode(["soru" => $soru, "sql" => $sql], JSON_UNESCAPED_UNICODE)
+                ]);
+            }
+        }
+    }
+    
+    /**
+     * Anahtar kelime çıkar
+     */
+    private function extractKeywords($text) {
+        $stopwords = ["nedir", "kadar", "nekadar", "nasıl", "bir", "için", "olan", "ise", "gibi", "çok", "daha", "mi", "mı"];
+        $words = preg_split("/[\s,?.!]+/u", mb_strtolower($text, "UTF-8"));
+        $keywords = array_diff($words, $stopwords);
+        return array_filter($keywords, fn($w) => mb_strlen($w, "UTF-8") > 3);
+    }
+    
+    /**
+     * Kategori tespit et
+     */
+    private function detectCategory($question) {
+        $q = mb_strtolower($question, "UTF-8");
+        
+        if (preg_match("/(müşteri|firma|helmex)/u", $q)) return "musteri";
+        if (preg_match("/(personel|usta|çalışan|gokhan)/u", $q)) return "personel";
+        if (preg_match("/(makina|arıza|üretim)/u", $q)) return "makina";
+        if (preg_match("/(sipariş|iş|teslim)/u", $q)) return "siparis";
+        if (preg_match("/(termin|süre|zaman)/u", $q)) return "planlama";
+        
+        return "genel";
+    }
+}
