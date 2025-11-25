@@ -133,4 +133,58 @@ class AISemanticLayer {
             "bekleyen_is_sayisi" => $bekleyen
         ];
     }
+
+    /**
+     * Sipariş Durumu Güncelle (Action Agent)
+     */
+    public function updateOrderStatus($firma_id, $siparis_id, $new_status) {
+        // Güvenlik kontrolü: Sipariş bu firmaya mı ait?
+        $check = $this->conn->prepare("SELECT id, islem FROM siparisler WHERE id = :id AND firma_id = :firma_id");
+        $check->execute(['id' => $siparis_id, 'firma_id' => $firma_id]);
+        $order = $check->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$order) {
+            return "❌ Hata: Sipariş bulunamadı veya yetkiniz yok.";
+        }
+        
+        $old_status = $order['islem'];
+        
+        // Güncelleme
+        $sql = "UPDATE siparisler SET islem = :status WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $result = $stmt->execute(['status' => $new_status, 'id' => $siparis_id]);
+        
+        if ($result) {
+            // Logla
+            $log_sql = "INSERT INTO siparis_log (siparis_id, eski_durum, yeni_durum, tarih) VALUES (:id, :old, :new, NOW())";
+            $log_stmt = $this->conn->prepare($log_sql);
+            $log_stmt->execute(['id' => $siparis_id, 'old' => $old_status, 'new' => $new_status]);
+            
+            return "✅ Başarılı: Sipariş #$siparis_id durumu '$old_status' -> '$new_status' olarak güncellendi.";
+        } else {
+            return "❌ Hata: Güncelleme yapılamadı.";
+        }
+    }
+
+    /**
+     * Sistem Bildirimi Oluştur (Notification Agent)
+     */
+    public function createAlert($firma_id, $type, $message, $level = 'INFO') {
+        $sql = "INSERT INTO agent_alerts (firma_id, alert_type, alert_level, message, created_at) 
+                VALUES (:firma_id, :type, :level, :message, NOW())";
+        
+        $stmt = $this->conn->prepare($sql);
+        $result = $stmt->execute([
+            'firma_id' => $firma_id,
+            'type' => $type,
+            'level' => $level,
+            'message' => $message
+        ]);
+        
+        if ($result) {
+            return "✅ Bildirim oluşturuldu: [$level] $message";
+        } else {
+            return "❌ Bildirim oluşturulamadı.";
+        }
+    }
 }

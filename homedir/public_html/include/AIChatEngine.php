@@ -107,6 +107,19 @@ class AIChatEngine {
                             $this->firma_id, 
                             $params['makina_id']
                         );
+                    } elseif ($tool_name === 'updateOrderStatus') {
+                        $tool_result = $this->semanticLayer->updateOrderStatus(
+                            $this->firma_id,
+                            $params['siparis_id'],
+                            $params['new_status']
+                        );
+                    } elseif ($tool_name === 'createAlert') {
+                        $tool_result = $this->semanticLayer->createAlert(
+                            $this->firma_id,
+                            $params['type'],
+                            $params['message'],
+                            $params['level'] ?? 'INFO'
+                        );
                     } else {
                         throw new Exception("Bilinmeyen tool: $tool_name");
                     }
@@ -611,13 +624,18 @@ FİRMA BİLGİLERİ:
         $system_prompt .= "\n28. GRAFİK VE RAPORLAMA (OPSİYONEL): Eğer kullanıcı 'grafik', 'tablo', 'pasta', 'trend' veya 'karşılaştırma' isterse, veriyi buna uygun hazırla. Grafik için GROUP BY ve ORDER BY kullanmak önemlidir. ÖRNEK: 'Aylık satış grafiği' -> SELECT DATE_FORMAT(tarih, '%Y-%m') as ay, SUM(fiyat) as toplam FROM siparisler ... GROUP BY ay ORDER BY ay.";
 
         $system_prompt .= "\n\nMEVCUT ARAÇLAR (FONKSİYONLAR):
-Eğer kullanıcı aşağıdaki hesaplamaları isterse, SQL yerine JSON formatında araç çağrısı yap:
+Eğer kullanıcı aşağıdaki hesaplamaları veya işlemleri isterse, SQL yerine JSON formatında araç çağrısı yap:
 1. OEE Hesabı: {\"tool\": \"calculateOEE\", \"params\": {\"makina_id\": 123, \"date\": \"2025-10-27\"}}
    - Tetikleyiciler: \"OEE nedir\", \"verimlilik puanı\", \"makina performansı\"
 2. Makina Durumu: {\"tool\": \"getMachineStatus\", \"params\": {\"makina_id\": 123}}
    - Tetikleyiciler: \"makina ne yapıyor\", \"şu an çalışıyor mu\", \"operatör kim\"
+3. Sipariş Durumu Güncelle: {\"tool\": \"updateOrderStatus\", \"params\": {\"siparis_id\": 123, \"new_status\": \"tamamlandi\"}}
+   - Tetikleyiciler: \"siparişi tamamla\", \"durumu güncelle\", \"işi bitir\"
+   - Status değerleri: 'beklemede', 'islemde', 'tamamlandi', 'iptal', 'teslim_edildi'
+4. Bildirim Oluştur: {\"tool\": \"createAlert\", \"params\": {\"type\": \"STOK\", \"message\": \"Kağıt stoğu azaldı\", \"level\": \"WARNING\"}}
+   - Tetikleyiciler: \"bana hatırlat\", \"uyarı oluştur\", \"haber ver\"
 
-NOT: Eğer makina ID'sini bilmiyorsan, önce SQL ile makina adından ID'yi bulacak bir sorgu yaz. Tool çağrısını ikinci adımda yapabiliriz. Şimdilik sadece SQL yaz.";
+NOT: Eğer ID'yi bilmiyorsan, önce SQL ile ID'yi bulacak bir sorgu yaz. Tool çağrısını ikinci adımda yapabiliriz. Şimdilik sadece SQL yaz.";
 
         $user_prompt = "Soru: $question";
         
