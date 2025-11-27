@@ -27,7 +27,9 @@
                             FROM siparisler 
                             JOIN musteri ON siparisler.musteri_id = musteri.id
                             JOIN personeller ON personeller.id  = siparisler.musteri_temsilcisi_id
-                            WHERE siparisler.firma_id = :firma_id AND onay_baslangic_durum = "evet" AND siparisler.islem != "iptal" ORDER BY siparisler.id DESC');
+                            WHERE siparisler.firma_id = :firma_id AND onay_baslangic_durum = "evet" 
+                            AND siparisler.islem NOT IN ("iptal", "tamamlandi") 
+                            ORDER BY siparisler.id DESC');
             $sth->bindParam('firma_id', $_SESSION['firma_id']);
             $sth->execute();
             $onaylanmis_siparisler = $sth->fetchAll(PDO::FETCH_ASSOC);
