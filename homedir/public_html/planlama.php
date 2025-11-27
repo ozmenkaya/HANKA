@@ -34,6 +34,23 @@
             $islemdeki_siparis_sayisi++;
         }
     }
+
+    // Tamamlanan siparişleri çek (BİTENLER sekmesi için)
+    $sth_tamamlanan = $conn->prepare('SELECT siparisler.id, siparisler.siparis_no, siparisler.isin_adi, 
+                            siparisler.termin, siparisler.fiyat, siparisler.adet,
+                            musteri.marka, CONCAT_WS(" ", personeller.ad, personeller.soyad) AS personel_ad_soyad
+                            FROM siparisler 
+                            JOIN musteri ON siparisler.musteri_id = musteri.id
+                            JOIN personeller ON personeller.id = siparisler.musteri_temsilcisi_id
+                            WHERE siparisler.firma_id = :firma_id 
+                            AND siparisler.islem = "tamamlandi"
+                            AND (siparisler.aktif = 1 OR siparisler.aktif IS NULL)
+                            ORDER BY siparisler.id DESC
+                            LIMIT 100');
+    $sth_tamamlanan->bindParam(':firma_id', $_SESSION['firma_id']);
+    $sth_tamamlanan->execute();
+    $tamamlanan_siparisler = $sth_tamamlanan->fetchAll(PDO::FETCH_ASSOC);
+    $tamamlanan_siparis_sayisi = count($tamamlanan_siparisler);
 ?>
     <div class="row">
         <div class="card mt-2">
@@ -84,6 +101,15 @@
                             <span class="position-absolute top-0 start-70 translate-middle badge rounded-pill bg-info fs-6">
                                 <?php echo $islemdeki_siparis_sayisi; ?>
                                 <span class="visually-hidden">İşlemdekiler</span>
+                            </span>
+                        </button>
+
+                        <button class="nav-link position-relative fw-bold" id="nav-tab-bitenler" data-bs-toggle="tab" 
+                            data-bs-target="#nav-bitenler" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                            Bitenler
+                            <span class="position-absolute top-0 start-70 translate-middle badge rounded-pill bg-secondary fs-6">
+                                <?php echo $tamamlanan_siparis_sayisi; ?>
+                                <span class="visually-hidden">Bitenler</span>
                             </span>
                         </button>
                     </div>
@@ -296,6 +322,64 @@
                             </table>
                         </div>
                     </div>
+                    <div class="tab-pane fade" id="nav-bitenler" role="tabpanel" 
+                        aria-labelledby="nav-tab-bitenler" tabindex="2">
+                        <div class="table-responsive">
+                            <table id="bitenlerTable" class="table table-hover table-striped" >
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>Sıra</th>
+                                        <th>Sipariş No</th>
+                                        <th>Müşteri</th>
+                                        <th>İşin Adı</th>
+                                        <th>Müşteri Temsilcisi</th>
+                                        <th>Termin</th>
+                                        <th class="text-end">Adet</th>
+                                        <th class="text-end">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php $sira = 0; ?>
+                                    <?php foreach ($tamamlanan_siparisler  as $siparis) { ?>
+                                        <tr>
+                                            <th class="table-primary"><?php echo ++$sira;?></th>
+                                            <th class="table-secondary"><?php echo $siparis['siparis_no'];?></th>
+                                            <td><?php echo $siparis['marka']; ?></td>
+                                            <td><?php echo $siparis['isin_adi']; ?></td>
+                                            <td><?php echo $siparis['personel_ad_soyad']; ?></td>
+                                            <td><?php echo date('d-m-Y',strtotime($siparis['termin'])); ?></td>
+                                            <td class="text-end">
+                                                <?php echo number_format($siparis['adet'],0,'',','); ?> Adet
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="d-flex justify-content-end"> 
+                                                    <div class="btn-group" role="group">
+                                                        <a href="/index.php?url=planlama_db_islem&islem=planlama-pdf&siparis_id=<?php echo $siparis['id']; ?>" 
+                                                            class="btn btn-secondary" 
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="bottom" 
+                                                            data-bs-title="Planlama PDF"
+                                                            target="_blank"
+                                                        >
+                                                            <i class="fa-regular fa-file-pdf"></i>
+                                                        </a>
+                                                        <a href="/index.php?url=planla_siparis_duzenle&siparis_id=<?php echo $siparis['id']; ?>" 
+                                                            class="btn btn-info" 
+                                                            data-bs-toggle="tooltip" 
+                                                            data-bs-placement="bottom" 
+                                                            data-bs-title="Planlamayı Görüntüle"
+                                                        >
+                                                            <i class="fa-regular fa-eye"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php }?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>  
             </div>
         </div>
@@ -420,6 +504,17 @@ $(document).ready(function() {
             console.log('Sayfa aktif, planlama verisi kontrol ediliyor...');
             checkForUpdates();
         }
+    });
+    
+    // ============================================
+    // DATATABLE İNİT (Bitenler Arama Özelliği)
+    // ============================================
+    $('#bitenlerTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
+        },
+        "pageLength": 25,
+        "order": [[0, 'desc']]  // En son tamamlanandan başla
     });
 });
 </script>
