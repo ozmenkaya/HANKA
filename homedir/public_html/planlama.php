@@ -12,7 +12,7 @@
                             LEFT JOIN planlama ON planlama.siparis_id = siparisler.id AND planlama.firma_id = siparisler.firma_id
                             WHERE siparisler.firma_id = :firma_id 
                             AND onay_baslangic_durum = "evet" 
-                            AND islem != "iptal"
+                            AND islem NOT IN ("iptal", "tamamlandi")
                             AND (siparisler.aktif = 1 OR siparisler.aktif IS NULL)
                             ORDER BY siparisler.id DESC
                                                     ');
