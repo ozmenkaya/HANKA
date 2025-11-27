@@ -564,5 +564,32 @@ $(document).ready(function() {
             checkForUpdates();
         }
     });
+    
+    // ============================================
+    // DATATABLE İNİT (Arama Bölümü)
+    // ============================================
+    $('#onaylanmayanTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
+        },
+        "pageLength": 25,
+        "order": [[0, 'asc']]
+    });
+    
+    $('#onaylananTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
+        },
+        "pageLength": 25,
+        "order": [[0, 'asc']]
+    });
+    
+    $('#bitenTable').DataTable({
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/tr.json"
+        },
+        "pageLength": 25,
+        "order": [[0, 'asc']]
+    });
 });
 </script> 
