@@ -45,8 +45,7 @@
                             WHERE siparisler.firma_id = :firma_id 
                             AND siparisler.islem = "tamamlandi"
                             AND (siparisler.aktif = 1 OR siparisler.aktif IS NULL)
-                            ORDER BY siparisler.id DESC
-                            LIMIT 100');
+                            ORDER BY siparisler.id DESC');
     $sth_tamamlanan->bindParam(':firma_id', $_SESSION['firma_id']);
     $sth_tamamlanan->execute();
     $tamamlanan_siparisler = $sth_tamamlanan->fetchAll(PDO::FETCH_ASSOC);
