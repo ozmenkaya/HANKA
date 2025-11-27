@@ -47,6 +47,17 @@ if(isset($_POST['tedarikci_ekle']))
 
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['tedarikçi', 'supplier', 'satıcı'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         #echo "<h2>Ekleme başarılı</h2>";
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Ekleme İşlemi Başarılı';
@@ -111,6 +122,17 @@ if(isset($_POST['tedarikci_guncelle']))
 
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['tedarikçi', 'supplier', 'satıcı'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Güncelleme İşlemi Başarılı';
         header('Location: /index.php?url=tedarikci');
@@ -137,6 +159,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'tedarikci_sil')
     
     if($durum)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['tedarikçi', 'supplier', 'satıcı'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Silme İşlemi Başarılı';
         header('Location: /index.php?url=tedarikci');

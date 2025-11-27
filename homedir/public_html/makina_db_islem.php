@@ -63,6 +63,18 @@ if(isset($_POST['makina_ekle']))
             $sth->bindParam("personel_id", $makina_bakim_personel_id);
             $durum = $sth->execute();
         }
+
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['makina', 'makine', 'machine', 'arıza', 'bakım'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Ekleme İşlemi Başarılı';
         header("Location: /index.php?url=makina");
@@ -145,6 +157,17 @@ if(isset($_POST['makina_guncelle']))
             $durum = $sth->execute();
         }
 
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['makina', 'makine', 'machine', 'arıza', 'bakım'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Güncelleme İşlemi Başarılı';
         header('Location: /index.php?url=makina');
@@ -172,6 +195,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'makina_sil')
     
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['makina', 'makine', 'machine', 'arıza', 'bakım'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'basarili';
         $_SESSION['mesaj'] = 'Silme İşlemi Başarılı';
     }

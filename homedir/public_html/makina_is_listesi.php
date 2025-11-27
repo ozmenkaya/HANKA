@@ -100,46 +100,46 @@
                                                     $is_basladi_mi = true;
                                                     break;
                                                 }
-        // ============================================
-        // PERFORMANS OPTİMİZASYONU: CACHE SİSTEMİ
-        // ============================================
-        $grup_kodlari = array_unique(array_column($isler, 'grup_kodu'));
-        $aktarilan_cache = [];
-        $uretilen_cache = [];
-        $departman_cache = [];
-        
-        if(!empty($grup_kodlari)) {
-            $placeholders = rtrim(str_repeat('?,', count($grup_kodlari)), ',');
-            
-            $sql = "SELECT grup_kodu, aktarilan_asama, SUM(aktarilan_adet) AS aktarilan_adet 
-                    FROM uretim_aktarma_loglar 
-                    WHERE grup_kodu IN ($placeholders) 
-                    GROUP BY grup_kodu, aktarilan_asama";
-            $sth = $conn->prepare($sql);
-            $sth->execute($grup_kodlari);
-            while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $aktarilan_cache[$row['grup_kodu']][$row['aktarilan_asama']] = $row['aktarilan_adet'];
-            }
-            
-            $sql = "SELECT grup_kodu, mevcut_asama, SUM(uretilen_adet) AS toplam_uretilen_adet 
-                    FROM uretilen_adetler 
-                    WHERE grup_kodu IN ($placeholders) 
-                    GROUP BY grup_kodu, mevcut_asama";
-            $sth = $conn->prepare($sql);
-            $sth->execute($grup_kodlari);
-            while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $uretilen_cache[$row['grup_kodu']][$row['mevcut_asama']] = $row['toplam_uretilen_adet'];
-            }
-            
-            $sql = "SELECT id, departman FROM departmanlar WHERE firma_id = :firma_id";
-            $sth = $conn->prepare($sql);
-            $sth->bindParam('firma_id', $_SESSION['firma_id']);
-            $sth->execute();
-            while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $departman_cache[$row['id']] = $row['departman'];
-            }
-        }
-
+                                            }
+                                            
+                                            // ============================================
+                                            // PERFORMANS OPTİMİZASYONU: CACHE SİSTEMİ
+                                            // ============================================
+                                            $grup_kodlari = array_values(array_unique(array_column($isler, 'grup_kodu')));
+                                            $aktarilan_cache = [];
+                                            $uretilen_cache = [];
+                                            $departman_cache = [];
+                                            
+                                            if(!empty($grup_kodlari)) {
+                                                $placeholders = rtrim(str_repeat('?,', count($grup_kodlari)), ',');
+                                                
+                                                $sql = "SELECT grup_kodu, aktarilan_asama, SUM(aktarilan_adet) AS aktarilan_adet 
+                                                        FROM uretim_aktarma_loglar 
+                                                        WHERE grup_kodu IN ($placeholders) 
+                                                        GROUP BY grup_kodu, aktarilan_asama";
+                                                $sth = $conn->prepare($sql);
+                                                $sth->execute($grup_kodlari);
+                                                while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                                    $aktarilan_cache[$row['grup_kodu']][$row['aktarilan_asama']] = $row['aktarilan_adet'];
+                                                }
+                                                
+                                                $sql = "SELECT grup_kodu, mevcut_asama, SUM(uretilen_adet) AS toplam_uretilen_adet 
+                                                        FROM uretilen_adetler 
+                                                        WHERE grup_kodu IN ($placeholders) 
+                                                        GROUP BY grup_kodu, mevcut_asama";
+                                                $sth = $conn->prepare($sql);
+                                                $sth->execute($grup_kodlari);
+                                                while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                                    $uretilen_cache[$row['grup_kodu']][$row['mevcut_asama']] = $row['toplam_uretilen_adet'];
+                                                }
+                                                
+                                                $sql = "SELECT id, departman FROM departmanlar WHERE firma_id = :firma_id";
+                                                $sth = $conn->prepare($sql);
+                                                $sth->bindParam('firma_id', $_SESSION['firma_id']);
+                                                $sth->execute();
+                                                while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                                    $departman_cache[$row['id']] = $row['departman'];
+                                                }
                                             }
                                         ?>
                                         <?php $sira = 0;?>

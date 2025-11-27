@@ -227,6 +227,15 @@ if(isset($_POST['siparis_ekle']))
 
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['siparis', 'sipariş', 'order', 'üretim', 'uretim'], $_SESSION['firma_id']);
+            } catch (Exception $e) {}
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Ekleme İşlemi Başarılı';
         header("Location: /index.php?url=siparis&musteri_id={$musteri_id}");
@@ -474,6 +483,15 @@ if(isset($_POST['siparis_guncelle']))
 
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['siparis', 'sipariş', 'order', 'üretim', 'uretim'], $_SESSION['firma_id']);
+            } catch (Exception $e) {}
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Güncelleme İşlemi Başarılı';
         header("Location: /index.php?url=siparis&musteri_id={$musteri_id}");
@@ -491,160 +509,191 @@ if(isset($_POST['siparis_guncelle']))
 //sipariş tekrarla
 if(isset($_GET['islem']) && $_GET['islem'] == 'siparis-tekrar')
 {
-    $siparis_id = intval($_GET['siparis-id']);
-
-    $sth = $conn->prepare('SELECT * FROM siparisler WHERE id = :id AND firma_id = :firma_id');
-    $sth->bindParam('id', $siparis_id);
-    $sth->bindParam('firma_id', $_SESSION['firma_id']);
-    $sth->execute();
-    $siparis = $sth->fetch(PDO::FETCH_ASSOC);
-
-    if(empty($siparis)){
-        include_once "include/yetkisiz.php"; exit;
-    }
-
-    $sql = 'SELECT siparis_no FROM `siparisler` WHERE firma_id = :firma_id ORDER BY id DESC';
-    $sth = $conn->prepare($sql);
-    $sth->bindParam("firma_id", $_SESSION['firma_id']);
-    $sth->execute();
-    $siparis_adedi = $sth->fetch(PDO::FETCH_ASSOC);
-    $siparis_adedi = empty($siparis_adedi) ? 1 : preg_replace('/[^0-9]/', '',$siparis_adedi['siparis_no']) + 1;
-
-    $sql = 'SELECT siparis_no_baslangic_kodu FROM `firmalar` WHERE id = :id';
-    $sth = $conn->prepare($sql);
-    $sth->bindParam("id", $_SESSION['firma_id']);
-    $sth->execute();
-    $firma_bilgi = $sth->fetch(PDO::FETCH_ASSOC);
-
-    $siparis_no = $firma_bilgi['siparis_no_baslangic_kodu'].str_pad($siparis_adedi,  6, "0", STR_PAD_LEFT);
-
-
-    $sql = 'SELECT * FROM planlama WHERE siparis_id = :siparis_id GROUP BY `planlama`.`grup_kodu`';
-    $sth = $conn->prepare($sql);
-    $sth->bindParam('siparis_id', $siparis['id']);
-    $sth->execute();
-    $farkli_group_kodu_olan_planlamalar = $sth->fetchAll(PDO::FETCH_ASSOC);
-    //echo "<pre>"; print_r($farkli_group_kodu_olan_planlamalar);
-
-    //siparişi Ekle
-    $sql = "INSERT INTO siparisler(firma_id, musteri_id, siparis_no,siprais_tekrar_id, veriler,tip_id, arsiv_kod,  isin_adi, tur_id, 
-                        adet,birim_id,
-                        teslimat_adresi, ulke_id, sehir_id, ilce_id, termin, uretim, vade, fiyat, para_cinsi, 
-                        odeme_sekli_id, numune, aciklama, musteri_temsilcisi_id, paketleme, nakliye, stok_alt_depo_kod, takip_kodu) 
-            VALUES(:firma_id, :musteri_id, :siparis_no, :siprais_tekrar_id, :veriler,:tip_id, :arsiv_kod, :isin_adi, :tur_id,
-                    :adet,:birim_id,:teslimat_adresi,:ulke_id, :sehir_id, :ilce_id, :termin, :uretim, :vade, :fiyat, :para_cinsi, 
-                    :odeme_sekli_id, :numune, :aciklama, :musteri_temsilcisi_id, :paketleme, :nakliye, :stok_alt_depo_kod, :takip_kodu);";
-    $sth = $conn->prepare($sql);
-    $sth->bindParam("firma_id", $_SESSION['firma_id']);
-    $sth->bindParam("musteri_id", $siparis['musteri_id']);
-    $sth->bindParam("siparis_no", $siparis_no);
-    $sth->bindParam("siprais_tekrar_id", $siparis['id']);
-    $sth->bindParam("veriler", $siparis['veriler']);
-    $sth->bindParam("tip_id", $siparis['tip_id']);
-    $sth->bindParam("arsiv_kod", $siparis['arsiv_kod']);
-    $sth->bindParam("isin_adi", $siparis['isin_adi']);
-    $sth->bindParam("tur_id", $siparis['tur_id']);
-    $sth->bindParam("adet", $siparis['adet']);
-    $sth->bindParam("birim_id", $siparis['birim_id']);
-    $sth->bindParam("teslimat_adresi", $siparis['teslimat_adresi']);
-    $sth->bindParam("ulke_id", $siparis['ulke_id']);
-    $sth->bindParam("sehir_id", $siparis['sehir_id']);
-    $sth->bindParam("ilce_id", $siparis['ilce_id']);
-    $sth->bindParam("termin", $siparis['termin']);
-    $sth->bindParam("uretim", $siparis['uretim']);
-    $sth->bindParam("vade", $siparis['vade']);
-    $sth->bindParam("fiyat", $siparis['fiyat']);
-    $sth->bindParam("para_cinsi", $siparis['para_cinsi']);
-    $sth->bindParam("odeme_sekli_id", $siparis['odeme_sekli_id']);
-    $sth->bindParam("numune", $siparis['numune']);
-    $sth->bindParam("aciklama", $siparis['aciklama']);
-    $sth->bindParam("musteri_temsilcisi_id", $siparis['musteri_temsilcisi_id']);
-    $sth->bindParam("paketleme", $siparis['paketleme']);
-    $sth->bindParam("nakliye", $siparis['nakliye']);
-    $sth->bindParam("stok_alt_depo_kod", $siparis['stok_alt_depo_kod']);
-    $sth->bindValue("takip_kodu", uuid4());
-    $durum = $sth->execute();
-    $eklenen_siparis_id = $conn->lastInsertId();
-
-    $sth = $conn->prepare('SELECT * FROM `siparis_dosyalar` WHERE siparis_id = :siparis_id');
-    $sth->bindParam('siparis_id', $siparis['id']);
-    $sth->execute();
-    $siparis_dosyalar = $sth->fetchAll(PDO::FETCH_ASSOC);
-
-    //sipariş dosyaları Ekle
-    foreach ($siparis_dosyalar as $siparis_dosya) {
-        $sql = "INSERT INTO siparis_dosyalar(siparis_id, alt_urun_index, ad) VALUES(:siparis_id, :alt_urun_index, :ad)";
-        $sth = $conn->prepare($sql);
-        $sth->bindParam("siparis_id", $eklenen_siparis_id);
-        $sth->bindParam("alt_urun_index", $siparis_dosya['alt_urun_index']);
-        $sth->bindParam("ad", $siparis_dosya['ad']);
-        $durum = $sth->execute();
-    }
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
     
-    foreach ($farkli_group_kodu_olan_planlamalar as $key => $planlama) {
-        $toplam_adetler = array_fill(0, $planlama['asama_sayisi'], 0);
-        $toplam_sureler = array_fill(0, $planlama['asama_sayisi'], 0);
+    try {
+        $siparis_id = intval($_GET['siparis-id']);
 
-        $sql = 'SELECT adetler,sureler,uretilecek_adet FROM planlama 
-                WHERE siparis_id = :siparis_id AND `planlama`.`grup_kodu` = :grup_kodu AND aktar_durum = "orijinal"';
-        $sth = $conn->prepare($sql);
-        $sth->bindParam('siparis_id', $siparis['id']);
-        $sth->bindParam('grup_kodu', $planlama['grup_kodu']);
+        $sth = $conn->prepare('SELECT * FROM siparisler WHERE id = :id AND firma_id = :firma_id');
+        $sth->bindParam('id', $siparis_id);
+        $sth->bindParam('firma_id', $_SESSION['firma_id']);
         $sth->execute();
-        $ayni_group_kodu_olan_planlamalar = $sth->fetchAll(PDO::FETCH_ASSOC);
+        $siparis = $sth->fetch(PDO::FETCH_ASSOC);
 
-        foreach ($ayni_group_kodu_olan_planlamalar as $ayni_group_kodu_olan_planlama) {
-            $adetler = json_decode($ayni_group_kodu_olan_planlama['adetler'], true);
-            $sureler = json_decode($ayni_group_kodu_olan_planlama['sureler'], true);
-            for($i = 0; $i < $planlama['asama_sayisi']; $i++){
-                $toplam_adetler[$i] += $adetler[$i];
-                $toplam_sureler[$i] += $sureler[$i];
-            }
+        if(empty($siparis)){
+            include_once "include/yetkisiz.php"; exit;
         }
-        //echo "ayni_group_kodu_olan_planlamalar=>"; 
-        //echo "<pre>"; print_r($ayni_group_kodu_olan_planlamalar);
-        
-        $sql = "INSERT INTO planlama(firma_id, siparis_id, alt_urun_id,grup_kodu, isim, asama_sayisi, mevcut_asama, uretilecek_adet, departmanlar, orijinal_adetler, adetler, 
-                sureler, detaylar,makinalar,arsiv_altlar,stok_kalemler,stok_alt_kalemler, stok_alt_depo_adetler, stok_alt_depolar, fason_durumlar,
-                fason_tedarikciler,notlar,planlama_durum,tekil_kod) 
-                VALUES(:firma_id, :siparis_id, :alt_urun_id, :grup_kodu, :isim, :asama_sayisi, :mevcut_asama, :uretilecek_adet, :departmanlar,:orijinal_adetler, :adetler, 
-                :sureler, :detaylar, :makinalar, :arsiv_altlar,:stok_kalemler, :stok_alt_kalemler, :stok_alt_depo_adetler, :stok_alt_depolar, :fason_durumlar, 
-                :fason_tedarikciler, :notlar, :planlama_durum, :tekil_kod);";
 
+        $sql = 'SELECT siparis_no FROM `siparisler` WHERE firma_id = :firma_id ORDER BY id DESC';
         $sth = $conn->prepare($sql);
         $sth->bindParam("firma_id", $_SESSION['firma_id']);
-        $sth->bindParam("siparis_id", $eklenen_siparis_id);
-        $sth->bindParam("alt_urun_id", $planlama['alt_urun_id']);
-        $sth->bindValue("grup_kodu", uniqid());
-        $sth->bindParam("isim", $planlama['isim']);
-        $sth->bindParam("asama_sayisi", $planlama['asama_sayisi']);
-        $sth->bindValue("mevcut_asama", 0);
-        $sth->bindValue("uretilecek_adet", end($toplam_adetler));
-        $sth->bindParam("departmanlar", $planlama['departmanlar']);
-        $sth->bindValue("orijinal_adetler", json_encode($toplam_adetler));
-        $sth->bindValue("adetler", json_encode($toplam_adetler));
-        $sth->bindValue("sureler", json_encode($toplam_sureler));
-        $sth->bindParam("detaylar", $planlama['detaylar']);
-        $sth->bindParam("makinalar", $planlama['makinalar']);
-        $sth->bindParam("arsiv_altlar", $planlama['arsiv_altlar']);
-        $sth->bindParam("stok_kalemler", $planlama['stok_kalemler']);
-        $sth->bindParam("stok_alt_kalemler", $planlama['stok_alt_kalemler']);
-        $sth->bindParam("stok_alt_depo_adetler", $planlama['stok_alt_depo_adetler']);
-        $sth->bindParam("stok_alt_depolar", $planlama['stok_alt_depolar']);
-        $sth->bindParam("fason_durumlar", $planlama['fason_durumlar']);
-        $sth->bindParam("fason_tedarikciler", $planlama['fason_tedarikciler']);
-        $sth->bindParam("notlar", $planlama['notlar']);
-        $sth->bindValue("planlama_durum", 'evet');
-        $sth->bindValue("tekil_kod", uniqid());
-        $durum = $sth->execute();
-        
-    }
+        $sth->execute();
+        $siparis_adedi = $sth->fetch(PDO::FETCH_ASSOC);
+        $siparis_adedi = empty($siparis_adedi) ? 1 : preg_replace('/[^0-9]/', '',$siparis_adedi['siparis_no']) + 1;
 
-    //print_r($conn->errorInfo());
-    //header("Location: siparis.php?musteri_id={$siparis['musteri_id']}");
-    $_SESSION['islem'] = 'siparis-tekrar';
-    header("Location: /index.php?url=siparis_guncelle&siparis_id={$eklenen_siparis_id}");
-    exit;
+        $sql = 'SELECT siparis_no_baslangic_kodu FROM `firmalar` WHERE id = :id';
+        $sth = $conn->prepare($sql);
+        $sth->bindParam("id", $_SESSION['firma_id']);
+        $sth->execute();
+        $firma_bilgi = $sth->fetch(PDO::FETCH_ASSOC);
+
+        $siparis_no = $firma_bilgi['siparis_no_baslangic_kodu'].str_pad($siparis_adedi,  6, "0", STR_PAD_LEFT);
+
+        // SQL Mode fix for GROUP BY
+        $conn->query("SET SESSION sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
+
+        $sql = 'SELECT * FROM planlama WHERE siparis_id = :siparis_id GROUP BY `planlama`.`grup_kodu`';
+        $sth = $conn->prepare($sql);
+        $sth->bindParam('siparis_id', $siparis['id']);
+        $sth->execute();
+        $farkli_group_kodu_olan_planlamalar = $sth->fetchAll(PDO::FETCH_ASSOC);
+        //echo "<pre>"; print_r($farkli_group_kodu_olan_planlamalar);
+
+        //siparişi Ekle
+        try {
+            $sql = "INSERT INTO siparisler(firma_id, musteri_id, siparis_no,siprais_tekrar_id, veriler,tip_id, arsiv_kod,  isin_adi, tur_id, 
+                                adet,birim_id,
+                                teslimat_adresi, ulke_id, sehir_id, ilce_id, termin, uretim, vade, fiyat, para_cinsi, 
+                                odeme_sekli_id, numune, aciklama, musteri_temsilcisi_id, paketleme, nakliye, stok_alt_depo_kod, takip_kodu) 
+                    VALUES(:firma_id, :musteri_id, :siparis_no, :siprais_tekrar_id, :veriler,:tip_id, :arsiv_kod, :isin_adi, :tur_id,
+                            :adet,:birim_id,:teslimat_adresi,:ulke_id, :sehir_id, :ilce_id, :termin, :uretim, :vade, :fiyat, :para_cinsi, 
+                            :odeme_sekli_id, :numune, :aciklama, :musteri_temsilcisi_id, :paketleme, :nakliye, :stok_alt_depo_kod, :takip_kodu);";
+            $sth = $conn->prepare($sql);
+            $sth->bindParam("firma_id", $_SESSION['firma_id']);
+            $sth->bindParam("musteri_id", $siparis['musteri_id']);
+            $sth->bindParam("siparis_no", $siparis_no);
+            $sth->bindParam("siprais_tekrar_id", $siparis['id']);
+            $sth->bindParam("veriler", $siparis['veriler']);
+            $sth->bindParam("tip_id", $siparis['tip_id']);
+            $sth->bindParam("arsiv_kod", $siparis['arsiv_kod']);
+            $sth->bindParam("isin_adi", $siparis['isin_adi']);
+            $sth->bindParam("tur_id", $siparis['tur_id']);
+            $sth->bindParam("adet", $siparis['adet']);
+            $sth->bindParam("birim_id", $siparis['birim_id']);
+            $sth->bindParam("teslimat_adresi", $siparis['teslimat_adresi']);
+            $sth->bindParam("ulke_id", $siparis['ulke_id']);
+            $sth->bindParam("sehir_id", $siparis['sehir_id']);
+            $sth->bindParam("ilce_id", $siparis['ilce_id']);
+            $sth->bindParam("termin", $siparis['termin']);
+            $sth->bindParam("uretim", $siparis['uretim']);
+            $sth->bindParam("vade", $siparis['vade']);
+            $sth->bindParam("fiyat", $siparis['fiyat']);
+            $sth->bindParam("para_cinsi", $siparis['para_cinsi']);
+            $sth->bindParam("odeme_sekli_id", $siparis['odeme_sekli_id']);
+            
+            // Numune alanı için kontrol: Boş ise 'yok' olarak ayarla
+            $numune_val = empty($siparis['numune']) ? 'yok' : $siparis['numune'];
+            $sth->bindParam("numune", $numune_val);
+            
+            $sth->bindParam("aciklama", $siparis['aciklama']);
+            $sth->bindParam("musteri_temsilcisi_id", $siparis['musteri_temsilcisi_id']);
+            $sth->bindParam("paketleme", $siparis['paketleme']);
+            $sth->bindParam("nakliye", $siparis['nakliye']);
+            $sth->bindParam("stok_alt_depo_kod", $siparis['stok_alt_depo_kod']);
+            $sth->bindValue("takip_kodu", uuid4());
+            $durum = $sth->execute();
+            $eklenen_siparis_id = $conn->lastInsertId();
+        } catch (PDOException $e) {
+            die("Sipariş Ekleme Hatası (PDO): " . $e->getMessage());
+        }
+
+        $sth = $conn->prepare('SELECT * FROM `siparis_dosyalar` WHERE siparis_id = :siparis_id');
+        $sth->bindParam('siparis_id', $siparis['id']);
+        $sth->execute();
+        $siparis_dosyalar = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+        //sipariş dosyaları Ekle
+        foreach ($siparis_dosyalar as $siparis_dosya) {
+            $sql = "INSERT INTO siparis_dosyalar(siparis_id, alt_urun_index, ad) VALUES(:siparis_id, :alt_urun_index, :ad)";
+            $sth = $conn->prepare($sql);
+            $sth->bindParam("siparis_id", $eklenen_siparis_id);
+            $sth->bindParam("alt_urun_index", $siparis_dosya['alt_urun_index']);
+            $sth->bindParam("ad", $siparis_dosya['ad']);
+            $durum = $sth->execute();
+        }
+        
+        foreach ($farkli_group_kodu_olan_planlamalar as $key => $planlama) {
+            $toplam_adetler = array_fill(0, $planlama['asama_sayisi'], 0);
+            $toplam_sureler = array_fill(0, $planlama['asama_sayisi'], 0);
+
+            $sql = 'SELECT adetler,sureler,uretilecek_adet FROM planlama 
+                    WHERE siparis_id = :siparis_id AND `planlama`.`grup_kodu` = :grup_kodu AND aktar_durum = "orijinal"';
+            $sth = $conn->prepare($sql);
+            $sth->bindParam('siparis_id', $siparis['id']);
+            $sth->bindParam('grup_kodu', $planlama['grup_kodu']);
+            $sth->execute();
+            $ayni_group_kodu_olan_planlamalar = $sth->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($ayni_group_kodu_olan_planlamalar as $ayni_group_kodu_olan_planlama) {
+                $adetler = json_decode($ayni_group_kodu_olan_planlama['adetler'], true);
+                $sureler = json_decode($ayni_group_kodu_olan_planlama['sureler'], true);
+                for($i = 0; $i < $planlama['asama_sayisi']; $i++){
+                    $toplam_adetler[$i] += $adetler[$i];
+                    $toplam_sureler[$i] += $sureler[$i];
+                }
+            }
+            //echo "ayni_group_kodu_olan_planlamalar=>"; 
+            //echo "<pre>"; print_r($ayni_group_kodu_olan_planlamalar);
+            
+            $sql = "INSERT INTO planlama(firma_id, siparis_id, alt_urun_id,grup_kodu, isim, asama_sayisi, mevcut_asama, uretilecek_adet, departmanlar, orijinal_adetler, adetler, 
+                    sureler, detaylar,makinalar,arsiv_altlar,stok_kalemler,stok_alt_kalemler, stok_alt_depo_adetler, stok_alt_depolar, fason_durumlar,
+                    fason_tedarikciler,notlar,planlama_durum,tekil_kod) 
+                    VALUES(:firma_id, :siparis_id, :alt_urun_id, :grup_kodu, :isim, :asama_sayisi, :mevcut_asama, :uretilecek_adet, :departmanlar,:orijinal_adetler, :adetler, 
+                    :sureler, :detaylar, :makinalar, :arsiv_altlar,:stok_kalemler, :stok_alt_kalemler, :stok_alt_depo_adetler, :stok_alt_depolar, :fason_durumlar, 
+                    :fason_tedarikciler, :notlar, :planlama_durum, :tekil_kod);";
+
+            $sth = $conn->prepare($sql);
+            $sth->bindParam("firma_id", $_SESSION['firma_id']);
+            $sth->bindParam("siparis_id", $eklenen_siparis_id);
+            $sth->bindParam("alt_urun_id", $planlama['alt_urun_id']);
+            $sth->bindValue("grup_kodu", uniqid());
+            $sth->bindParam("isim", $planlama['isim']);
+            $sth->bindParam("asama_sayisi", $planlama['asama_sayisi']);
+            $sth->bindValue("mevcut_asama", 0);
+            
+            // Fix for end() usage
+            $last_adet = empty($toplam_adetler) ? 0 : end($toplam_adetler);
+            $sth->bindValue("uretilecek_adet", $last_adet);
+            
+            $sth->bindParam("departmanlar", $planlama['departmanlar']);
+            $sth->bindValue("orijinal_adetler", json_encode($toplam_adetler));
+            $sth->bindValue("adetler", json_encode($toplam_adetler));
+            $sth->bindValue("sureler", json_encode($toplam_sureler));
+            $sth->bindParam("detaylar", $planlama['detaylar']);
+            $sth->bindParam("makinalar", $planlama['makinalar']);
+            $sth->bindParam("arsiv_altlar", $planlama['arsiv_altlar']);
+            $sth->bindParam("stok_kalemler", $planlama['stok_kalemler']);
+            $sth->bindParam("stok_alt_kalemler", $planlama['stok_alt_kalemler']);
+            $sth->bindParam("stok_alt_depo_adetler", $planlama['stok_alt_depo_adetler']);
+            $sth->bindParam("stok_alt_depolar", $planlama['stok_alt_depolar']);
+            $sth->bindParam("fason_durumlar", $planlama['fason_durumlar']);
+            $sth->bindParam("fason_tedarikciler", $planlama['fason_tedarikciler']);
+            $sth->bindParam("notlar", $planlama['notlar']);
+            $sth->bindValue("planlama_durum", 'evet');
+            $sth->bindValue("tekil_kod", uniqid());
+            $durum = $sth->execute();
+            
+        }
+
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['siparis', 'sipariş', 'order', 'üretim', 'uretim'], $_SESSION['firma_id']);
+            } catch (Exception $e) {}
+        }
+
+        //print_r($conn->errorInfo());
+        //header("Location: siparis.php?musteri_id={$siparis['musteri_id']}");
+        $_SESSION['islem'] = 'siparis-tekrar';
+        header("Location: /index.php?url=siparis_guncelle&siparis_id={$eklenen_siparis_id}");
+        exit;
+    } catch (Throwable $e) {
+        die("GENEL HATA: " . $e->getMessage() . " Dosya: " . $e->getFile() . " Satır: " . $e->getLine());
+    }
 }
 
 //excel çıkarma işlemi

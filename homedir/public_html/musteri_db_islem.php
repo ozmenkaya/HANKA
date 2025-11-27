@@ -482,6 +482,17 @@ if(isset($_POST['musteri_ekle']))
         // İşlemler başarılıysa commit yapalım
         $conn->commit();
 
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['müşteri', 'musteri', 'firma', 'cari'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'basarili';
         $_SESSION['mesaj'] = 'Ekleme İşlemi Başarılı';
         header('Location: /index.php?url=musteriler');
@@ -808,6 +819,17 @@ if( isset($_POST['musteri_guncelle']) ) {
 
         $conn->commit();
 
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['müşteri', 'musteri', 'firma', 'cari'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'basarili';
         $_SESSION['mesaj'] = 'Güncelleme İşlemi Başarılı';
         header('Location: /index.php?url=musteriler');
@@ -836,6 +858,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'musteri_sil')
     
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['müşteri', 'musteri', 'firma', 'cari'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Silme İşlemi Başarılı';
         header('Location: /index.php?url=musteriler');

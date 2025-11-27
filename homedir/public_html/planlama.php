@@ -265,16 +265,29 @@
                                                     <?php echo number_format($siparis['adet'],0,'',','); ?> Adet
                                                 </td>
                                                 <td class="text-end">
-                                                    <?php //if(isset($_SESSION['sayfa_yetki_46']) && $_SESSION['sayfa_yetki_46'] == 1){  ?>
-                                                        <a href="/index.php?url=planla_siparis_duzenle&siparis_id=<?php echo $siparis['id']; ?>" class="btn btn-warning" 
-                                                            name="siparis_guncelle"
-                                                            data-bs-toggle="tooltip" 
-                                                            data-bs-placement="bottom" 
-                                                            data-bs-title="Planı Düzenle"
-                                                        >
-                                                            <i class="fa-regular fa-pen-to-square"></i>
-                                                        </a>
-                                                    <?php //}?>    
+                                                    <div class="d-flex justify-content-end"> 
+                                                        <div class="btn-group" role="group">
+                                                            <a href="/index.php?url=planlama_db_islem&islem=planlama-pdf&siparis_id=<?php echo $siparis['id']; ?>" 
+                                                                class="btn btn-secondary" 
+                                                                data-bs-toggle="tooltip" 
+                                                                data-bs-placement="bottom" 
+                                                                data-bs-title="Planlama PDF"
+                                                                target="_blank"
+                                                            >
+                                                                <i class="fa-regular fa-file-pdf"></i>
+                                                            </a>
+                                                            <?php //if(isset($_SESSION['sayfa_yetki_46']) && $_SESSION['sayfa_yetki_46'] == 1){  ?>
+                                                                <a href="/index.php?url=planla_siparis_duzenle&siparis_id=<?php echo $siparis['id']; ?>" class="btn btn-warning" 
+                                                                    name="siparis_guncelle"
+                                                                    data-bs-toggle="tooltip" 
+                                                                    data-bs-placement="bottom" 
+                                                                    data-bs-title="Planı Düzenle"
+                                                                >
+                                                                    <i class="fa-regular fa-pen-to-square"></i>
+                                                                </a>
+                                                            <?php //}?>    
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         <?php }?>

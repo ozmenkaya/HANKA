@@ -177,6 +177,17 @@ if(isset($_POST['planlama_ekle_kaydet']))
 
     if($durum)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['planlama', 'üretim', 'termin', 'iş'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Ekleme İşlemi Başarılı';
         header("Location: /index.php?url=planlama");
@@ -414,6 +425,17 @@ if(isset($_POST['planlama_onay_guncelle'])){
 
     if($durum)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['planlama', 'üretim', 'termin', 'iş'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'İşlem Başarılı';
         header("Location: /index.php?url=planlama");
@@ -994,7 +1016,7 @@ if (isset($_GET['islem']) && $_GET['islem'] == 'planlama-pdf' && isset($_GET['si
                                 $html .= '<tr><td><strong>Adet:</strong> '.number_format($adetler[$index], 0, ',', '.') .'</td></tr>';
                                 
                                 $fason  = json_decode($planlama['fason_durumlar'], true);
-                                if(isset($fason[$index])){
+                                if(isset($fason[$index]) && $fason[$index] == 1){
                                     $tedarikci    = json_decode($planlama['fason_tedarikciler'], true);
                                     $tedarikci_id = $tedarikci[$index];
                                     $filteredTedarikci = array_filter($tedarikciler, function($tedarikci1) use ($tedarikci_id) {
@@ -1010,7 +1032,7 @@ if (isset($_GET['islem']) && $_GET['islem'] == 'planlama-pdf' && isset($_GET['si
                                         return $makina1['id'] == $makina_id;
                                     });
                                     foreach ($filteredMakina as $filteredMak) {
-                                        $html .= '<tr><td><strong>Fason:</strong> '.$filteredMak['makina_adi'].'</td></tr>';
+                                        $html .= '<tr><td><strong>Makina:</strong> '.$filteredMak['makina_adi'].'</td></tr>';
                                     }
                                 }
                                 $stok_kalemler = json_decode($planlama['stok_kalemler'], true);

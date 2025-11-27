@@ -20,7 +20,7 @@
                 require_once "include/yetkisiz.php"; exit;
             }
 
-            $sql = 'SELECT id, siparis_no, isin_adi, termin, onay_baslangic_durum, islem, fiyat, para_cinsi, tarih 
+            $sql = 'SELECT id, siparis_no, isin_adi, termin, onay_baslangic_durum, islem, fiyat, para_cinsi, tarih, veriler 
             FROM siparisler 
             WHERE musteri_id = :id AND firma_id = :firma_id AND islem != "iptal"';
 
@@ -35,6 +35,50 @@
             $sth->bindParam('firma_id', $_SESSION['firma_id']);
             $sth->execute();
             $siparisler = $sth->fetchAll(PDO::FETCH_ASSOC);
+            
+            // ========== PERFORMANS OPTİMİZASYONU ==========
+            // Tüm sipariş ID'lerini al
+            $siparis_ids = array_column($siparisler, 'id');
+            
+            // Boş array kontrolü
+            $planlamalar_by_siparis = [];
+            $siparis_log_counts = [];
+            $departmanlar_cache = [];
+            
+            if (!empty($siparis_ids)) {
+                $ids_placeholder = implode(',', array_fill(0, count($siparis_ids), '?'));
+                
+                // Tüm planlamaları tek seferde çek
+                $sql_planlama = "SELECT id, siparis_id, mevcut_asama, asama_sayisi, isim, departmanlar, uretilecek_adet, durum, biten_urun_adedi, onay_durum
+                    FROM planlama WHERE siparis_id IN ($ids_placeholder) AND aktar_durum = 'orijinal'";
+                $sth = $conn->prepare($sql_planlama);
+                $sth->execute($siparis_ids);
+                $all_planlamalar = $sth->fetchAll(PDO::FETCH_ASSOC);
+                
+                // Planlamaları sipariş_id'ye göre grupla
+                foreach ($all_planlamalar as $p) {
+                    $planlamalar_by_siparis[$p['siparis_id']][] = $p;
+                }
+                
+                // Tüm sipariş log sayılarını tek seferde çek
+                $sql_log = "SELECT siparis_id, COUNT(*) AS log_sayisi FROM siparis_log WHERE siparis_id IN ($ids_placeholder) GROUP BY siparis_id";
+                $sth = $conn->prepare($sql_log);
+                $sth->execute($siparis_ids);
+                $log_results = $sth->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($log_results as $log) {
+                    $siparis_log_counts[$log['siparis_id']] = $log['log_sayisi'];
+                }
+                
+                // Tüm departmanları tek seferde çek (cache)
+                $sql_dept = "SELECT id, departman FROM departmanlar WHERE firma_id = :firma_id";
+                $sth = $conn->prepare($sql_dept);
+                $sth->execute([':firma_id' => $_SESSION['firma_id']]);
+                $all_depts = $sth->fetchAll(PDO::FETCH_ASSOC);
+                foreach ($all_depts as $dept) {
+                    $departmanlar_cache[$dept['id']] = $dept['departman'];
+                }
+            }
+            // ========== /PERFORMANS OPTİMİZASYONU ==========
             #echo "<pre>"; print_r($siparisler); exit;
 
             $uretimdeki_is_sayisi               = 0;
@@ -242,6 +286,8 @@
                                         <th class="text-center;align-middle">#</th>
                                         <th>Sipariş Kodu</th>
                                         <th>İşin Adı</th>
+                                        <th>Tasarım No</th>
+                                        <th>Bıçak Kodu</th>
                                         <th>İlerleme</th>
                                         <th class="text-center">Termin</th>
                                         <th class="text-center">Fiyat</th>
@@ -264,20 +310,30 @@
                                             <th class="table-secondary align-middle"><?php echo $siparis['siparis_no']; ?></th>
                                             <td class="align-middle"><?php echo $siparis['isin_adi']; ?></td>
                                             <?php 
-                                                $sql = "SELECT id,mevcut_asama,asama_sayisi, isim, departmanlar,uretilecek_adet,durum,biten_urun_adedi,`onay_durum`
-                                                FROM `planlama` WHERE siparis_id = :siparis_id AND aktar_durum = 'orijinal'";
-                                                $sth = $conn->prepare($sql);
-                                                $sth->bindParam('siparis_id', $siparis['id']);
-                                                $sth->execute();
-                                                $planlamalar = $sth->fetchAll(PDO::FETCH_ASSOC);
-
-
-                                                $sql = 'SELECT COUNT(siparis_id) AS log_sayisi FROM `siparis_log` WHERE  siparis_id = :siparis_id';
-                                                $sth = $conn->prepare($sql);
-                                                $sth->bindParam('siparis_id', $siparis['id']);
-                                                $sth->execute();
-                                                $siparis_log = $sth->fetch(PDO::FETCH_ASSOC);
-
+                                                $veriler = json_decode($siparis['veriler'], true);
+                                                $tasarim_nolar = [];
+                                                $bicak_kodlari = [];
+                                                
+                                                // Veriler tek bir obje mi yoksa array mi kontrol et
+                                                $items = isset($veriler[0]) ? $veriler : [$veriler];
+                                                
+                                                foreach ($items as $item) {
+                                                    if (isset($item['form']['TASARIM NUMARASI']) && !empty($item['form']['TASARIM NUMARASI'])) {
+                                                        $tasarim_nolar[] = $item['form']['TASARIM NUMARASI'];
+                                                    }
+                                                    if (isset($item['form']['BIÇAK NUMARASI']) && !empty($item['form']['BIÇAK NUMARASI'])) {
+                                                        $bicak_kodlari[] = $item['form']['BIÇAK NUMARASI'];
+                                                    }
+                                                }
+                                                $tasarim_no_str = implode(', ', array_unique($tasarim_nolar));
+                                                $bicak_kodu_str = implode(', ', array_unique($bicak_kodlari));
+                                            ?>
+                                            <td class="align-middle"><?php echo $tasarim_no_str; ?></td>
+                                            <td class="align-middle"><?php echo $bicak_kodu_str; ?></td>
+                                            <?php 
+                                                // Cache'den oku - artık query yok!
+                                                $planlamalar = isset($planlamalar_by_siparis[$siparis['id']]) ? $planlamalar_by_siparis[$siparis['id']] : [];
+                                                $siparis_log = ['log_sayisi' => isset($siparis_log_counts[$siparis['id']]) ? $siparis_log_counts[$siparis['id']] : 0];
                                             ?>
                                             <td> 
                                                 <?php foreach ($planlamalar as $planlama) { ?>
@@ -306,16 +362,12 @@
                                                                 <?php 
                                                                     $departmanlar = json_decode($planlama['departmanlar'], true); 
                                                                     $mevcut_departman_id = $departmanlar[$planlama['mevcut_asama']];
-
-                                                                    $sql = "SELECT departman FROM `departmanlar` WHERE id = :id";
-                                                                    $sth = $conn->prepare($sql);
-                                                                    $sth->bindParam('id', $mevcut_departman_id);
-                                                                    $sth->execute();
-                                                                    $departman = $sth->fetch(PDO::FETCH_ASSOC);
+                                                                    // Cache'den oku - artık query yok!
+                                                                    $departman_adi = isset($departmanlar_cache[$mevcut_departman_id]) ? $departmanlar_cache[$mevcut_departman_id] : 'Bilinmiyor';
                                                                 ?>
                                                                 
                                                                 <span class="badge bg-secondary mb-1"> 
-                                                                    <?php echo $departman['departman']; ?>  
+                                                                    <?php echo $departman_adi; ?>  
                                                                 </span>
                                                             <?php }else{ ?>
                                                                 <span class="badge bg-success mb-1"> Bitti </span>              

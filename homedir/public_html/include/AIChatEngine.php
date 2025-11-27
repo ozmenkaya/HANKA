@@ -27,18 +27,27 @@ class AIChatEngine {
         
         // API Key'i veritabanından çek
         $api_key = null;
+        $this->model = "ft:gpt-4o-mini-2024-07-18:antartika:hanka-sql-v3:CfmUn0N1"; // Varsayılan Fine-Tuned Model
+
         try {
-            $stmt = $this->conn->prepare("SELECT openai_api_key FROM ai_agent_settings WHERE firma_id = :firma_id LIMIT 1");
+            $stmt = $this->conn->prepare("SELECT openai_api_key, ai_use_finetuned FROM ai_agent_settings WHERE firma_id = :firma_id LIMIT 1");
             $stmt->execute(['firma_id' => $firma_id]);
             $settings = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($settings && !empty($settings['openai_api_key'])) {
-                $api_key = $settings['openai_api_key'];
+            
+            if ($settings) {
+                if (!empty($settings['openai_api_key'])) {
+                    $api_key = $settings['openai_api_key'];
+                }
+                // Eğer ayarlarda fine-tuned kapalıysa standart modele dön
+                if (isset($settings['ai_use_finetuned']) && $settings['ai_use_finetuned'] == 0) {
+                    $this->model = "gpt-4o-mini";
+                }
             }
         } catch (Exception $e) {
             error_log("AI Settings fetch error: " . $e->getMessage());
         }
 
-        $this->ai = new OpenAI($api_key);
+        $this->ai = new OpenAI($api_key, $this->model);
         $this->cache = new AICache($conn);
         $this->vectorKB = new VectorKnowledgeBase($conn, $this->ai);
         $this->semanticLayer = new AISemanticLayer($conn);
@@ -477,7 +486,7 @@ class AIChatEngine {
      */
     private function getExpertSchemaKnowledge() {
         return [
-            "siparisler" => "Sipariş bilgileri (1361 kayıt) - veriler JSON kolonu: [{miktar,birim_fiyat,isim}] 5 eleman. TUTAR HESABI: JSON_EXTRACT(veriler,'$[0].miktar')*JSON_EXTRACT(veriler,'$[0].birim_fiyat')+JSON_EXTRACT(veriler,'$[1].miktar')*JSON_EXTRACT(veriler,'$[1].birim_fiyat')+JSON_EXTRACT(veriler,'$[2].miktar')*JSON_EXTRACT(veriler,'$[2].birim_fiyat')+JSON_EXTRACT(veriler,'$[3].miktar')*JSON_EXTRACT(veriler,'$[3].birim_fiyat')+JSON_EXTRACT(veriler,'$[4].miktar')*JSON_EXTRACT(veriler,'$[4].birim_fiyat'). Ana tablodaki adet×fiyat YANLIŞ! | JOIN: musteri_id→musteri",
+            "siparisler" => "Sipariş bilgileri (1361 kayıt) - veriler JSON kolonu: [{miktar,birim_fiyat,isim}] 5 eleman. TUTAR HESABI: JSON_EXTRACT(veriler,'$[0].miktar')*JSON_EXTRACT(veriler,'$[0].birim_fiyat')+JSON_EXTRACT(veriler,'$[1].miktar')*JSON_EXTRACT(veriler,'$[1].birim_fiyat')+JSON_EXTRACT(veriler,'$[2].miktar')*JSON_EXTRACT(veriler,'$[2].birim_fiyat')+JSON_EXTRACT(veriler,'$[3].miktar')*JSON_EXTRACT(veriler,'$[3].birim_fiyat')+JSON_EXTRACT(veriler,'$[4].miktar')*JSON_EXTRACT(veriler,'$[4].birim_fiyat'). Ana tablodaki adet×fiyat YANLIŞ! | JOIN: musteri_id→musteri | KOLONLAR: fiyat (toplam tutar), para_cinsi (TL, USD, EUR). DİKKAT: para_cinsi kolonunu mutlaka kontrol et!",
             "musteri" => "Müşteri bilgileri (152 kayıt) - Kolonlar: id, marka (KOMAGENE, MIGROS), firma_unvani (YÖRPAŞ YÖRESEL LEZZETLER). KULLANICI MARKA İLE SORAR! MUTLAKA OR ile ara: (marka LIKE '%KOMAGENE%' OR firma_unvani LIKE '%KOMAGENE%'). SELECT'te HER İKİSİNİ GÖSTER! | JOIN: sehir_id→sehirler, ilce_id→ilceler",
             "planlama" => "Planlama kayıtları (1458 kayıt) - Kolonlar: id, siparis_id, isim, fason_tedarikciler | JOIN: siparis_id→siparisler.id",
             "personeller" => "Personel bilgileri (22 kayıt) - Kolonlar: id, ad, soyad, email. PERSONEL ADI ARAMA: CONCAT(ad, ' ', soyad) veya (ad LIKE '%X%' AND soyad LIKE '%Y%') | JOIN: yetki_id→yetkiler",
@@ -619,6 +628,7 @@ FİRMA BİLGİLERİ:
         $system_prompt .= "\n15. 📦 STOK MİKTARI VE DETAYLI ÜRÜN SORULARI (KRİTİK): stok_alt_depolar tablosunda miktar değil ADET kullan. Stok miktarı: SUM(sad.adet). 3 TABLO JOIN: stok_alt_depolar → stok_alt_kalemler → stok_kalemleri. ÖNEMLİ: stok_alt_kalemler.veri JSON kolonu var - EBAT, TİP, GRAMAJ, MARKA bilgileri burada! DETAYLI SORGU ÖRNEK: '700 ebat amerikan bristol stokta var mı' → SELECT sk.stok_kalem, sak.veri, SUM(sad.adet) as stok_miktari FROM stok_alt_depolar sad JOIN stok_alt_kalemler sak ON sad.stok_alt_kalem_id=sak.id JOIN stok_kalemleri sk ON sak.stok_id=sk.id WHERE JSON_EXTRACT(sak.veri, '$.EBAT') = '700' AND JSON_EXTRACT(sak.veri, '$.TİP') LIKE '%AMERIKAN%BRISTOL%' AND sad.firma_id=16 GROUP BY sk.stok_kalem, sak.veri HAVING stok_miktari > 0. BASİT SORGU: SELECT SUM(sad.adet) FROM stok_alt_depolar sad JOIN stok_alt_kalemler sak ON sad.stok_alt_kalem_id=sak.id JOIN stok_kalemleri sk ON sak.stok_id=sk.id WHERE sk.stok_kalem LIKE '%KRAFT%' AND sad.firma_id=16.";
         $system_prompt .= "\n16. 🏢 MARKA VE FİRMA ARAMALARI (KRİTİK - MARKA ÖNCELİKLİ): musteri tablosu: marka (kısa tanınan isim - KOMAGENE, MIGROS), firma_unvani (resmi unvan - YÖRPAŞ YÖRESEL LEZZETLER). KULLANICI MARKA İLE SORAR! MUTLAKA OR ile her ikisinde ara: (m.marka LIKE '%İSİM%' OR m.firma_unvani LIKE '%İSİM%'). SELECT'te MARKA GÖSTER (marka öncelik): SELECT m.id, m.marka, m.firma_unvani. ÖRNEK: 'Komagene' → WHERE (m.marka LIKE '%KOMAGENE%' OR m.firma_unvani LIKE '%KOMAGENE%') → Sonuç: 'KOMAGENE (YÖRPAŞ YÖRESEL LEZZETLER)'. 'Migros' → WHERE (m.marka LIKE '%MIGROS%' OR m.firma_unvani LIKE '%MIGROS%'). SELECT'te marka kolonunu MUTLAKA dahil et!";
         $system_prompt .= "\n17. 💰 FİYAT/TUTAR HESAPLAMALARI (KRİTİK): siparisler.fiyat kolonu ZATEN hesaplanmış TOPLAM tutar içerir! CİRO/TOPLAM sorguları için DİREKT siparisler.fiyat kullan, ASLA adet×fiyat yapma! YANLIŞ ❌: SUM(s.adet * s.fiyat) - Bu 100 kat fazla hesaplar! DOĞRU ✅: SUM(s.fiyat). Ortalama: AVG(s.fiyat). En yüksek: MAX(s.fiyat). UYARI: s.adet ve s.fiyat çarpımı YAPMA, s.fiyat zaten toplam tutardır! ÖRNEK CİRO: SELECT SUM(s.fiyat) as toplam_ciro FROM siparisler s JOIN musteri m ON s.musteri_id=m.id WHERE m.firma_unvani LIKE '%FIRMA%' AND s.firma_id=16 AND s.tarih >= DATE_SUB(NOW(), INTERVAL 1 YEAR).";
+        $system_prompt .= "\n17.5. 💱 PARA BİRİMİ (KRİTİK): Tutar/Fiyat içeren her sorguda MUTLAKA 'para_cinsi' kolonunu da seç ve GROUP BY yap! Farklı para birimlerini (TL, USD, EUR) asla toplama! ÖRNEK: SELECT s.para_cinsi, SUM(s.fiyat) as toplam FROM siparisler s ... GROUP BY s.para_cinsi. Eğer kullanıcı 'kaç para' derse, her para birimini ayrı ayrı listele.";
         $system_prompt .= "\n18. 🔍 SUBQUERY CARDINALITY (KRİTİK): Subquery'ler sadece TEK satır döndürmeli! ÇOKLU sonuç için IN kullan, = kullanma! YANLIŞ: sektor_id = (SELECT id FROM sektorler WHERE sektor_adi LIKE '%medikal%') ❌. DOĞRU: sektor_id IN (SELECT id FROM sektorler WHERE sektor_adi LIKE '%medikal%') ✅. JOIN tercih et: LEFT JOIN sektorler s ON m.sektor_id=s.id WHERE s.sektor_adi LIKE '%medikal%'. SEKTÖR SORGULARI: musteri tablosunda sektor_id var, sektorler ile JOIN yap!";
         $system_prompt .= "\n19. 🏭 DEPARTMAN SORULARI (KRİTİK): planlama tablosunda 'departman' kolonu YOK! 'departmanlar' JSON array var [1,2,4]. JSON_CONTAINS ile CAST kullan! departmanlar tablosu: (id, departman). DOĞRU SYNTAX: JSON_CONTAINS(departmanlar, CAST(2 AS JSON)). ÖRNEK OFSET (id=2): SELECT COUNT(*) FROM planlama WHERE firma_id=16 AND JSON_CONTAINS(departmanlar, CAST(2 AS JSON)) AND mevcut_asama < asama_sayisi. Önce ID bul: (SELECT id FROM departmanlar WHERE departman LIKE '%OFSET%' LIMIT 1). Bekleyen: mevcut_asama < asama_sayisi. Tamamlanan: mevcut_asama = asama_sayisi. DİKKAT: CAST kullanmazsan '3146 Invalid data type' hatası alırsın!";
         $system_prompt .= "\n20. 🔧 MAKİNA SORULARI (KRİTİK - GELİŞMİŞ): planlama.makinalar JSON array [1,2,3,8]. makinalar tablosu: (id, makina_adi, departman_id, durumu).\n\n📋 MAKİNA İŞ LİSTESİ: SELECT p.id, p.isim, s.siparis_no, s.isin_adi, m.makina_adi FROM planlama p JOIN siparisler s ON p.siparis_id=s.id JOIN makinalar m ON JSON_CONTAINS(p.makinalar, CAST(m.id AS JSON)) WHERE m.makina_adi LIKE '%OMEGA%' AND p.firma_id=16 AND m.firma_id=16 ORDER BY p.sira LIMIT 20.\n\n📊 EN YÜKSEK ADET: SELECT p.id, p.isim, s.siparis_no, s.adet, m.makina_adi FROM planlama p JOIN siparisler s ON p.siparis_id=s.id JOIN makinalar m ON JSON_CONTAINS(p.makinalar, CAST(m.id AS JSON)) WHERE m.makina_adi LIKE '%OMEGA%' AND p.firma_id=16 AND m.firma_id=16 ORDER BY s.adet DESC LIMIT 1.\n\n📉 EN DÜŞÜK ADET: ORDER BY s.adet ASC yerine DESC kullan.\n\n🔢 İŞ SAYISI: SELECT COUNT(*) as is_sayisi FROM planlama p JOIN makinalar m ON JSON_CONTAINS(p.makinalar, CAST(m.id AS JSON)) WHERE m.makina_adi LIKE '%OMEGA%' AND p.firma_id=16 AND m.firma_id=16.\n\nDİKKAT: 1) makinalar JOIN gerekli (m.makina_adi). 2) JSON_CONTAINS ile CAST(m.id AS JSON). 3) Her iki tabloda firma_id kontrolü. 4) siparis_no için siparisler JOIN. 5) Yaygın makinalar: OMEGA, KBA, HD, HOTMELT (veya HOLTMELT), LAMİNASYON. 6) LIKE '%MAKINA%' ile esnek arama.";

@@ -110,6 +110,18 @@ if(isset($_POST['personel_ekle']))
             $durum = $sth->execute();
         
         }
+
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['personel', 'çalışan', 'usta', 'yetkili'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Personel Ekleme İşlemi Başarılı';
         header("Location: /index.php?url=personel");    
@@ -136,6 +148,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'personel_sil')
     
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['personel', 'çalışan', 'usta', 'yetkili'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Silme İşlemi Başarılı';
     }
@@ -219,6 +242,18 @@ if(isset($_POST['personel_guncelle']))
             $durum = $sth->execute();
         
         }
+
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['personel', 'çalışan', 'usta', 'yetkili'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Personel Düzenleme İşlemi Başarılı';
         header("Location: /index.php?url=personel");

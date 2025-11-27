@@ -732,6 +732,53 @@
                 //grup ayrı fiyat alt ürün ekle
                 $("#grup-ayri-fiyat-alt-urunler .alt-urun-button-ekle").click(function(){
                     altUrunSayisi++;
+                    
+                    // Sipariş formlarını PHP'den JSON olarak al
+                    const siparisFormlar = <?php echo json_encode($siparis_formlar); ?>;
+                    const birimlerData = <?php echo json_encode($birimler); ?>;
+                    const turlerData = <?php echo json_encode($turler); ?>;
+                    
+                    // Türler için option HTML oluştur
+                    let turlerOptions = '<option selected disabled value="">Seçiniz</option>';
+                    turlerData.forEach(function(tur) {
+                        turlerOptions += `<option value="${tur.id}">${tur.tur}</option>`;
+                    });
+                    
+                    // Birimler için option HTML oluştur
+                    let birimlerOptions = '<option selected disabled value="">Seçiniz</option>';
+                    birimlerData.forEach(function(birim) {
+                        birimlerOptions += `<option value="${birim.id}">${birim.ad}</option>`;
+                    });
+                    
+                    // Sipariş form alanlarını oluştur
+                    let formAlanlariHTML = '';
+                    siparisFormlar.forEach(function(siparis_form) {
+                        let inputHTML = '';
+                        if (siparis_form.options && siparis_form.options !== '') {
+                            try {
+                                const options_array = JSON.parse(siparis_form.options);
+                                if (Array.isArray(options_array)) {
+                                    inputHTML = `<select class="form-select" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[form][${siparis_form.deger}]">
+                                        <option value="">Seçiniz</option>`;
+                                    options_array.forEach(function(option) {
+                                        inputHTML += `<option value="${option}">${option}</option>`;
+                                    });
+                                    inputHTML += `</select>`;
+                                }
+                            } catch(e) {
+                                inputHTML = `<input type="text" class="form-control" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[form][${siparis_form.deger}]" />`;
+                            }
+                        } else {
+                            inputHTML = `<input type="text" class="form-control" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[form][${siparis_form.deger}]" />`;
+                        }
+                        
+                        formAlanlariHTML += `
+                            <div class="form-floating col-md-2 degerler_${altUrunSayisi}" style="display:none" data-deger="${siparis_form.deger}">
+                                ${inputHTML}
+                                <label class="form-label">${siparis_form.deger}</label>
+                            </div>`;
+                    });
+                    
                     const altUrunHTML = `
                         <div class="alt-urun row g-3">
                             <div class="col-md-2">
@@ -740,8 +787,8 @@
                                         data-bs-toggle="tooltip" 
                                         data-bs-placement="bottom"
                                         data-bs-custom-class="custom-tooltip"
-                                        data-bs-title="Alt Ürün Ekle"
-                                        data-alt-urun-id="1"
+                                        data-bs-title="Alt Ürün Çıkar"
+                                        data-alt-urun-id="${altUrunSayisi}"
                                     >
                                         <i class="fa-solid fa-minus"></i>
                                     </button>
@@ -750,17 +797,8 @@
                             </div>  
 
                             <div class="form-floating col-md-2">
-                                <?php 
-                                    $sth = $conn->prepare('SELECT * FROM turler WHERE firma_id = :firma_id');
-                                    $sth->bindParam('firma_id', $_SESSION['firma_id']);
-                                    $sth->execute();
-                                    $turler = $sth->fetchAll(PDO::FETCH_ASSOC);
-                                ?>
                                 <select class="form-select tur-select" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[tur]" data-urun-id="${altUrunSayisi}" required>
-                                    <option selected disabled value="">Seçiniz</option>
-                                    <?php foreach ($turler as $tur) { ?>
-                                        <option value="<?php echo $tur['id']; ?>"><?php echo $tur['tur']; ?></option>
-                                    <?php }?>
+                                    ${turlerOptions}
                                 </select>
                                 <label class="form-label">Türü</label>
                             </div>
@@ -772,10 +810,7 @@
 
                             <div class="form-floating col-md-2">
                                 <select class="form-select" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[birim_id]" required>
-                                    <option selected disabled value="">Seçiniz</option>
-                                    <?php foreach ($birimler as $birim) { ?>
-                                        <option value="<?php echo $birim['id']; ?>"><?php echo $birim['ad']; ?></option>
-                                    <?php }?>
+                                    ${birimlerOptions}
                                 </select>
                                 <label  class="form-label">Birim</label>
                             </div> 
@@ -808,12 +843,6 @@
                                 </select> 
                                 <label class="form-label">Numune</label>   
                             </div>
-                            
-
-                            <!--<div class="form-floating col-md-3">
-                                <input type="file" class="form-control" multiple name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[]"/>
-                                <label class="form-label">Dosya yükle</label>
-                            </div>-->
 
                             <div class="col-md-2">
                                 <label for="grup_ayri_fiyat_alt_urun_${altUrunSayisi}" style="background-color:white" class="input-group-text">Dosya yükle</label>
@@ -825,25 +854,7 @@
                                 <label  class="form-label">Açıklama</label>
                             </div>
 
-                            <?php foreach ($siparis_formlar as $key => $siparis_form) { ?>
-                                <div class="form-floating col-md-2 degerler_${altUrunSayisi}" style="display:none" data-deger="<?php echo $siparis_form['deger']; ?>">
-                                    <?php if (!empty($siparis_form['options'])) { 
-                                        // JSON formatındaki options değerini çözüyoruz
-                                        $options_array = json_decode($siparis_form['options'], true); 
-                                        if (is_array($options_array)) { ?>
-                                            <select class="form-select" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[form][<?php echo $siparis_form['deger']; ?>]">
-                                                <option value="">Seçiniz</option>
-                                                <?php foreach ($options_array as $option) { ?>
-                                                    <option value="<?php echo htmlspecialchars($option); ?>"><?php echo htmlspecialchars($option); ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        <?php } ?>
-                                    <?php } else { ?>
-                                        <input type="text" class="form-control" name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[form][<?php echo $siparis_form['deger']; ?>]" />
-                                    <?php } ?>
-                                    <label class="form-label"><?php echo $siparis_form['deger']; ?></label>
-                                </div>
-                            <?php } ?>
+                            ${formAlanlariHTML}
 
                             <hr>
                         </div>
@@ -851,7 +862,12 @@
                     $("#alt-urun-sayisi").val(altUrunSayisi);  
                     $("#grup-ayri-fiyat-alt-urunler").append(altUrunHTML);
 
-                    turIdGoreSiparisFormuGetirme($("#tek_fiyat_tur_id").val());
+                    // Yeni eklenen satır için tur-select event'ini bağla
+                    $(`[name="grup_ayri_fiyat_alt_urun_${altUrunSayisi}[tur]"]`).on('change', function() {
+                        const turId = $(this).val(); 
+                        const urunId = $(this).data("urun-id");
+                        turIdGoreSiparisFormuGetirmeCustom(turId, urunId);
+                    });
 
                     $('.form-select').select2({
                         theme: 'bootstrap-5'
@@ -875,6 +891,53 @@
                 //grup tek fiyat alt ürün ekle
                 $("#grup-tek-fiyat-alt-urunler .alt-urun-button-ekle").click(function(){
                     altUrunSayisi++;
+                    
+                    // Sipariş formlarını PHP'den JSON olarak al
+                    const siparisFormlar = <?php echo json_encode($siparis_formlar); ?>;
+                    const birimlerData = <?php echo json_encode($birimler); ?>;
+                    const turlerData = <?php echo json_encode($turler); ?>;
+                    
+                    // Türler için option HTML oluştur
+                    let turlerOptions = '<option selected disabled value="">Seçiniz</option>';
+                    turlerData.forEach(function(tur) {
+                        turlerOptions += `<option value="${tur.id}">${tur.tur}</option>`;
+                    });
+                    
+                    // Birimler için option HTML oluştur
+                    let birimlerOptions = '<option selected disabled value="">Seçiniz</option>';
+                    birimlerData.forEach(function(birim) {
+                        birimlerOptions += `<option value="${birim.id}">${birim.ad}</option>`;
+                    });
+                    
+                    // Sipariş form alanlarını oluştur
+                    let formAlanlariHTML = '';
+                    siparisFormlar.forEach(function(siparis_form) {
+                        let inputHTML = '';
+                        if (siparis_form.options && siparis_form.options !== '') {
+                            try {
+                                const options_array = JSON.parse(siparis_form.options);
+                                if (Array.isArray(options_array)) {
+                                    inputHTML = `<select class="form-select" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[form][${siparis_form.deger}]">
+                                        <option value="">${siparis_form.deger} Seçiniz</option>`;
+                                    options_array.forEach(function(option) {
+                                        inputHTML += `<option value="${option}">${option}</option>`;
+                                    });
+                                    inputHTML += `</select>`;
+                                }
+                            } catch(e) {
+                                inputHTML = `<input type="text" class="form-control" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[form][${siparis_form.deger}]" />`;
+                            }
+                        } else {
+                            inputHTML = `<input type="text" class="form-control" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[form][${siparis_form.deger}]" />`;
+                        }
+                        
+                        formAlanlariHTML += `
+                            <div class="form-floating col-md-2 degerler_${altUrunSayisi}" style="display:none" data-deger="${siparis_form.deger}">
+                                ${inputHTML}
+                                <label class="form-label">${siparis_form.deger}</label>
+                            </div>`;
+                    });
+                    
                     let altUrunHTML = `
                         <div class="alt-urun row g-3 mt-2">
                             <div class="col-md-2">
@@ -883,8 +946,8 @@
                                         data-bs-toggle="tooltip" 
                                         data-bs-placement="bottom"
                                         data-bs-custom-class="custom-tooltip"
-                                        data-bs-title="Alt Ürün Ekle"
-                                        data-alt-urun-id="1"
+                                        data-bs-title="Alt Ürün Çıkar"
+                                        data-alt-urun-id="${altUrunSayisi}"
                                     >
                                         <i class="fa-solid fa-minus"></i>
                                     </button>
@@ -893,17 +956,8 @@
                             </div> 
 
                             <div class="form-floating col-md-2">
-                                <?php 
-                                    $sth = $conn->prepare('SELECT * FROM turler WHERE firma_id = :firma_id');
-                                    $sth->bindParam('firma_id', $_SESSION['firma_id']);
-                                    $sth->execute();
-                                    $turler = $sth->fetchAll(PDO::FETCH_ASSOC);
-                                ?>
                                 <select class="form-select tur-select" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[tur]" data-urun-id="${altUrunSayisi}" required>
-                                    <option selected disabled value="">Seçiniz</option>
-                                    <?php foreach ($turler as $tur) { ?>
-                                        <option value="<?php echo $tur['id']; ?>"><?php echo $tur['tur']; ?></option>
-                                    <?php }?>
+                                    ${turlerOptions}
                                 </select>
                                 <label class="form-label">Türü</label>
                             </div>
@@ -914,11 +968,8 @@
                             </div> 
 
                             <div class="form-floating col-md-2">
-                                <select class="form-select" id="birim" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[birim_id]"  required>
-                                    <option selected disabled value="">Seçiniz</option>
-                                    <?php foreach ($birimler as $birim) { ?>
-                                        <option value="<?php echo $birim['id']; ?>"><?php echo $birim['ad']; ?></option>
-                                    <?php }?>
+                                <select class="form-select" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[birim_id]"  required>
+                                    ${birimlerOptions}
                                 </select>
                                 <label for="birim_id" class="form-label">Birim</label>
                             </div> 
@@ -932,49 +983,29 @@
                                 <label class="form-label">Numune</label>   
                             </div>
 
-                            <!--<div class="form-floating col-md-2">
-                                <input type="file" class="form-control" multiple name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[]" />
-                                <label class="form-label">Dosya yükle</label>
-                            </div>-->
-
                             <div class="col-md-2">
                                 <label for="grup_tek_fiyat_alt_urun_${altUrunSayisi}" style="background-color:white" class="input-group-text">Dosya yükle</label>
                                 <input type="file" class="form-control" id="grup_tek_fiyat_alt_urun_${altUrunSayisi}" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[]" multiple />                   
                             </div>
 
                             <div class="form-floating col-md-2">
-                                <textarea class="form-control" id="aciklama" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[aciklama]" ></textarea>
-                                <label for="aciklama" class="form-label">Açıklama</label>
+                                <textarea class="form-control" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[aciklama]" ></textarea>
+                                <label class="form-label">Açıklama</label>
                             </div>
 
-                            <?php foreach ($siparis_formlar as $key => $siparis_form) { ?>
-                                <div class="form-floating col-md-2 degerler_${altUrunSayisi}" style="display:none" data-deger="<?php echo $siparis_form['deger']; ?>">
-                                    <?php if (!empty($siparis_form['options'])) { 
-                                        // JSON formatındaki options değerini çözüyoruz
-                                        $options_array = json_decode($siparis_form['options'], true); 
-                                        if (is_array($options_array)) { ?>
-                                            <select class="form-select" 
-                                            name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[form][<?php echo $siparis_form['deger']; ?>]"
-
-                                            >
-                                                <option value=""><?php echo $siparis_form['deger']; ?> Seçiniz</option>
-                                                <?php foreach ($options_array as $option) { ?>
-                                                    <option value="<?php echo htmlspecialchars($option); ?>"><?php echo htmlspecialchars($option); ?></option>
-                                                <?php } ?>
-                                            </select>
-                                        <?php } ?>
-                                    <?php } else { ?>
-                                        <input type="text" class="form-control" name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[form][<?php echo $siparis_form['deger']; ?>]" />
-                                    <?php } ?>
-                                    <label class="form-label"><?php echo $siparis_form['deger']; ?></label>
-                                </div>
-                            <?php } ?>
+                            ${formAlanlariHTML}
                             <hr>
                         </div>
                     `;
                     $("#alt-urun-sayisi").val(altUrunSayisi);            
                     $("#grup-tek-fiyat-alt-urunler").append(altUrunHTML);
-                    turIdGoreSiparisFormuGetirme($("#tek_fiyat_tur_id").val());
+                    
+                    // Yeni eklenen satır için tur-select event'ini bağla
+                    $(`[name="grup_tek_fiyat_alt_urun_${altUrunSayisi}[tur]"]`).on('change', function() {
+                        const turId = $(this).val(); 
+                        const urunId = $(this).data("urun-id");
+                        turIdGoreSiparisFormuGetirmeCustom(turId, urunId);
+                    });
 
                     $('.form-select').select2({
                         theme: 'bootstrap-5'

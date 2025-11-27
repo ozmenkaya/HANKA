@@ -8,7 +8,7 @@ class OpenAI {
     private $api_url = "https://api.openai.com/v1/chat/completions";
     private $model = "gpt-4o-mini"; // Uygun fiyat/performans
     
-    public function __construct($api_key = null) {
+    public function __construct($api_key = null, $model = null) {
         // API key yoksa .env'den yükle
         if (!$api_key) {
             $env_file = __DIR__ . "/../.env";
@@ -20,6 +20,11 @@ class OpenAI {
             }
         } else {
             $this->api_key = $api_key;
+        }
+
+        // Model parametresi varsa onu kullan
+        if ($model) {
+            $this->model = $model;
         }
         
         if (!$this->api_key) {

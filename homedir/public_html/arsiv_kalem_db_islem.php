@@ -65,6 +65,17 @@ if(isset($_POST['arsiv_kalem_ekle']))
  
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['arşiv', 'dosya', 'belge', 'archive'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         #echo "<h2>Ekleme başarılı</h2>";
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Ekleme İşlemi Başarılı';
@@ -95,6 +106,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'arsiv_kalem_sil')
     
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['arşiv', 'dosya', 'belge', 'archive'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         #echo "<h2>Ekleme başarılı</h2>";
         $_SESSION['durum'] = 'basarili';
         $_SESSION['mesaj'] = 'Silme İşlemi Başarılı';
@@ -133,6 +155,17 @@ if(isset($_POST['arsiv_kalem_guncelle']))
 
     if($durum == true)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['arşiv', 'dosya', 'belge', 'archive'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'basarili';
         $_SESSION['mesaj'] = 'Güncelleme İşlemi Başarılı';
 

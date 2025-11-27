@@ -178,7 +178,7 @@
                             <?php foreach ($veri['form']as $key => $value) { ?>
                                 <?php if(!empty($value)){ ?>
                                     <li class="list-group-item list-group-item-warning">
-                                        <b><?php echo $key; ?>:</b> <?php echo $value; ?>
+                                        <b><?php echo strtoupper($key); ?>:</b> <?php echo $value; ?>
                                     </li>
                                 <?php } ?>
                             <?php }?>
@@ -272,7 +272,7 @@
                                 <?php foreach ($veri['form'] as $key => $value) { ?>
                                     <?php if(!empty($value)){ ?>
                                         <li class="list-group-item list-group-item-warning">
-                                            <b><?php echo $key; ?>:</b> <?php echo $value; ?>
+                                            <b><?php echo strtoupper($key); ?>:</b> <?php echo $value; ?>
                                         </li>
                                     <?php } ?>
                                 <?php }?>

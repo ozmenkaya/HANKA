@@ -334,7 +334,9 @@
         <script src="assets/libs/selectize/js/standalone/selectize.min.js"></script>
 
         <!-- Dashboar 1 init js-->
+        <?php if ($page == 'home' || $page == 'dashboard') { ?>
         <script src="assets/js/pages/dashboard-1.init.js"></script>
+        <?php } ?>
 
         <!-- This is data table -->
         <script src="assets/node_modules/datatables.net/js/jquery.dataTables.min.js"></script>

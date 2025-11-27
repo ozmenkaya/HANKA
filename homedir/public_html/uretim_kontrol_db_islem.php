@@ -83,6 +83,17 @@ if(isset($_POST['mesaj-gonder']))
 
     if($durum)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['üretim', 'planlama', 'mesaj', 'onay'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Mesaj Gönderme Başarılı';
     }
@@ -155,6 +166,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'eksik-adet-onay'){
   
     if($durum)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['üretim', 'planlama', 'mesaj', 'onay'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Onay Verilme Başarılı';
     }
@@ -201,6 +223,17 @@ if(isset($_GET['islem']) && $_GET['islem'] == 'eksik-adet-iptal'){
 
     if($durum)
     {
+        // AI Cache Invalidation
+        if (file_exists("include/AICache.php")) {
+            require_once "include/AICache.php";
+            try {
+                $aiCache = new AICache($conn);
+                $aiCache->invalidate(['üretim', 'planlama', 'mesaj', 'onay'], $_SESSION['firma_id']);
+            } catch (Exception $e) {
+                // Cache temizleme hatası önemsiz
+            }
+        }
+
         $_SESSION['durum'] = 'success';
         $_SESSION['mesaj'] = 'Onay Verilme Başarılı';
     }
