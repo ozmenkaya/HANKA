@@ -28,7 +28,7 @@
                             JOIN musteri ON siparisler.musteri_id = musteri.id
                             JOIN personeller ON personeller.id  = siparisler.musteri_temsilcisi_id
                             WHERE siparisler.firma_id = :firma_id AND onay_baslangic_durum = "evet" 
-                            AND siparisler.islem NOT IN ("iptal", "tamamlandi") 
+                            AND siparisler.islem NOT IN ("iptal", "tamamlandi", "teslim_edildi") 
                             ORDER BY siparisler.id DESC');
             $sth->bindParam('firma_id', $_SESSION['firma_id']);
             $sth->execute();
