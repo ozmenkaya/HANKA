@@ -18,12 +18,13 @@ if (isset($_GET['islem']) && $_GET['islem'] == 'realtime-makina-sayilari') {
             $sth->execute();
             $makinalar = $sth->fetchAll(PDO::FETCH_ASSOC);
             
-            // Tüm planlamaları al
+            // Sadece aktif planlamaları al (bitti olanları dahil etme)
             $sql = "SELECT id, mevcut_asama, makinalar, departmanlar, onay_durum, durum 
                     FROM `planlama` 
                     WHERE firma_id = :firma_id 
                     AND aktar_durum = 'orijinal'
-                    AND onay_durum = 'evet'";
+                    AND onay_durum = 'evet'
+                    AND durum IN ('baslamadi', 'basladi', 'beklemede')";
             
             $sth = $conn->prepare($sql);
             $sth->bindParam('firma_id', $_SESSION['firma_id']);
