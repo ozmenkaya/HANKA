@@ -167,15 +167,17 @@
     $(function(){
         $("#is-sayisi").text(`Toplam : (<?php echo $toplam_is_sayisi; ?> İş)`);
 
-        // Satıra tıklandığında sipariş listesine git
-        $(".musteri-row").on("click", function(e) {
-            // Dropdown menüsüne tıklanmışsa satır tıklamasını engelle
-            if ($(e.target).closest('.btn-group, .dropdown-menu').length > 0) {
+        // DataTables ile çakışmayı önlemek için event delegation kullan
+        $('#myTable tbody').on('click', 'tr.musteri-row', function(e) {
+            // Dropdown menüsüne veya bağlantılara tıklanmışsa satır tıklamasını engelle
+            if ($(e.target).closest('.btn-group, .dropdown-menu, .dropdown-toggle, a, button').length > 0) {
                 return;
             }
             
             var musteriId = $(this).data("musteri-id");
-            window.location.href = "/index.php?url=siparis&musteri_id=" + musteriId;
+            if (musteriId) {
+                window.location.href = "/index.php?url=siparis&musteri_id=" + musteriId;
+            }
         });
     });
 </script> 

@@ -1,14 +1,16 @@
     
         </div>
     </main>
-    <script src="assets/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!--Custom JavaScript --> 
     <!--
     <script src="dist/js/custom.min.js"></script>
     -->
     <!-- This is data table -->
-    <script src="assets/node_modules/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="assets/node_modules/datatables.net-bs4/js/dataTables.responsive.min.js"></script>
+    <script src="assets/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="assets/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script src="assets/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="assets/datatables/js/responsive.bootstrap5.min.js"></script>
     <script src="assets/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/dist/js/toastr.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>

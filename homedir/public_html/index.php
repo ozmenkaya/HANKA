@@ -80,9 +80,9 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
         
         <!-- DataTables CSS -->
-        <link rel="stylesheet" href="assets/node_modules/datatables.net-bs4/css/dataTables.bootstrap4.css">
+        <link rel="stylesheet" href="assets/datatables/css/dataTables.bootstrap5.min.css">
+        <link rel="stylesheet" href="assets/datatables/css/responsive.bootstrap5.min.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables-buttons/2.4.2/css/buttons.dataTables.min.css">
-        <link rel="stylesheet" href="assets/node_modules/datatables.net-bs4/css/responsive.dataTables.min.css">
 
         <!-- Custom CSS -->
         <link rel="stylesheet" href="css/lightbox.min.css">
@@ -147,7 +147,7 @@
             }
         </style>
 
-        <script src="assets/node_modules/jquery/dist/jquery.min.js"></script> 
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
         <!-- <script src="assets/dist/js/bootstrap.bundle.min.js"></script> -->
         
         <script>
@@ -339,8 +339,10 @@
         <?php } ?>
 
         <!-- This is data table -->
-        <script src="assets/node_modules/datatables.net/js/jquery.dataTables.min.js"></script>
-        <script src="assets/node_modules/datatables.net-bs4/js/dataTables.responsive.min.js"></script>
+        <script src="assets/datatables/js/jquery.dataTables.min.js"></script>
+        <script src="assets/datatables/js/dataTables.bootstrap5.min.js"></script>
+        <script src="assets/datatables/js/dataTables.responsive.min.js"></script>
+        <script src="assets/datatables/js/responsive.bootstrap5.min.js"></script>
 
         <!-- DataTables Buttons Extension -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
