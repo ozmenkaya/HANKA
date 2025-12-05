@@ -425,6 +425,24 @@ if(isset($_POST['planlama_onay_guncelle'])){
 
     if($durum)
     {
+        // Planlama onaylandıysa siparişin durumunu güncelle
+        if($onay_durum == 'evet') {
+            try {
+                $update_siparis = $conn->prepare("
+                    UPDATE siparisler 
+                    SET islem = 'islemde' 
+                    WHERE id = :siparis_id 
+                      AND firma_id = :firma_id 
+                      AND islem NOT IN ('tamamlandi', 'iptal', 'teslim_edildi')
+                ");
+                $update_siparis->bindParam(':siparis_id', $siparis_id, PDO::PARAM_INT);
+                $update_siparis->bindParam(':firma_id', $_SESSION['firma_id'], PDO::PARAM_INT);
+                $update_siparis->execute();
+            } catch (Exception $e) {
+                error_log("Sipariş durum güncelleme hatası: " . $e->getMessage());
+            }
+        }
+        
         // AI Cache Invalidation
         if (file_exists("include/AICache.php")) {
             require_once "include/AICache.php";
