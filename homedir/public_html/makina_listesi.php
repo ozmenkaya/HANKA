@@ -14,8 +14,12 @@
     $sth->execute();
     $makinalar = $sth->fetchAll(PDO::FETCH_ASSOC);
 
+    // Sadece aktif işleri çek (bitti olanları dahil etme)
     $sql = "SELECT id, asama_sayisi,mevcut_asama, makinalar, departmanlar, onay_durum, durum FROM `planlama` 
-        WHERE firma_id = :firma_id AND aktar_durum = 'orijinal' ";
+        WHERE firma_id = :firma_id 
+          AND aktar_durum = 'orijinal' 
+          AND onay_durum = 'evet'
+          AND durum IN ('baslamadi', 'basladi', 'beklemede')";
     $sth = $conn->prepare($sql);
     $sth->bindParam('firma_id', $_SESSION['firma_id']);
     $sth->execute();
@@ -81,11 +85,11 @@
                             $planla_makinalar   = json_decode($planlama['makinalar'], true);
                             $departmanlar       = json_decode($planlama['departmanlar'], true);
 
+                            // Sadece bu makina ve departmandaki işleri say
                             if(isset($planla_makinalar[$planlama['mevcut_asama']]) && 
                                 isset($departmanlar[$planlama['mevcut_asama']]) && 
                                 $planla_makinalar[$planlama['mevcut_asama']] == $makina['id'] && 
-                                $departmanlar[$planlama['mevcut_asama']] == $makina['departman_id'] && 
-                                $planlama['onay_durum'] == 'evet'){
+                                $departmanlar[$planlama['mevcut_asama']] == $makina['departman_id']){
                                 $is_sayisi++;
                                 if($planlama['durum'] == 'basladi') 
                                 {
