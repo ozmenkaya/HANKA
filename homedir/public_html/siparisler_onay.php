@@ -139,7 +139,13 @@
                                     <?php foreach ($onaylanmamis_siparisler  as $key=>$onaylanmamis_siparis) { ?>
                                         <tr>
                                             <td class="table-primary text-center align-middle table_sm_pd"><?php echo $key +1 ;?></td>
-                                            <th class="table-secondary align-middle table_sm_pd"><?php echo $onaylanmamis_siparis['siparis_no'];?></th>
+                                            <th class="table-secondary align-middle table_sm_pd">
+                                                <a href="/index.php?url=siparis_gor&siparis_id=<?php echo $onaylanmamis_siparis['id']; ?>" 
+                                                   class="text-decoration-none text-primary fw-bold" 
+                                                   style="cursor: pointer;">
+                                                    <?php echo $onaylanmamis_siparis['siparis_no'];?>
+                                                </a>
+                                            </th>
                                             <td class="align-middle table_sm_pd"><?php echo $onaylanmamis_siparis['isin_adi']; ?></td>
                                             <td class="align-middle table_sm_pd"><?php echo $onaylanmamis_siparis['marka']; ?></td>
                                             <td class="align-middle table_sm_pd"><?php echo $onaylanmamis_siparis['personel_ad_soyad']; ?></td>
@@ -251,7 +257,13 @@
                                 <?php foreach ($onaylanmis_siparisler  as $index=>$onaylanmis_siparis) { ?>
                                     <tr>
                                         <th class="table-primary text-center align-middle table_sm_pd"><?php echo $index+1;?></th>
-                                        <td class="table-secondary align-middle table_sm_pd"><?php echo $onaylanmis_siparis['siparis_no'];?></td>
+                                        <td class="table-secondary align-middle table_sm_pd">
+                                            <a href="/index.php?url=siparis_gor&siparis_id=<?php echo $onaylanmis_siparis['id']; ?>" 
+                                               class="text-decoration-none text-primary fw-bold" 
+                                               style="cursor: pointer;">
+                                                <?php echo $onaylanmis_siparis['siparis_no'];?>
+                                            </a>
+                                        </td>
                                         <td class="align-middle table_sm_pd"><?php echo $onaylanmis_siparis['marka']; ?></td>
                                         <td class="align-middle table_sm_pd"><?php echo $onaylanmis_siparis['isin_adi']; ?></td>
                                         <td class="align-middle table_sm_pd"><?php echo $onaylanmis_siparis['personel_ad_soyad']; ?></td>
@@ -360,7 +372,13 @@
                                 <?php foreach ($bitmis_siparisler  as $index=>$bitmis_siparis) { ?>
                                     <tr>
                                         <th class="table-primary text-center align-middle table_sm_pd"><?php echo $index+1;?></th>
-                                        <td class="table-secondary align-middle table_sm_pd"><?php echo $bitmis_siparis['siparis_no'];?></td>
+                                        <td class="table-secondary align-middle table_sm_pd">
+                                            <a href="/index.php?url=siparis_gor&siparis_id=<?php echo $bitmis_siparis['id']; ?>" 
+                                               class="text-decoration-none text-primary fw-bold" 
+                                               style="cursor: pointer;">
+                                                <?php echo $bitmis_siparis['siparis_no'];?>
+                                            </a>
+                                        </td>
                                         <td class="align-middle table_sm_pd"><?php echo $bitmis_siparis['isin_adi']; ?></td>
                                         <td class="align-middle table_sm_pd"><?php echo $bitmis_siparis['marka']; ?></td>
                                         <td class="align-middle table_sm_pd"><?php echo $bitmis_siparis['personel_ad_soyad']; ?></td>
