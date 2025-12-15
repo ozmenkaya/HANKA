@@ -86,9 +86,11 @@
         <div class="card-body pt-0">
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <?php if(in_array(YENI_SIPARIS_GOR, $_SESSION['sayfa_idler'])){  ?>
+                    <?php 
+                    $has_yeni_siparis = in_array(YENI_SIPARIS_GOR, $_SESSION['sayfa_idler']);
+                    if($has_yeni_siparis){  ?>
                         <button class="nav-link active position-relative fw-bold" id="nav-tab-onaylanmayan" data-bs-toggle="tab" 
-                            data-bs-target="#nav-onaylanmayan" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                            data-bs-target="#nav-onaylanmayan" type="button" role="tab" aria-controls="nav-profile" aria-selected="true">
                             Yeni Siparişler
                             <span class="position-absolute top-0 start-70 translate-middle badge rounded-pill bg-danger">
                                 <?php echo count($onaylanmamis_siparisler); ?>
@@ -96,8 +98,8 @@
                             </span>
                         </button>
                     <?php }?>
-                    <button class="nav-link position-relative fw-bold" id="nav-tab-onaylanan" data-bs-toggle="tab" 
-                        data-bs-target="#nav-onaylanan" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                    <button class="nav-link <?php echo !$has_yeni_siparis ? 'active' : ''; ?> position-relative fw-bold" id="nav-tab-onaylanan" data-bs-toggle="tab" 
+                        data-bs-target="#nav-onaylanan" type="button" role="tab" aria-controls="nav-profile" aria-selected="<?php echo !$has_yeni_siparis ? 'true' : 'false'; ?>">
                         Siparişler
                         <span class="position-absolute top-0 start-70 translate-middle badge rounded-pill bg-primary">
                                 <?php echo count($onaylanmis_siparisler ); ?>
@@ -115,7 +117,7 @@
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
-                <?php if(in_array(YENI_SIPARIS_GOR, $_SESSION['sayfa_idler'])){  ?>
+                <?php if($has_yeni_siparis){  ?>
                     <div class="tab-pane fade show active" id="nav-onaylanmayan" role="tabpanel" 
                         aria-labelledby="nav-tab-onaylanmayan" tabindex="0">
                         <div class="table-responsive">
@@ -234,7 +236,7 @@
                     </div>
                 <?php }?>
 
-                <div class="tab-pane fade" id="nav-onaylanan" role="tabpanel" 
+                <div class="tab-pane fade <?php echo !$has_yeni_siparis ? 'show active' : ''; ?>" id="nav-onaylanan" role="tabpanel" 
                     aria-labelledby="nav-tab-onaylanan" tabindex="1">
                     <div class="table-responsive">
                         <table id="onaylananTable" class="table table-hover table-sm">
@@ -366,6 +368,7 @@
                                     <th class="text-end">Fiyat</th>
                                     <th class="text-center">Sil.Drm.</th>
                                     <th class="text-center">Durum</th>
+                                    <th class="text-center">İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -413,6 +416,20 @@
                                                        data-siparis-id="<?php echo $bitmis_siparis['id']; ?>"
                                                        <?php echo (isset($bitmis_siparis['aktif']) && $bitmis_siparis['aktif'] == 1) ? 'checked' : ''; ?>>
                                             </div>
+                                        </td>
+                                        <td class="text-center align-middle table_sm_pd">
+                                            <div class="btn-group custom-dropdown">
+                                                <button type="button" class="btn btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="mdi mdi-dots-vertical"></i>
+                                                </button>
+                                                <div class="dropdown-menu">
+                                                    <?php if(in_array(SIPARIS_GUNCELLE, $_SESSION['sayfa_idler'])){  ?>
+                                                        <a class="dropdown-item pt-0 pb-0" href="/index.php?url=siparis_guncelle&id=<?php echo $bitmis_siparis['id']; ?>">Güncelle</a>
+                                                        <div class="dropdown-divider"></div>
+                                                    <?php } ?>
+                                                    <a class="dropdown-item pt-0 pb-0" href="/index.php?url=siparis_gor&siparis_id=<?php echo $bitmis_siparis['id']; ?>">Detay</a>
+                                                </div>
+                                            </div> 
                                         </td>
                                     </tr>
                                 <?php }?>
